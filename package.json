@@ -1,25 +1,32 @@
 {
   "name": "veho",
-  "version": "0.0.1",
-  "description": "An array extension (grammatical sugar) to create, iterate and query 1d and 2d array.",
+  "version": "0.0.2",
+  "description": "An array extension (grammatical sugar) to create, iterate and query 1d, 2d array and JSON object.",
   "main": "dist/main.js",
   "scripts": {
     "dev": "webpack --mode development",
     "build-babel": "babel src -d lib",
     "build-webpack": "webpack --mode production",
-    "prepare": "npm run build-webpack",
+    "build-rollup": "rollup -c",
+    "prepare": "npm run build-rollup",
     "publish": "npm publish",
     "test": "node test/test-main.js -r babel-register"
   },
   "dependencies": {},
   "devDependencies": {
+    "xbrief": "^0.0.7",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-register": "^6.26.0",
     "babel-loader": "7.1.5",
     "webpack": "^4.29.5",
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.2.3",
+    "crawler": "^1.2.0",
+    "stocks.js": "^0.0.17",
+    "axios": "^0.18.0"
   },
   "repository": {
     "type": "git",
@@ -32,7 +39,11 @@
     "extension",
     "prototype"
   ],
-  "author": "Hoyeung Wong",
+  "author": {
+    "name": "Hoyeung Wong",
+    "email": "hoyeungw@outlook.com",
+    "url": "https://github.com/hoyeungw"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/hoyeungw/veho"

@@ -1,5 +1,5 @@
 ## veho
-### An array extension (grammatical sugar) to create, iterate and query 1d and 2d array.
+### An array extension (grammatical sugar) to create, iterate and query 1d, 2d array and JSON object.
 
 <p align="center">
   <a href="https://npmcharts.com/compare/veho?minimal=true"><img src="https://img.shields.io/npm/dm/veho.svg" alt="Downloads"></a>
@@ -9,7 +9,9 @@
 
 ## Usage
 
-An array extension (grammatical sugar) to create, iterate and query 1d and 2d array.
+Three class JExt, Mat and Vec.
+JExt, JSON-extension, static class contains functions to transform JSON object into 
+
 
 ## License
 
