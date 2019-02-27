@@ -1,6 +1,6 @@
 {
   "name": "veho",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An array extension (grammatical sugar) to create, iterate and query 1d, 2d array and JSON object.",
   "main": "dist/main.js",
   "scripts": {
@@ -15,6 +15,8 @@
   "dependencies": {},
   "devDependencies": {
     "xbrief": "^0.0.7",
+    "rollup": "^1.3.1",
+    "rollup-plugin-terser": "^4.0.4",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-preset-env": "^1.7.0",
