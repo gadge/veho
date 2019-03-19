@@ -1,8 +1,8 @@
 {
   "name": "veho",
-  "version": "0.0.3",
+  "version": "0.0.9",
   "description": "An array extension (grammatical sugar) to create, iterate and query 1d, 2d array and JSON object.",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "webpack --mode development",
     "build-babel": "babel src -d lib",
@@ -10,25 +10,25 @@
     "build-rollup": "rollup -c",
     "prepare": "npm run build-rollup",
     "publish": "npm publish",
-    "test": "node test/test-main.js -r babel-register"
+    "test": "node test/test-main.js"
   },
   "dependencies": {},
   "devDependencies": {
-    "xbrief": "^0.0.7",
-    "rollup": "^1.3.1",
-    "rollup-plugin-terser": "^4.0.4",
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-2": "^6.24.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-register": "^6.26.0",
-    "babel-loader": "7.1.5",
-    "webpack": "^4.29.5",
-    "webpack-cli": "^3.2.3",
+    "xbrief": "^0.1.1",
+    "elprimero": "^0.0.3",
     "crawler": "^1.2.0",
     "stocks.js": "^0.0.17",
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "rollup": "^1.3.1",
+    "rollup-plugin-terser": "^4.0.4",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-stage-3": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.3.4",
+    "@babel/register": "^7.0.0",
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3"
   },
   "repository": {
     "type": "git",
