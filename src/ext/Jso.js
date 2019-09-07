@@ -63,6 +63,11 @@ class Jso {
   }
 }
 
+/**
+ * Insert JsonTable class to handle transformation between JSON table in
+ * rows|[{h1_1:v1_1,h1_2:v1_2,...},{h2_1:v2_1,h2_2:v2_2,...},...] form
+ * and JSON table in 'seperate'|{headers:*[],rowSet:*[][]} form.
+ */
 class JsonTable {
   static sepToRows (samples, banner) {
     const len = Math.min(samples[0].length, banner.length)
