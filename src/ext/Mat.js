@@ -57,50 +57,6 @@ class Mat {
   }
 }
 
-/**
- * Get the upper bound of rows of a 2d-array.
- * @returns {number}
- */
-Array.prototype.xB = function () {
-  return this.length - 1
-}
-
-/**
- * Get the upper bound of columns of a 2d-array.
- * @returns {number}
- */
-Array.prototype.yB = function () {
-  const first = this[0]
-  return !!first ? (first.length - 1) : 0
-}
-
-/**
- * Get the row of a 2d-array at index "x".
- * @param x
- * @returns {*[]}
- */
-Array.prototype.row = function (x) {
-  return this[x]
-}
-
-/**
- * Get the column of a 2d-array at index "y".
- * @param y
- * @returns {*[]}
- */
-Array.prototype.col = function (y) {
-  return this.map((row) => row[y])
-}
-
-/**
- * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
- * @param elementJect
- * @returns {*[]}
- */
-Array.prototype.veho = function (elementJect) {
-  return Mat.veho(this, elementJect)
-}
-
 export {
   Mat
 }

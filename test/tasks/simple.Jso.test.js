@@ -1,7 +1,7 @@
 import { boxoffice } from '../asset/map/boxoffice.180817'
 import { deco, StrX, VecX } from 'xbrief'
 import { Jso, JsonTable } from '../../src/ext/Jso'
-import { ETA } from 'elprimero'
+import { GP } from 'elprimero'
 
 const rawMacro = [
   { country: 'USA', year: '2017', gdp: 19390, pop: 325 },

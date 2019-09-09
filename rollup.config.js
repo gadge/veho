@@ -1,42 +1,41 @@
-import resolve from 'rollup-plugin-node-resolve'
-import commonjs from 'rollup-plugin-commonjs'
 import pkg from './package.json'
-// import { terser } from 'rollup-plugin-terser'
-// import babel from 'rollup-plugin-babel'
+import { BabelLocal } from './build/BabelLocal'
+import babel from 'rollup-plugin-babel'
+
+const input = 'src/index.js'
+
+const externalDependencies = Object.keys(pkg.dependencies)
 
 export default [
-  // browser-friendly UMD build
   {
-    input: 'src/index.js',
+    input,
     output: {
       name: pkg.name,
       file: pkg.browser,
-      format: 'umd'
+      format: 'umd' // browser-friendly UMD build
     },
     plugins: [
-      resolve(), // so Rollup can find `ms`
-      // babel({
-      //   presets: [['@babel/preset-env', { modules: false }]],
-      //   exclude: 'node_modules/**' // only transpile our source code
-      // }),
-      commonjs() // so Rollup can convert `ms` to an ES module
+      // resolve(),
+      babel({
+        ...BabelLocal.base,
+        presets: BabelLocal.presets,
+        plugins: BabelLocal.plugins
+      }),
+      // commonjs()
     ]
   },
-
-  // CommonJS (for Node) and ES module (for bundlers) build.
   {
-    input: 'src/index.js',
-    // external: ['ms'],
+    input,
+    external: externalDependencies,
     output: [
-      { file: pkg.main, format: 'cjs' },
-      { file: pkg.module, format: 'es' }
+      { file: pkg.main, format: 'cjs' },  // CommonJS (for Node) build.
+      { file: pkg.module, format: 'esm' }  // ES module (for bundlers) build.
     ],
     plugins: [
-      // babel({
-      //   presets: [['@babel/preset-env', { modules: false }]],
-      //   exclude: 'node_modules/**',
-      // }),
-      // terser()
+      babel({
+        ...BabelLocal.base,
+        plugins: BabelLocal.plugins
+      })
     ]
   }
 ]
