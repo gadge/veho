@@ -13,7 +13,7 @@
 // testAxiosBoxOfficeMojo()
 // testAxiosAlphaVantage()
 
-import { SimpleJsoTest } from './simple.Jso.test'
+import { SimpleJsoTest } from './tasks/simple.Jso.test'
 
 SimpleJsoTest.jsonTableTest()
 

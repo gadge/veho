@@ -141,64 +141,177 @@ class Vec {
 
 } // Array.prototype.zip = function (another, zipper) {
 
+// Create an object type VehoError
+class VehoError extends Error {
+  constructor(message) {
+    super();
+    this.name = 'VehoError';
+    this.message = message;
+  } // Make the exception convert to a pretty string when used as
+  // a string (e.g. by the error console)
+
+
+  toString() {
+    return this.name + ': "' + this.message + '"';
+  }
+
+}
+
 class Jso {
-  static toArr(jso) {
+  /**
+   *
+   * @param {Object<string,*>} jso
+   * @return {[string, *][]}
+   */
+  static toEntries(jso) {
     return Object.entries(jso);
   }
+  /**
+   * Shallow.
+   * @param {string[]} arr
+   * @param {*} val
+   * @return {Object<string,*>}
+   */
+
 
   static fromArr(arr, val) {
-    let obj = {};
+    let o = {};
 
     for (let k of arr) {
-      obj[k] = val;
+      o[k] = val;
     }
 
-    return obj;
+    return o;
   }
+  /**
+   * Shallow.
+   * @param {...[*,*]} entries - An array of key-value pair, [key, value]
+   * @returns {Object|Object<string,*>}
+   */
+
+
+  static fromEntries(...entries) {
+    let o = {};
+
+    for (let [k, v] of entries) {
+      o[k] = v;
+    }
+
+    return o;
+  }
+  /**
+   *
+   * @param {Object<string,*>} jso
+   * @return {Map<string, *>}
+   */
+
 
   static toMap(jso) {
     return new Map(Object.entries(jso));
   }
   /**
    *
-   * @param {Map|[key,value][]} dict
-   * @returns {{key:*,value:*}}
+   * @param {Map<string,*>} dict - A map
+   * @returns {Object<string,*>} A json object
    */
 
 
   static fromMap(dict) {
-    // let obj = {}
-    // for (let [k, v] of dict) {
-    //   obj[k] = v
-    // }
-    // return obj
-    return { ...[...dict.entries()]
-    }; // return Object.fromEntries(dict)
+    let o = {};
+
+    for (let [k, v] of dict.entries()) {
+      o[k] = v;
+    }
+
+    return o; // return Object.fromEntries(dict)
+  }
+
+}
+/**
+ * Transform between Json table and Json of samples.
+ * A Json table is formed like :
+ *  {
+ *    headers:[a, b, ...],
+ *    rowSet:*[][]
+ *  }.
+ * A Json of samples is formed like :
+ *  [
+ *    {a:*, b:*, ...},
+ *    {a:*, b:*, ...},
+ *    ...
+ *  ]
+ */
+
+
+class JsonTable {
+  /**
+   *
+   * @param {*[][]} samples
+   * @param {*[]}banner
+   * @return {Object[]}
+   */
+  static tableToSamples(samples, banner) {
+    if (!!samples && samples.constructor === Array) {
+      const firstRow = samples[0];
+
+      if (!!firstRow && firstRow.constructor === Array) {
+        let [i, len] = [0, Math.min(firstRow.length, banner.length)];
+        return samples.map(row => {
+          let o = {};
+
+          for (i = 0; i < len; i++) {
+            o[banner[i]] = row[i];
+          }
+
+          return o;
+        });
+      } else return null;
+    } else throw new VehoError('The input \'samples\' is not an Array');
   }
   /**
    *
-   * @param {[key,value][]} entries
-   * @return {{key:*,value:*}}
+   * @param {Object<string,*>[]}rows
+   * @param {string} bannerLabel
+   * @param {string} samplesLabel
+   * @returns {Object<string,*>}
    */
 
 
-  static fromEntries(...entries) {
-    return { ...entries
-    };
+  static samplesToTable(rows, bannerLabel = 'head', samplesLabel = 'rows') {
+    if (!!rows && rows.constructor === Array) {
+      const firstRow = rows[0];
+
+      if (!!firstRow && typeof firstRow === 'object') {
+        const banner = Object.keys(firstRow);
+        const samples = rows.map(row => Object.values(row));
+        return Jso.fromEntries([bannerLabel, banner], [samplesLabel, samples]);
+      } else return null;
+    } else throw new VehoError('The input \'rows\' is not an Array');
   }
   /**
-   * Extract content of table in json-array form( [{c1:*,c2:*,..},{c1:*,c2:*,..},..] )
-   * to a 2d-array( [[*,*,..],[*,*,..],..] ).
+   * Transform json of samples to matrix(2d-array).
+   * A Json of samples is formed like :
+   *  [
+   *    {a:*, b:*, ...},
+   *    {a:*, b:*, ...},
+   *    ...
+   *  ]
+   * A matrix(2d-array) is formed like :
+   *  [
+   *    [*, *, ...],
+   *    [*, *, ...],
+   *    ...
+   *  ]
    * @param {*[]} jsonArr Table in json-array form: [{c1:*,c2:*,..},{c1:*,c2:*,..},..]
    * @returns {*[][]} Table content in 2d-array, excluding the input table head.
    */
 
 
-  static jsonArrayToMatrix(jsonArr) {
+  static samplesToMatrix(jsonArr) {
     return [...jsonArr.map(json => Object.values(json))];
   }
 
-  static matrixToJsonArray(matrix, side, banner) {
+  static matrixToSamples(matrix, side, banner) {
     const rows = matrix.map(row => banner.zip(row, (itm, obj) => [itm, obj]));
     const indexedRows = side.zip(rows, (itm, row) => [itm, row]);
     let obj = {};
@@ -211,46 +324,11 @@ class Jso {
   }
 
 }
-/**
- * Insert JsonTable class to handle transformation between JSON table in
- * rows|[{h1_1:v1_1,h1_2:v1_2,...},{h2_1:v2_1,h2_2:v2_2,...},...] form
- * and JSON table in 'seperate'|{headers:*[],rowSet:*[][]} form.
- */
-
-
-class JsonTable {
-  static sepToRows(samples, banner) {
-    const len = Math.min(samples[0].length, banner.length);
-    return samples.map(row => {
-      let o = {};
-
-      for (let i = 0; i < len; i++) {
-        o[banner[i]] = row[i];
-      }
-
-      return o;
-    });
-  }
-  /**
-   *
-   * @param {Object[]}rows
-   * @param {string} bannerLabel
-   * @param {string} samplesLabel
-   * @returns {{bannerLabel:string[], samplesLabel:*}}
-   */
-
-
-  static rowsToSep(rows, bannerLabel = 'banner', samplesLabel = 'samples') {
-    const banner = Object.keys(rows[0]);
-    const samples = rows.map(row => Object.values(row));
-    return Jso.fromEntries([bannerLabel, banner], [samplesLabel, samples]);
-  }
-
-}
 
 /**
  * Static class containing methods to create 2d-array.
  */
+
 class Mat {
   /**
    *
@@ -285,7 +363,11 @@ class Mat {
 
 
   static transpose(mx) {
-    return Object.keys(mx[0]).map(c => mx.map(r => r[c]));
+    return Mat.columnIndexes(mx).map(c => mx.map(r => r[c]));
+  }
+
+  static column(mx, index) {
+    return mx.map(r => r[index]);
   }
   /**
    * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
@@ -379,20 +461,19 @@ class Fun {
 
 }
 
-/**
- * Get the last item in an array.
- * @returns {*}. The last item in the array.
- */
+// /**
+//  * Get the last item in an array.
+//  * @returns {*}. The last item in the array.
+//  */
+// Array.prototype.last = function () {
+//   return this[this.length - 1]
+// }
 
-Array.prototype.last = function () {
-  return this[this.length - 1];
-};
 /**
  * Take the first "n" elements from an array.
  * @param len. The number denote the first "n" elements in an array.
  * @returns {*[]}. A new array length at "len".
  */
-
 
 Array.prototype.take = function (len) {
   return this.slice(0, len);
@@ -408,55 +489,5 @@ Array.prototype.zip = function (another, zipper) {
   return arr; // return Array.from({ length: size }, (v, i) => zipper(this[i], another[i], i))
   // return this.map((x, i) => zipper(x, another[i]))
 }; // Matrix extension
-
-/**
- * Get the upper bound of rows of a 2d-array.
- * @returns {number}
- */
-
-
-Array.prototype.xB = function () {
-  return this.length - 1;
-};
-/**
- * Get the upper bound of columns of a 2d-array.
- * @returns {number}
- */
-
-
-Array.prototype.yB = function () {
-  const first = this[0];
-  return !!first ? first.length - 1 : 0;
-};
-/**
- * Get the row of a 2d-array at index "x".
- * @param x
- * @returns {*[]}
- */
-
-
-Array.prototype.row = function (x) {
-  return this[x];
-};
-/**
- * Get the column of a 2d-array at index "y".
- * @param y
- * @returns {*[]}
- */
-
-
-Array.prototype.col = function (y) {
-  return this.map(row => row[y]);
-};
-/**
- * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
- * @param elementJect
- * @returns {*[]}
- */
-
-
-Array.prototype.veho = function (elementJect) {
-  return Mat.veho(this, elementJect);
-};
 
 export { Dic, Fun, Jso, JsonTable, Mat, Vec };

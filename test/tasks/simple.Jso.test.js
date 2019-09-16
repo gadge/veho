@@ -1,9 +1,9 @@
 import { boxoffice } from '../asset/map/boxoffice.180817'
-import { deco, StrX, VecX } from 'xbrief'
+import { deco, StrX, Typ, VecX, MapX } from 'xbrief'
 import { Jso, JsonTable } from '../../src/ext/Jso'
 import { GP } from 'elprimero'
 
-const rawMacro = [
+const macrotable = [
   { country: 'USA', year: '2017', gdp: 19390, pop: 325 },
   { country: 'USA', year: '2012', gdp: 16155, pop: 313 },
   { country: 'CHN', year: '2017', gdp: 12237, pop: 1386 },
@@ -20,33 +20,45 @@ const rawMacro = [
 
 class SimpleJsoTest {
   static mapTransferTest () {
-    let jso = Jso.fromMap(boxoffice)
-    deco(jso).wL()
-    let mpo = Jso.toMap(jso)
-    deco(mpo).wL()
+    let original = boxoffice
+    'original'.tag(original |> Typ.inferType) |> console.log
+    original |> console.log
 
+    let jso = Jso.fromMap(boxoffice)
+    'map to object'.tag(jso|> Typ.inferType) |> console.log
+    jso |> console.log
+
+    let mpo = Jso.toMap(jso)
+    'object to map'.tag(mpo|> Typ.inferType) |> console.log
+    mpo |> console.log
+  }
+
+  static spreadObjectTest () {
     let b = [['a', 1], ['b', 2]]
     let a = { ...b }
     deco(a).wL()
   }
 
   static jsonTableTest () {
-    'rawMacro: original'.tag(VecX.vBrief(rawMacro, { abstract: row => JSON.stringify(row) })).wL()
-    const jsoSep = JsonTable.rowsToSep(rawMacro, 'headers', 'rows')
-    'rawMacro: rows -> sep'.tag(deco(jsoSep)).wL()
+    const original = macrotable
+    const rowAbstract = row => JSON.stringify(row)
+    'original samples form' |> console.log
+    VecX.vBrief(macrotable, { abstract: rowAbstract }) |> console.log
 
-    const funcs = {
-      jsoRows1: () => JsonTable.sepToRows(jsoSep.rows, jsoSep.headers),
-    }
-    // Chrono.reh([1000, 10000, 500000], funcs).brief().wL()
+    'samples form to table form' |> console.log
+    const table = JsonTable.samplesToTable(macrotable, 'head', 'rows')
+    table |> console.log
 
-    const jsoRows = JsonTable.sepToRows(jsoSep.rows, jsoSep.headers)
-    'rawMacro: rows ->1 sep'.tag(jsoRows.vBrief(row => JSON.stringify(row))).wL()
-
-    // const jsoRows2 = JsonTable.sepToRows2(jsoSep.rows, jsoSep.headers)
-    // 'rawMacro: rows ->2 sep'.tag(jsoRows2.vBrief(row => JSON.stringify(row))).wL()
+    'table form to samples form' |> console.log
+    const samples = JsonTable.tableToSamples(table.rows, table.head)
+    // deco(samples |> console.log
+    VecX.vBrief(samples, { abstract: rowAbstract }) |> console.log
   }
 }
+
+// test('SimpleJsoTest mapTransferTest', () => {
+//   SimpleJsoTest.mapTransferTest()
+// })
 
 export {
   SimpleJsoTest

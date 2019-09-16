@@ -4,24 +4,6 @@
   (global = global || self, factory(global.veho = {}));
 }(this, function (exports) { 'use strict';
 
-  function _extends() {
-    _extends = Object.assign || function (target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i];
-
-        for (var key in source) {
-          if (Object.prototype.hasOwnProperty.call(source, key)) {
-            target[key] = source[key];
-          }
-        }
-      }
-
-      return target;
-    };
-
-    return _extends.apply(this, arguments);
-  }
-
   /**
    * Static class containing methods create 1d-array.
    */
@@ -208,17 +190,145 @@
     return Vec;
   }(); // Array.prototype.zip = function (another, zipper) {
 
+  function _inheritsLoose(subClass, superClass) {
+    subClass.prototype = Object.create(superClass.prototype);
+    subClass.prototype.constructor = subClass;
+    subClass.__proto__ = superClass;
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _construct(Parent, args, Class) {
+    if (isNativeReflectConstruct()) {
+      _construct = Reflect.construct;
+    } else {
+      _construct = function _construct(Parent, args, Class) {
+        var a = [null];
+        a.push.apply(a, args);
+        var Constructor = Function.bind.apply(Parent, a);
+        var instance = new Constructor();
+        if (Class) _setPrototypeOf(instance, Class.prototype);
+        return instance;
+      };
+    }
+
+    return _construct.apply(null, arguments);
+  }
+
+  function _isNativeFunction(fn) {
+    return Function.toString.call(fn).indexOf("[native code]") !== -1;
+  }
+
+  function _wrapNativeSuper(Class) {
+    var _cache = typeof Map === "function" ? new Map() : undefined;
+
+    _wrapNativeSuper = function _wrapNativeSuper(Class) {
+      if (Class === null || !_isNativeFunction(Class)) return Class;
+
+      if (typeof Class !== "function") {
+        throw new TypeError("Super expression must either be null or a function");
+      }
+
+      if (typeof _cache !== "undefined") {
+        if (_cache.has(Class)) return _cache.get(Class);
+
+        _cache.set(Class, Wrapper);
+      }
+
+      function Wrapper() {
+        return _construct(Class, arguments, _getPrototypeOf(this).constructor);
+      }
+
+      Wrapper.prototype = Object.create(Class.prototype, {
+        constructor: {
+          value: Wrapper,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      });
+      return _setPrototypeOf(Wrapper, Class);
+    };
+
+    return _wrapNativeSuper(Class);
+  }
+
+  // Create an object type VehoError
+  var VehoError =
+  /*#__PURE__*/
+  function (_Error) {
+    _inheritsLoose(VehoError, _Error);
+
+    function VehoError(message) {
+      var _this;
+
+      _this = _Error.call(this) || this;
+      _this.name = 'VehoError';
+      _this.message = message;
+      return _this;
+    } // Make the exception convert to a pretty string when used as
+    // a string (e.g. by the error console)
+
+
+    var _proto = VehoError.prototype;
+
+    _proto.toString = function toString() {
+      return this.name + ': "' + this.message + '"';
+    };
+
+    return VehoError;
+  }(_wrapNativeSuper(Error));
+
   var Jso =
   /*#__PURE__*/
   function () {
     function Jso() {}
 
-    Jso.toArr = function toArr(jso) {
+    /**
+     *
+     * @param {Object<string,*>} jso
+     * @return {[string, *][]}
+     */
+    Jso.toEntries = function toEntries(jso) {
       return Object.entries(jso);
-    };
+    }
+    /**
+     * Shallow.
+     * @param {string[]} arr
+     * @param {*} val
+     * @return {Object<string,*>}
+     */
+    ;
 
     Jso.fromArr = function fromArr(arr, val) {
-      var obj = {};
+      var o = {};
 
       for (var _iterator = arr, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
         var _ref;
@@ -233,59 +343,180 @@
         }
 
         var k = _ref;
-        obj[k] = val;
+        o[k] = val;
       }
 
-      return obj;
-    };
+      return o;
+    }
+    /**
+     * Shallow.
+     * @param {...[*,*]} entries - An array of key-value pair, [key, value]
+     * @returns {Object|Object<string,*>}
+     */
+    ;
+
+    Jso.fromEntries = function fromEntries() {
+      var o = {};
+
+      for (var _len = arguments.length, entries = new Array(_len), _key = 0; _key < _len; _key++) {
+        entries[_key] = arguments[_key];
+      }
+
+      for (var _i2 = 0, _entries = entries; _i2 < _entries.length; _i2++) {
+        var _entries$_i = _entries[_i2],
+            k = _entries$_i[0],
+            v = _entries$_i[1];
+        o[k] = v;
+      }
+
+      return o;
+    }
+    /**
+     *
+     * @param {Object<string,*>} jso
+     * @return {Map<string, *>}
+     */
+    ;
 
     Jso.toMap = function toMap(jso) {
       return new Map(Object.entries(jso));
     }
     /**
      *
-     * @param {Map|[key,value][]} dict
-     * @returns {{key:*,value:*}}
+     * @param {Map<string,*>} dict - A map
+     * @returns {Object<string,*>} A json object
      */
     ;
 
     Jso.fromMap = function fromMap(dict) {
-      // let obj = {}
-      // for (let [k, v] of dict) {
-      //   obj[k] = v
-      // }
-      // return obj
-      return _extends({}, [].concat(dict.entries())); // return Object.fromEntries(dict)
+      var o = {};
+
+      for (var _iterator2 = dict.entries(), _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+        var _ref2;
+
+        if (_isArray2) {
+          if (_i3 >= _iterator2.length) break;
+          _ref2 = _iterator2[_i3++];
+        } else {
+          _i3 = _iterator2.next();
+          if (_i3.done) break;
+          _ref2 = _i3.value;
+        }
+
+        var _ref3 = _ref2,
+            k = _ref3[0],
+            v = _ref3[1];
+        o[k] = v;
+      }
+
+      return o; // return Object.fromEntries(dict)
+    };
+
+    return Jso;
+  }();
+  /**
+   * Transform between Json table and Json of samples.
+   * A Json table is formed like :
+   *  {
+   *    headers:[a, b, ...],
+   *    rowSet:*[][]
+   *  }.
+   * A Json of samples is formed like :
+   *  [
+   *    {a:*, b:*, ...},
+   *    {a:*, b:*, ...},
+   *    ...
+   *  ]
+   */
+
+
+  var JsonTable =
+  /*#__PURE__*/
+  function () {
+    function JsonTable() {}
+
+    /**
+     *
+     * @param {*[][]} samples
+     * @param {*[]}banner
+     * @return {Object[]}
+     */
+    JsonTable.tableToSamples = function tableToSamples(samples, banner) {
+      if (!!samples && samples.constructor === Array) {
+        var firstRow = samples[0];
+
+        if (!!firstRow && firstRow.constructor === Array) {
+          var _ref4 = [0, Math.min(firstRow.length, banner.length)],
+              i = _ref4[0],
+              len = _ref4[1];
+          return samples.map(function (row) {
+            var o = {};
+
+            for (i = 0; i < len; i++) {
+              o[banner[i]] = row[i];
+            }
+
+            return o;
+          });
+        } else return null;
+      } else throw new VehoError('The input \'samples\' is not an Array');
     }
     /**
      *
-     * @param {[key,value][]} entries
-     * @return {{key:*,value:*}}
+     * @param {Object<string,*>[]}rows
+     * @param {string} bannerLabel
+     * @param {string} samplesLabel
+     * @returns {Object<string,*>}
      */
     ;
 
-    Jso.fromEntries = function fromEntries() {
-      for (var _len = arguments.length, entries = new Array(_len), _key = 0; _key < _len; _key++) {
-        entries[_key] = arguments[_key];
+    JsonTable.samplesToTable = function samplesToTable(rows, bannerLabel, samplesLabel) {
+      if (bannerLabel === void 0) {
+        bannerLabel = 'head';
       }
 
-      return _extends({}, entries);
+      if (samplesLabel === void 0) {
+        samplesLabel = 'rows';
+      }
+
+      if (!!rows && rows.constructor === Array) {
+        var firstRow = rows[0];
+
+        if (!!firstRow && typeof firstRow === 'object') {
+          var banner = Object.keys(firstRow);
+          var samples = rows.map(function (row) {
+            return Object.values(row);
+          });
+          return Jso.fromEntries([bannerLabel, banner], [samplesLabel, samples]);
+        } else return null;
+      } else throw new VehoError('The input \'rows\' is not an Array');
     }
     /**
-     * Extract content of table in json-array form( [{c1:*,c2:*,..},{c1:*,c2:*,..},..] )
-     * to a 2d-array( [[*,*,..],[*,*,..],..] ).
+     * Transform json of samples to matrix(2d-array).
+     * A Json of samples is formed like :
+     *  [
+     *    {a:*, b:*, ...},
+     *    {a:*, b:*, ...},
+     *    ...
+     *  ]
+     * A matrix(2d-array) is formed like :
+     *  [
+     *    [*, *, ...],
+     *    [*, *, ...],
+     *    ...
+     *  ]
      * @param {*[]} jsonArr Table in json-array form: [{c1:*,c2:*,..},{c1:*,c2:*,..},..]
      * @returns {*[][]} Table content in 2d-array, excluding the input table head.
      */
     ;
 
-    Jso.jsonArrayToMatrix = function jsonArrayToMatrix(jsonArr) {
+    JsonTable.samplesToMatrix = function samplesToMatrix(jsonArr) {
       return [].concat(jsonArr.map(function (json) {
         return Object.values(json);
       }));
     };
 
-    Jso.matrixToJsonArray = function matrixToJsonArray(matrix, side, banner) {
+    JsonTable.matrixToSamples = function matrixToSamples(matrix, side, banner) {
       var rows = matrix.map(function (row) {
         return banner.zip(row, function (itm, obj) {
           return [itm, obj];
@@ -296,76 +527,25 @@
       });
       var obj = {};
 
-      for (var _iterator2 = indexedRows, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-        var _ref2;
+      for (var _iterator3 = indexedRows, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+        var _ref5;
 
-        if (_isArray2) {
-          if (_i2 >= _iterator2.length) break;
-          _ref2 = _iterator2[_i2++];
+        if (_isArray3) {
+          if (_i4 >= _iterator3.length) break;
+          _ref5 = _iterator3[_i4++];
         } else {
-          _i2 = _iterator2.next();
-          if (_i2.done) break;
-          _ref2 = _i2.value;
+          _i4 = _iterator3.next();
+          if (_i4.done) break;
+          _ref5 = _i4.value;
         }
 
-        var _ref3 = _ref2,
-            k = _ref3[0],
-            v = _ref3[1];
+        var _ref6 = _ref5,
+            k = _ref6[0],
+            v = _ref6[1];
         obj[k] = v;
       }
 
       return obj;
-    };
-
-    return Jso;
-  }();
-  /**
-   * Insert JsonTable class to handle transformation between JSON table in
-   * rows|[{h1_1:v1_1,h1_2:v1_2,...},{h2_1:v2_1,h2_2:v2_2,...},...] form
-   * and JSON table in 'seperate'|{headers:*[],rowSet:*[][]} form.
-   */
-
-
-  var JsonTable =
-  /*#__PURE__*/
-  function () {
-    function JsonTable() {}
-
-    JsonTable.sepToRows = function sepToRows(samples, banner) {
-      var len = Math.min(samples[0].length, banner.length);
-      return samples.map(function (row) {
-        var o = {};
-
-        for (var i = 0; i < len; i++) {
-          o[banner[i]] = row[i];
-        }
-
-        return o;
-      });
-    }
-    /**
-     *
-     * @param {Object[]}rows
-     * @param {string} bannerLabel
-     * @param {string} samplesLabel
-     * @returns {{bannerLabel:string[], samplesLabel:*}}
-     */
-    ;
-
-    JsonTable.rowsToSep = function rowsToSep(rows, bannerLabel, samplesLabel) {
-      if (bannerLabel === void 0) {
-        bannerLabel = 'banner';
-      }
-
-      if (samplesLabel === void 0) {
-        samplesLabel = 'samples';
-      }
-
-      var banner = Object.keys(rows[0]);
-      var samples = rows.map(function (row) {
-        return Object.values(row);
-      });
-      return Jso.fromEntries([bannerLabel, banner], [samplesLabel, samples]);
     };
 
     return JsonTable;
@@ -374,6 +554,7 @@
   /**
    * Static class containing methods to create 2d-array.
    */
+
   var Mat =
   /*#__PURE__*/
   function () {
@@ -416,10 +597,16 @@
     ;
 
     Mat.transpose = function transpose(mx) {
-      return Object.keys(mx[0]).map(function (c) {
+      return Mat.columnIndexes(mx).map(function (c) {
         return mx.map(function (r) {
           return r[c];
         });
+      });
+    };
+
+    Mat.column = function column(mx, index) {
+      return mx.map(function (r) {
+        return r[index];
       });
     }
     /**
@@ -543,20 +730,19 @@
     return Fun;
   }();
 
-  /**
-   * Get the last item in an array.
-   * @returns {*}. The last item in the array.
-   */
+  // /**
+  //  * Get the last item in an array.
+  //  * @returns {*}. The last item in the array.
+  //  */
+  // Array.prototype.last = function () {
+  //   return this[this.length - 1]
+  // }
 
-  Array.prototype.last = function () {
-    return this[this.length - 1];
-  };
   /**
    * Take the first "n" elements from an array.
    * @param len. The number denote the first "n" elements in an array.
    * @returns {*[]}. A new array length at "len".
    */
-
 
   Array.prototype.take = function (len) {
     return this.slice(0, len);
@@ -572,58 +758,6 @@
     return arr; // return Array.from({ length: size }, (v, i) => zipper(this[i], another[i], i))
     // return this.map((x, i) => zipper(x, another[i]))
   }; // Matrix extension
-
-  /**
-   * Get the upper bound of rows of a 2d-array.
-   * @returns {number}
-   */
-
-
-  Array.prototype.xB = function () {
-    return this.length - 1;
-  };
-  /**
-   * Get the upper bound of columns of a 2d-array.
-   * @returns {number}
-   */
-
-
-  Array.prototype.yB = function () {
-    var first = this[0];
-    return !!first ? first.length - 1 : 0;
-  };
-  /**
-   * Get the row of a 2d-array at index "x".
-   * @param x
-   * @returns {*[]}
-   */
-
-
-  Array.prototype.row = function (x) {
-    return this[x];
-  };
-  /**
-   * Get the column of a 2d-array at index "y".
-   * @param y
-   * @returns {*[]}
-   */
-
-
-  Array.prototype.col = function (y) {
-    return this.map(function (row) {
-      return row[y];
-    });
-  };
-  /**
-   * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
-   * @param elementJect
-   * @returns {*[]}
-   */
-
-
-  Array.prototype.veho = function (elementJect) {
-    return Mat.veho(this, elementJect);
-  };
 
   exports.Dic = Dic;
   exports.Fun = Fun;

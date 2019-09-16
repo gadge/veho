@@ -1,6 +1,8 @@
 /**
  * Static class containing methods to create 2d-array.
  */
+import { VehoError } from '../misc/VehoError'
+
 class Mat {
   /**
    *
@@ -33,7 +35,11 @@ class Mat {
    * @returns {*[][]}
    */
   static transpose (mx) {
-    return Object.keys(mx[0]).map(c => mx.map(r => r[c]))
+    return Mat.columnIndexes(mx).map(c => mx.map(r => r[c]))
+  }
+
+  static column (mx, index) {
+    return mx.map(r => r[index])
   }
 
   /**

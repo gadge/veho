@@ -1,6 +1,6 @@
 {
   "name": "veho",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "description": "An array extension (grammatical sugar) to create, iterate and query 1d, 2d array and JSON object.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -15,7 +15,7 @@
     "build-rollup": "rollup -c",
     "prepare": "npm run build-rollup",
     "publish": "npm publish",
-    "test": "node test/test-main.js -r @babel/register",
+    "test": "node test/utils/test-main.js -r @babel/register",
     "jest-test": "jest"
   },
   "dependencies": {},
@@ -29,7 +29,7 @@
     "@babel/runtime": "^7.5.5",
     "axios": "^0.19.0",
     "crawler": "^1.2.1",
-    "elprimero": "^0.0.10",
+    "elprimero": "^0.0.11",
     "jest": "^24.9.0",
     "rollup": "^1.20.3",
     "rollup-plugin-babel": "^4.3.3",
@@ -39,7 +39,7 @@
     "stocks.js": "^0.0.17",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7",
-    "xbrief": "^0.1.24"
+    "xbrief": "^0.1.27"
   },
   "repository": {
     "type": "git",
