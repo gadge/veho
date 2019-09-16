@@ -332,17 +332,17 @@ class JsonTable {
 class Mat {
   /**
    *
-   * @param {number} rowSize
-   * @param {number} columnSize
-   * @param {function} valueJect
+   * @param {number} height
+   * @param {number} width
+   * @param {function} ject
    * @returns {number[][]}
    */
-  static ini(rowSize, columnSize, valueJect) {
+  static ini(height, width, ject) {
     return Array.from({
-      length: rowSize
+      length: height
     }, (_, x) => Array.from({
-      length: columnSize
-    }, (_, y) => valueJect(x, y)));
+      length: width
+    }, (_, y) => ject(x, y)));
   }
   /**
    *
@@ -419,11 +419,16 @@ class Dic {
 }
 
 class Fun {
+  static getMethodNames(cls) {
+    return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
+  }
   /**
    *
    * @param {class} cls
    * @return {string[]}
    */
+
+
   static getStaticMethodNames(cls) {
     return Object.getOwnPropertyNames(cls).filter(prop => typeof cls[prop] === 'function');
   }

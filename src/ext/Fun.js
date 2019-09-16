@@ -1,4 +1,10 @@
 export class Fun {
+  static getMethodNames (cls) {
+    return !!cls && !!cls.prototype
+      ? Object.getOwnPropertyNames(cls.prototype)
+      : []
+  }
+
   /**
    *
    * @param {class} cls

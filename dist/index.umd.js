@@ -562,19 +562,19 @@
 
     /**
      *
-     * @param {number} rowSize
-     * @param {number} columnSize
-     * @param {function} valueJect
+     * @param {number} height
+     * @param {number} width
+     * @param {function} ject
      * @returns {number[][]}
      */
-    Mat.ini = function ini(rowSize, columnSize, valueJect) {
+    Mat.ini = function ini(height, width, ject) {
       return Array.from({
-        length: rowSize
+        length: height
       }, function (_, x) {
         return Array.from({
-          length: columnSize
+          length: width
         }, function (_, y) {
-          return valueJect(x, y);
+          return ject(x, y);
         });
       });
     }
@@ -673,11 +673,16 @@
   function () {
     function Fun() {}
 
+    Fun.getMethodNames = function getMethodNames(cls) {
+      return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
+    }
     /**
      *
      * @param {class} cls
      * @return {string[]}
      */
+    ;
+
     Fun.getStaticMethodNames = function getStaticMethodNames(cls) {
       return Object.getOwnPropertyNames(cls).filter(function (prop) {
         return typeof cls[prop] === 'function';

@@ -6,15 +6,15 @@ import { VehoError } from '../misc/VehoError'
 class Mat {
   /**
    *
-   * @param {number} rowSize
-   * @param {number} columnSize
-   * @param {function} valueJect
+   * @param {number} height
+   * @param {number} width
+   * @param {function} ject
    * @returns {number[][]}
    */
-  static ini (rowSize, columnSize, valueJect) {
-    return Array.from({ length: rowSize }, (_, x) =>
-      Array.from({ length: columnSize }, (_, y) =>
-        valueJect(x, y)
+  static ini (height, width, ject) {
+    return Array.from({ length: height }, (_, x) =>
+      Array.from({ length: width }, (_, y) =>
+        ject(x, y)
       )
     )
   }
