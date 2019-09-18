@@ -1,3 +1,5 @@
+import { cloneMap } from '../misc/clone'
+
 class Dic {
   /**
    * Create a map from separate key-array and value-array.
@@ -9,6 +11,8 @@ class Dic {
     const lex = keys.map((k, i) => [k, values[i]])
     return new Map(lex)
   }
+
+  static clone = cloneMap
 }
 
 export {

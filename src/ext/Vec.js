@@ -1,6 +1,8 @@
 /**
  * Static class containing methods create 1d-array.
  */
+import { cloneArray } from '../misc/clone'
+
 class Vec {
   /**
    * Create an array.
@@ -11,6 +13,8 @@ class Vec {
   static ini (size, jectValue = (i) => 0) {
     return Array.from({ length: size }, (v, i) => jectValue(i))
   }
+
+  static clone = cloneArray
 
   /**
    * Returns an array built from the elements of a given set of arrays.
@@ -118,8 +122,6 @@ class Vec {
   }
 }
 
-
-
 // Array.prototype.zip = function (another, zipper) {
 //   let ar = [];
 //   for (let i = 0; i < this.length; i++) {
@@ -127,7 +129,5 @@ class Vec {
 //   }
 //   return ar
 // };
-
-
 
 export { Vec }

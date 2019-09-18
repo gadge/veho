@@ -1,7 +1,9 @@
 import './Vec'
 import { VehoError } from '../misc/VehoError'
+import { cloneObject } from '../misc/clone'
 
 class Jso {
+  static clone = cloneObject
 
   /**
    *
@@ -31,10 +33,37 @@ class Jso {
    * @param {...[*,*]} entries - An array of key-value pair, [key, value]
    * @returns {Object|Object<string,*>}
    */
-  static fromEntries (...entries) {
+  static of (...entries) {
     let o = {}
     for (let [k, v] of entries) {
       o[k] = v
+    }
+    return o
+  }
+
+  /**
+   * Shallow.
+   * @param {[*,*]} entries - An array of key-value pair, [key, value]
+   * @param {function(*):*|function(*,number):*} [ject] - A function
+   * @returns {Object|Object<string,*>}
+   */
+  static fromEntries (entries, ject) {
+    let o = {}
+    if (!!ject) {
+      switch (ject.length) {
+        case 1:
+          for (let [k, v] of entries) o[k] = ject(v)
+          break
+        case 2:
+          for (let [i, [k, v]] of entries.entries()) o[k] = ject(v, i)
+          break
+        default:
+          break
+      }
+    } else {
+      for (let [k, v] of entries) {
+        o[k] = v
+      }
     }
     return o
   }
@@ -113,10 +142,7 @@ class JsonTable {
       if (!!firstRow && typeof firstRow === 'object') {
         const banner = Object.keys(firstRow)
         const samples = rows.map(row => Object.values(row))
-        return Jso.fromEntries(
-          [bannerLabel, banner],
-          [samplesLabel, samples]
-        )
+        return Jso.of([bannerLabel, banner], [samplesLabel, samples])
       } else return null
     } else throw new VehoError('The input \'rows\' is not an Array')
   }

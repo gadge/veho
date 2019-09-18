@@ -1,6 +1,82 @@
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 /**
- * Static class containing methods create 1d-array.
+ *
+ * @param {*} node
+ * @return {*}
  */
+function clone(node) {
+  if (!node || typeof node != 'object') return node;
+
+  switch (true) {
+    case Array.isArray(node):
+      return cloneArray(node);
+
+    case node instanceof Date:
+      return new Date(+node);
+    // new Date(node.valueOf()) //new Date(+node);
+
+    case node instanceof Map:
+      return cloneMap(node);
+
+    case node instanceof Set:
+      return new Set(cloneArray([...node]));
+
+    case node instanceof Object:
+      return cloneObject(node);
+  }
+
+  throw new Error('Unable to copy obj. Unsupported type.');
+}
+/**
+ *
+ * @param {Map<*, *>} node
+ * @return {Map<*, *>}
+ */
+
+
+function cloneMap(node) {
+  return new Map(node.entries().map(([k, v]) => [k, clone(v)]));
+}
+/**
+ *
+ * @param {*[]} node
+ * @return {*[]}
+ */
+
+
+function cloneArray(node) {
+  return node.map(clone);
+}
+/**
+ * Known issue:
+ * Unable to clone circular and nested object.
+ * @param {{}} node
+ * @return {{}}
+ */
+
+
+function cloneObject(node) {
+  const x = {};
+
+  for (let [k, v] of Object.entries(node)) x[k] = clone(v);
+
+  return x;
+}
+
 class Vec {
   /**
    * Create an array.
@@ -13,6 +89,7 @@ class Vec {
       length: size
     }, (v, i) => jectValue(i));
   }
+
   /**
    * Returns an array built from the elements of a given set of arrays.
    * Each element of the returned array is determined by elements from every one of the array-set with the same index.
@@ -22,8 +99,6 @@ class Vec {
    * @param {*[][]} arraySet The array-set to determine the returned array.
    * @returns {*[]|undefined} array
    */
-
-
   static multiZip(zipper, ...arraySet) {
     const firstArray = arraySet[0];
 
@@ -140,6 +215,15 @@ class Vec {
   }
 
 } // Array.prototype.zip = function (another, zipper) {
+//   let ar = [];
+//   for (let i = 0; i < this.length; i++) {
+//     ar[i] = zipper(this[i], another[i])
+//   }
+//   return ar
+// };
+
+
+_defineProperty(Vec, "clone", cloneArray);
 
 // Create an object type VehoError
 class VehoError extends Error {
@@ -190,11 +274,45 @@ class Jso {
    */
 
 
-  static fromEntries(...entries) {
+  static of(...entries) {
     let o = {};
 
     for (let [k, v] of entries) {
       o[k] = v;
+    }
+
+    return o;
+  }
+  /**
+   * Shallow.
+   * @param {[*,*]} entries - An array of key-value pair, [key, value]
+   * @param {function(*):*|function(*,number):*} [ject] - A function
+   * @returns {Object|Object<string,*>}
+   */
+
+
+  static fromEntries(entries, ject) {
+    let o = {};
+
+    if (!!ject) {
+      switch (ject.length) {
+        case 1:
+          for (let [k, v] of entries) o[k] = ject(v);
+
+          break;
+
+        case 2:
+          for (let [i, [k, v]] of entries.entries()) o[k] = ject(v, i);
+
+          break;
+
+        default:
+          break;
+      }
+    } else {
+      for (let [k, v] of entries) {
+        o[k] = v;
+      }
     }
 
     return o;
@@ -243,6 +361,8 @@ class Jso {
  */
 
 
+_defineProperty(Jso, "clone", cloneObject);
+
 class JsonTable {
   /**
    *
@@ -284,7 +404,7 @@ class JsonTable {
       if (!!firstRow && typeof firstRow === 'object') {
         const banner = Object.keys(firstRow);
         const samples = rows.map(row => Object.values(row));
-        return Jso.fromEntries([bannerLabel, banner], [samplesLabel, samples]);
+        return Jso.of([bannerLabel, banner], [samplesLabel, samples]);
       } else return null;
     } else throw new VehoError('The input \'rows\' is not an Array');
   }
@@ -418,6 +538,8 @@ class Dic {
 
 }
 
+_defineProperty(Dic, "clone", cloneMap);
+
 class Fun {
   static getMethodNames(cls) {
     return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
@@ -485,9 +607,12 @@ Array.prototype.take = function (len) {
 };
 
 Array.prototype.zip = function (another, zipper) {
-  const arr = new Array(this.length);
+  const length = this.length;
+  const arr = Array.from({
+    length
+  });
 
-  for (let i = 0; i < this.length; i++) {
+  for (let i = 0; i < length; i++) {
     arr[i] = zipper(this[i], another[i], i);
   }
 

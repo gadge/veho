@@ -24,8 +24,9 @@ Array.prototype.take = function (len) {
 }
 
 Array.prototype.zip = function (another, zipper) {
-  const arr = new Array(this.length)
-  for (let i = 0; i < this.length; i++) {
+  const length = this.length
+  const arr = Array.from({ length })
+  for (let i = 0; i < length; i++) {
     arr[i] = zipper(this[i], another[i], i)
   }
   return arr

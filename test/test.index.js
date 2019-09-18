@@ -15,7 +15,8 @@
 
 import { SimpleJsoTest } from './tasks/simple.Jso.test'
 
-SimpleJsoTest.jsonTableTest()
+SimpleJsoTest.createObjectTest()
+// SimpleJsoTest.jsonTableTest()
 
 // import { SimpleVectorTest } from './simple.vector.testIni'
 //

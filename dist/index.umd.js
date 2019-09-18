@@ -4,9 +4,184 @@
   (global = global || self, factory(global.veho = {}));
 }(this, function (exports) { 'use strict';
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function _inheritsLoose(subClass, superClass) {
+    subClass.prototype = Object.create(superClass.prototype);
+    subClass.prototype.constructor = subClass;
+    subClass.__proto__ = superClass;
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function _construct(Parent, args, Class) {
+    if (isNativeReflectConstruct()) {
+      _construct = Reflect.construct;
+    } else {
+      _construct = function _construct(Parent, args, Class) {
+        var a = [null];
+        a.push.apply(a, args);
+        var Constructor = Function.bind.apply(Parent, a);
+        var instance = new Constructor();
+        if (Class) _setPrototypeOf(instance, Class.prototype);
+        return instance;
+      };
+    }
+
+    return _construct.apply(null, arguments);
+  }
+
+  function _isNativeFunction(fn) {
+    return Function.toString.call(fn).indexOf("[native code]") !== -1;
+  }
+
+  function _wrapNativeSuper(Class) {
+    var _cache = typeof Map === "function" ? new Map() : undefined;
+
+    _wrapNativeSuper = function _wrapNativeSuper(Class) {
+      if (Class === null || !_isNativeFunction(Class)) return Class;
+
+      if (typeof Class !== "function") {
+        throw new TypeError("Super expression must either be null or a function");
+      }
+
+      if (typeof _cache !== "undefined") {
+        if (_cache.has(Class)) return _cache.get(Class);
+
+        _cache.set(Class, Wrapper);
+      }
+
+      function Wrapper() {
+        return _construct(Class, arguments, _getPrototypeOf(this).constructor);
+      }
+
+      Wrapper.prototype = Object.create(Class.prototype, {
+        constructor: {
+          value: Wrapper,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      });
+      return _setPrototypeOf(Wrapper, Class);
+    };
+
+    return _wrapNativeSuper(Class);
+  }
+
   /**
-   * Static class containing methods create 1d-array.
+   *
+   * @param {*} node
+   * @return {*}
    */
+  function clone(node) {
+    if (!node || typeof node != 'object') return node;
+
+    switch (true) {
+      case Array.isArray(node):
+        return cloneArray(node);
+
+      case node instanceof Date:
+        return new Date(+node);
+      // new Date(node.valueOf()) //new Date(+node);
+
+      case node instanceof Map:
+        return cloneMap(node);
+
+      case node instanceof Set:
+        return new Set(cloneArray([].concat(node)));
+
+      case node instanceof Object:
+        return cloneObject(node);
+    }
+
+    throw new Error('Unable to copy obj. Unsupported type.');
+  }
+  /**
+   *
+   * @param {Map<*, *>} node
+   * @return {Map<*, *>}
+   */
+
+
+  function cloneMap(node) {
+    return new Map(node.entries().map(function (_ref) {
+      var k = _ref[0],
+          v = _ref[1];
+      return [k, clone(v)];
+    }));
+  }
+  /**
+   *
+   * @param {*[]} node
+   * @return {*[]}
+   */
+
+
+  function cloneArray(node) {
+    return node.map(clone);
+  }
+  /**
+   * Known issue:
+   * Unable to clone circular and nested object.
+   * @param {{}} node
+   * @return {{}}
+   */
+
+
+  function cloneObject(node) {
+    var x = {};
+
+    for (var _i = 0, _Object$entries = Object.entries(node); _i < _Object$entries.length; _i++) {
+      var _Object$entries$_i = _Object$entries[_i],
+          k = _Object$entries$_i[0],
+          v = _Object$entries$_i[1];
+      x[k] = clone(v);
+    }
+
+    return x;
+  }
+
   var Vec =
   /*#__PURE__*/
   function () {
@@ -30,7 +205,8 @@
       }, function (v, i) {
         return jectValue(i);
       });
-    }
+    };
+
     /**
      * Returns an array built from the elements of a given set of arrays.
      * Each element of the returned array is determined by elements from every one of the array-set with the same index.
@@ -40,8 +216,6 @@
      * @param {*[][]} arraySet The array-set to determine the returned array.
      * @returns {*[]|undefined} array
      */
-    ;
-
     Vec.multiZip = function multiZip(zipper) {
       for (var _len = arguments.length, arraySet = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         arraySet[_key - 1] = arguments[_key];
@@ -189,96 +363,15 @@
 
     return Vec;
   }(); // Array.prototype.zip = function (another, zipper) {
+  //   let ar = [];
+  //   for (let i = 0; i < this.length; i++) {
+  //     ar[i] = zipper(this[i], another[i])
+  //   }
+  //   return ar
+  // };
 
-  function _inheritsLoose(subClass, superClass) {
-    subClass.prototype = Object.create(superClass.prototype);
-    subClass.prototype.constructor = subClass;
-    subClass.__proto__ = superClass;
-  }
 
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-      return o.__proto__ || Object.getPrototypeOf(o);
-    };
-    return _getPrototypeOf(o);
-  }
-
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-
-    return _setPrototypeOf(o, p);
-  }
-
-  function isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function _construct(Parent, args, Class) {
-    if (isNativeReflectConstruct()) {
-      _construct = Reflect.construct;
-    } else {
-      _construct = function _construct(Parent, args, Class) {
-        var a = [null];
-        a.push.apply(a, args);
-        var Constructor = Function.bind.apply(Parent, a);
-        var instance = new Constructor();
-        if (Class) _setPrototypeOf(instance, Class.prototype);
-        return instance;
-      };
-    }
-
-    return _construct.apply(null, arguments);
-  }
-
-  function _isNativeFunction(fn) {
-    return Function.toString.call(fn).indexOf("[native code]") !== -1;
-  }
-
-  function _wrapNativeSuper(Class) {
-    var _cache = typeof Map === "function" ? new Map() : undefined;
-
-    _wrapNativeSuper = function _wrapNativeSuper(Class) {
-      if (Class === null || !_isNativeFunction(Class)) return Class;
-
-      if (typeof Class !== "function") {
-        throw new TypeError("Super expression must either be null or a function");
-      }
-
-      if (typeof _cache !== "undefined") {
-        if (_cache.has(Class)) return _cache.get(Class);
-
-        _cache.set(Class, Wrapper);
-      }
-
-      function Wrapper() {
-        return _construct(Class, arguments, _getPrototypeOf(this).constructor);
-      }
-
-      Wrapper.prototype = Object.create(Class.prototype, {
-        constructor: {
-          value: Wrapper,
-          enumerable: false,
-          writable: true,
-          configurable: true
-        }
-      });
-      return _setPrototypeOf(Wrapper, Class);
-    };
-
-    return _wrapNativeSuper(Class);
-  }
+  _defineProperty(Vec, "clone", cloneArray);
 
   // Create an object type VehoError
   var VehoError =
@@ -355,7 +448,7 @@
      */
     ;
 
-    Jso.fromEntries = function fromEntries() {
+    Jso.of = function of() {
       var o = {};
 
       for (var _len = arguments.length, entries = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -367,6 +460,88 @@
             k = _entries$_i[0],
             v = _entries$_i[1];
         o[k] = v;
+      }
+
+      return o;
+    }
+    /**
+     * Shallow.
+     * @param {[*,*]} entries - An array of key-value pair, [key, value]
+     * @param {function(*):*|function(*,number):*} [ject] - A function
+     * @returns {Object|Object<string,*>}
+     */
+    ;
+
+    Jso.fromEntries = function fromEntries(entries, ject) {
+      var o = {};
+
+      if (!!ject) {
+        switch (ject.length) {
+          case 1:
+            for (var _iterator2 = entries, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+              var _ref2;
+
+              if (_isArray2) {
+                if (_i3 >= _iterator2.length) break;
+                _ref2 = _iterator2[_i3++];
+              } else {
+                _i3 = _iterator2.next();
+                if (_i3.done) break;
+                _ref2 = _i3.value;
+              }
+
+              var _ref3 = _ref2,
+                  k = _ref3[0],
+                  v = _ref3[1];
+              o[k] = ject(v);
+            }
+
+            break;
+
+          case 2:
+            for (var _iterator3 = entries.entries(), _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+              var _ref4;
+
+              if (_isArray3) {
+                if (_i4 >= _iterator3.length) break;
+                _ref4 = _iterator3[_i4++];
+              } else {
+                _i4 = _iterator3.next();
+                if (_i4.done) break;
+                _ref4 = _i4.value;
+              }
+
+              var _ref5 = _ref4,
+                  i = _ref5[0],
+                  _ref5$ = _ref5[1],
+                  k = _ref5$[0],
+                  v = _ref5$[1];
+              o[k] = ject(v, i);
+            }
+
+            break;
+
+          default:
+            break;
+        }
+      } else {
+        for (var _iterator4 = entries, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+          var _ref6;
+
+          if (_isArray4) {
+            if (_i5 >= _iterator4.length) break;
+            _ref6 = _iterator4[_i5++];
+          } else {
+            _i5 = _iterator4.next();
+            if (_i5.done) break;
+            _ref6 = _i5.value;
+          }
+
+          var _ref7 = _ref6,
+              k = _ref7[0],
+              v = _ref7[1];
+          o[k] = v;
+        }
       }
 
       return o;
@@ -391,21 +566,21 @@
     Jso.fromMap = function fromMap(dict) {
       var o = {};
 
-      for (var _iterator2 = dict.entries(), _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-        var _ref2;
+      for (var _iterator5 = dict.entries(), _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+        var _ref8;
 
-        if (_isArray2) {
-          if (_i3 >= _iterator2.length) break;
-          _ref2 = _iterator2[_i3++];
+        if (_isArray5) {
+          if (_i6 >= _iterator5.length) break;
+          _ref8 = _iterator5[_i6++];
         } else {
-          _i3 = _iterator2.next();
-          if (_i3.done) break;
-          _ref2 = _i3.value;
+          _i6 = _iterator5.next();
+          if (_i6.done) break;
+          _ref8 = _i6.value;
         }
 
-        var _ref3 = _ref2,
-            k = _ref3[0],
-            v = _ref3[1];
+        var _ref9 = _ref8,
+            k = _ref9[0],
+            v = _ref9[1];
         o[k] = v;
       }
 
@@ -430,6 +605,8 @@
    */
 
 
+  _defineProperty(Jso, "clone", cloneObject);
+
   var JsonTable =
   /*#__PURE__*/
   function () {
@@ -446,9 +623,9 @@
         var firstRow = samples[0];
 
         if (!!firstRow && firstRow.constructor === Array) {
-          var _ref4 = [0, Math.min(firstRow.length, banner.length)],
-              i = _ref4[0],
-              len = _ref4[1];
+          var _ref10 = [0, Math.min(firstRow.length, banner.length)],
+              i = _ref10[0],
+              len = _ref10[1];
           return samples.map(function (row) {
             var o = {};
 
@@ -487,7 +664,7 @@
           var samples = rows.map(function (row) {
             return Object.values(row);
           });
-          return Jso.fromEntries([bannerLabel, banner], [samplesLabel, samples]);
+          return Jso.of([bannerLabel, banner], [samplesLabel, samples]);
         } else return null;
       } else throw new VehoError('The input \'rows\' is not an Array');
     }
@@ -527,21 +704,21 @@
       });
       var obj = {};
 
-      for (var _iterator3 = indexedRows, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
-        var _ref5;
+      for (var _iterator6 = indexedRows, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
+        var _ref11;
 
-        if (_isArray3) {
-          if (_i4 >= _iterator3.length) break;
-          _ref5 = _iterator3[_i4++];
+        if (_isArray6) {
+          if (_i7 >= _iterator6.length) break;
+          _ref11 = _iterator6[_i7++];
         } else {
-          _i4 = _iterator3.next();
-          if (_i4.done) break;
-          _ref5 = _i4.value;
+          _i7 = _iterator6.next();
+          if (_i7.done) break;
+          _ref11 = _i7.value;
         }
 
-        var _ref6 = _ref5,
-            k = _ref6[0],
-            v = _ref6[1];
+        var _ref12 = _ref11,
+            k = _ref12[0],
+            v = _ref12[1];
         obj[k] = v;
       }
 
@@ -668,6 +845,8 @@
     return Dic;
   }();
 
+  _defineProperty(Dic, "clone", cloneMap);
+
   var Fun =
   /*#__PURE__*/
   function () {
@@ -754,9 +933,12 @@
   };
 
   Array.prototype.zip = function (another, zipper) {
-    var arr = new Array(this.length);
+    var length = this.length;
+    var arr = Array.from({
+      length: length
+    });
 
-    for (var i = 0; i < this.length; i++) {
+    for (var i = 0; i < length; i++) {
       arr[i] = zipper(this[i], another[i], i);
     }
 

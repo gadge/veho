@@ -2,6 +2,7 @@ import { boxoffice } from '../asset/map/boxoffice.180817'
 import { deco, StrX, Typ, VecX, MapX } from 'xbrief'
 import { Jso, JsonTable } from '../../src/ext/Jso'
 import { GP } from 'elprimero'
+import { highestGrossingFilmsInChina } from '../asset/highestGrossingFilmsInChina'
 
 const macrotable = [
   { country: 'USA', year: '2017', gdp: 19390, pop: 325 },
@@ -19,6 +20,30 @@ const macrotable = [
 ]
 
 class SimpleJsoTest {
+
+  static createObjectTest () {
+    const entries = Object.entries(highestGrossingFilmsInChina)
+    'entries'.tag(entries |> Typ.inferType) |> console.log
+    entries |> console.log
+
+    let objByOf = Jso.of(...entries)
+    'objByOf' |> console.log
+    objByOf |> console.log
+
+    let objByFromEntries = Jso.fromEntries(entries)
+    'objByFromEntries' |> console.log
+    objByFromEntries |> console.log
+
+    let objByFromEntriesModified = Jso.fromEntries(entries, ([gross, , year]) => [gross * 1000, year])
+    'objByFromEntriesModified' |> console.log
+    objByFromEntriesModified |> console.log
+
+    let objByFromEntriesModifiedByIndex = Jso.fromEntries(entries, ([gross], i) => [i + 1, gross * 1000])
+    'objByFromEntriesModifiedByIndex' |> console.log
+    objByFromEntriesModifiedByIndex |> console.log
+
+  }
+
   static mapTransferTest () {
     let original = boxoffice
     'original'.tag(original |> Typ.inferType) |> console.log
@@ -56,9 +81,31 @@ class SimpleJsoTest {
   }
 }
 
-// test('SimpleJsoTest mapTransferTest', () => {
-//   SimpleJsoTest.mapTransferTest()
+//
+// test('SimpleJsoTest createObjectTest', () => {
+//   SimpleJsoTest.createObjectTest()
 // })
+
+test('clone', () => {
+  const abc = {
+    f: 1,
+    b: 2,
+    c: [1, 2]
+  }
+  'original abc' |> console.log
+  abc |> console.log
+
+  'clone abc as bcd' |> console.log
+  const bcd = Jso.clone(abc)
+
+  'abc changed c[1] to 4' |> console.log
+  abc.c[1] = 4
+  abc |> console.log
+
+  'bcd' |> console.log
+  bcd |> console.log
+
+})
 
 export {
   SimpleJsoTest

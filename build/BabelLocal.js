@@ -26,6 +26,7 @@ BabelLocal.presets =
  */
 BabelLocal.plugins =
   [
+    ['@babel/plugin-proposal-class-properties'],
     ['@babel/plugin-proposal-pipeline-operator', {
       'proposal': 'minimal'
     }]
