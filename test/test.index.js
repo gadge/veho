@@ -18,11 +18,11 @@
 // SimpleJsoTest.createObjectTest()
 // SimpleJsoTest.JTabTest()
 
-import { JsoSamplesTest } from './tasks/jso.samples.test'
+// import { JsoSamplesTest } from './tasks/jso.samples.test'
 
 // JsoSamplesTest.samplesToTable()
 // JsoSamplesTest.tableToSample()
-JsoSamplesTest.crosTabToSamples()
+// JsoSamplesTest.crosTabToSamples()
 
 // import { SimpleVectorTest } from './simple.vector.testIni'
 //
@@ -33,4 +33,8 @@ JsoSamplesTest.crosTabToSamples()
 // // SimpleFunTest.testGetStaticNames()
 // // SimpleFunTest.testGetFuncMethods()
 // SimpleFunTest.testFuncChains()
+
+import { CloneTest } from './tasks/clone.test'
+
+CloneTest.cloneArray()
 

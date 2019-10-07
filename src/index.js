@@ -1,4 +1,5 @@
 import { Jso, JsonTable } from './ext/Jso'
+import { Samples } from './ext/Samples'
 import { Mat } from './ext/Mat'
 import { Vec } from './ext/Vec'
 import { Dic } from './ext/Dic'
@@ -81,6 +82,7 @@ Array.prototype.zip = function (another, zipper) {
 
 export {
   Jso, JsonTable,
+  Samples,
   Mat,
   Vec,
   Dic,

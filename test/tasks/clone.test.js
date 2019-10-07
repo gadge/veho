@@ -1,6 +1,6 @@
 import { Chrono } from 'elprimero'
 import { nba_players_performance } from '../asset/cax/nba.players.perfrormance'
-import { Mat, Vec, Dic } from '../../src/index'
+import { Mat, Dic } from '../../src/index'
 import { MagnitudeForm, MatX, VecX } from 'xbrief'
 import { clone as clone_beta, cloneArray as cloneArray_beta } from '../../src/misc/clone'
 import { clone as clone_alpha } from '../../src/misc/clone_alpha'
@@ -35,7 +35,6 @@ class CloneTest {
         clone_array_beta: it => !!it ? cloneArray_beta(it) : clone_beta(it),
         clone_tersed_beta: it => clone_tersed(it),
         clone_2d: it => Mat.clone(it)
-
       }
     })
     const f = new MagnitudeForm(0)
