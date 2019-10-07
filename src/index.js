@@ -1,8 +1,9 @@
-import { Jso, JsonTable } from './ext/Jso'
-import { Mat } from './ext/Mat'
 import { Vec } from './ext/Vec'
 import { Dic } from './ext/Dic'
 import { Fun } from './ext/Fun'
+import { Mat } from './ext/Mat'
+import { Jso } from './ext/Jso'
+import { Samples } from './ext/Samples'
 
 // Array extension
 
@@ -81,7 +82,7 @@ Array.prototype.zip = function (another, zipper) {
 // }
 
 export {
-  Jso, JsonTable,
+  Jso, Samples,
   Mat,
   Vec,
   Dic,

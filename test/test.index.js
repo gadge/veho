@@ -13,10 +13,13 @@
 // testAxiosBoxOfficeMojo()
 // testAxiosAlphaVantage()
 
-import { SimpleJsoTest } from './tasks/simple.Jso.test'
+// import { SimpleJsoTest } from './tasks/simple.Jso.test'
+//
+// SimpleJsoTest.createObjectTest()
+// SimpleJsoTest.JTabTest()
 
-SimpleJsoTest.createObjectTest()
-// SimpleJsoTest.jsonTableTest()
+import { JsoSamplesTest } from './tasks/jso.samples.test'
+JsoSamplesTest.samplesToTable()
 
 // import { SimpleVectorTest } from './simple.vector.testIni'
 //

@@ -373,6 +373,96 @@
 
   _defineProperty(Vec, "clone", cloneArray);
 
+  var Dic =
+  /*#__PURE__*/
+  function () {
+    function Dic() {}
+
+    /**
+     * Create a map from separate key-array and value-array.
+     * @param {*[]} keys Array of keys.
+     * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
+     * @returns {Map<*, *>}
+     */
+    Dic.ini = function ini(keys, values) {
+      var lex = keys.map(function (k, i) {
+        return [k, values[i]];
+      });
+      return new Map(lex);
+    };
+
+    return Dic;
+  }();
+
+  _defineProperty(Dic, "clone", cloneMap);
+
+  var Fun =
+  /*#__PURE__*/
+  function () {
+    function Fun() {}
+
+    Fun.getMethodNames = function getMethodNames(cls) {
+      return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
+    }
+    /**
+     *
+     * @param {class} cls
+     * @return {string[]}
+     */
+    ;
+
+    Fun.getStaticMethodNames = function getStaticMethodNames(cls) {
+      return Object.getOwnPropertyNames(cls).filter(function (prop) {
+        return typeof cls[prop] === 'function';
+      });
+    }
+    /**
+     *
+     * @param {class} cls
+     * @return {string[]}
+     */
+    ;
+
+    Fun.getStaticPropertyNames = function getStaticPropertyNames(cls) {
+      return Object.keys(cls);
+    }
+    /**
+     *
+     * @param {function(*): *} pointwiseFunc
+     * @return {function(*[]): *[]}
+     */
+    ;
+
+    Fun.rowwise = function rowwise(pointwiseFunc) {
+      return function (row) {
+        return row.map(function (x) {
+          return pointwiseFunc(x);
+        });
+      };
+    }
+    /**
+     *
+     * @param {function(*): *} seinFunc function
+     * @param {function(*): *} funcs function whose sole parameter and return value are typed identically
+     * @return {function(*): *}
+     */
+    ;
+
+    Fun.chain = function chain(seinFunc) {
+      for (var _len = arguments.length, funcs = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        funcs[_key - 1] = arguments[_key];
+      }
+
+      return funcs.reduce(function (prevFunc, currFunc) {
+        return function (x) {
+          return currFunc(prevFunc(x));
+        };
+      }, seinFunc);
+    };
+
+    return Fun;
+  }();
+
   // Create an object type VehoError
   var VehoError =
   /*#__PURE__*/
@@ -398,6 +488,102 @@
 
     return VehoError;
   }(_wrapNativeSuper(Error));
+
+  /**
+   * Static class containing methods to create 2d-array.
+   */
+
+  var Mat =
+  /*#__PURE__*/
+  function () {
+    function Mat() {}
+
+    /**
+     *
+     * @param {number} height
+     * @param {number} width
+     * @param {function} ject
+     * @returns {number[][]}
+     */
+    Mat.ini = function ini(height, width, ject) {
+      return Array.from({
+        length: height
+      }, function (_, x) {
+        return Array.from({
+          length: width
+        }, function (_, y) {
+          return ject(x, y);
+        });
+      });
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @return {number[]}
+     */
+    ;
+
+    Mat.columnIndexes = function columnIndexes(mx) {
+      var arr = mx[0];
+      return !!arr ? [].concat(arr.keys()) : [];
+    }
+    /**
+     * Transpose a 2d-array.
+     * @param {*[][]} mx
+     * @returns {*[][]}
+     */
+    ;
+
+    Mat.transpose = function transpose(mx) {
+      return Mat.columnIndexes(mx).map(function (c) {
+        return mx.map(function (r) {
+          return r[c];
+        });
+      });
+    };
+
+    Mat.column = function column(mx, index) {
+      return mx.map(function (r) {
+        return r[index];
+      });
+    }
+    /**
+     * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
+     * @param {*[][]} mx
+     * @param elementJect
+     * @returns {*[]}
+     */
+    ;
+
+    Mat.veho = function veho(mx, elementJect) {
+      return mx.map(function (row) {
+        return row.map(elementJect);
+      });
+    }
+    /**
+     * Iterate through the columns of a 2d-array.
+     * @param {*[][]} mx
+     * @param {function(*[]):[]} columnJect
+     * @returns {*[]}
+     */
+    ;
+
+    Mat.vehoCol = function vehoCol(mx, columnJect) {
+      return Mat.transpose(mx).map(columnJect);
+    };
+
+    return Mat;
+  }();
+  //   let mtx = [];
+  //   for (let j = 0; j < this[0].length; j++) {
+  //     mtx[j] = [];
+  //     for (let i = 0; i < this.length; i++) {
+  //       mtx[j][i] = this[i][j]
+  //     }
+  //   }
+  //   array[0].map((col, i) => array.map(row => row[i]));
+  //   return mtx
+  // };
 
   var Jso =
   /*#__PURE__*/
@@ -589,12 +775,15 @@
 
     return Jso;
   }();
+
+  _defineProperty(Jso, "clone", cloneObject);
+
   /**
    * Transform between Json table and Json of samples.
    * A Json table is formed like :
    *  {
-   *    headers:[a, b, ...],
-   *    rowSet:*[][]
+   *    head:[a, b, ...],
+   *    rows:*[][]
    *  }.
    * A Json of samples is formed like :
    *  [
@@ -604,13 +793,10 @@
    *  ]
    */
 
-
-  _defineProperty(Jso, "clone", cloneObject);
-
-  var JsonTable =
+  var Samples =
   /*#__PURE__*/
   function () {
-    function JsonTable() {}
+    function Samples() {}
 
     /**
      *
@@ -618,14 +804,14 @@
      * @param {*[]}banner
      * @return {Object[]}
      */
-    JsonTable.tableToSamples = function tableToSamples(samples, banner) {
-      if (!!samples && samples.constructor === Array) {
+    Samples.fromTable = function fromTable(samples, banner) {
+      if (!!samples && Array.isArray(samples)) {
         var firstRow = samples[0];
 
-        if (!!firstRow && firstRow.constructor === Array) {
-          var _ref10 = [0, Math.min(firstRow.length, banner.length)],
-              i = _ref10[0],
-              len = _ref10[1];
+        if (!!firstRow && Array.isArray(firstRow)) {
+          var _ref = [0, Math.min(firstRow.length, banner.length)],
+              i = _ref[0],
+              len = _ref[1];
           return samples.map(function (row) {
             var o = {};
 
@@ -647,7 +833,7 @@
      */
     ;
 
-    JsonTable.samplesToTable = function samplesToTable(rows, bannerLabel, samplesLabel) {
+    Samples.toTable2 = function toTable2(rows, bannerLabel, samplesLabel) {
       if (bannerLabel === void 0) {
         bannerLabel = 'head';
       }
@@ -669,6 +855,46 @@
       } else throw new VehoError('The input \'rows\' is not an Array');
     }
     /**
+     *
+     * @param {*[][]} samples
+     * @param {string[]} [fields]
+     * @param {{head:string,rows:string}} [label]
+     * @returns {null|Object|Object<string, *>}
+     */
+    ;
+
+    Samples.toTable = function toTable(samples, _temp) {
+      var _ref2 = _temp === void 0 ? {} : _temp,
+          _ref2$fields = _ref2.fields,
+          fields = _ref2$fields === void 0 ? null : _ref2$fields,
+          _ref2$label = _ref2.label,
+          label = _ref2$label === void 0 ? {
+        head: 'head',
+        rows: 'rows'
+      } : _ref2$label;
+
+      if (!!samples && Array.isArray(samples)) {
+        var firstRow = samples[0];
+        var head = label.head,
+            rows = label.rows;
+
+        if (!!firstRow && firstRow instanceof Object) {
+          var _ref3 = fields ? [fields, function (row) {
+            return banner.map(function (x) {
+              return row[x];
+            });
+          }] : [Object.keys(firstRow), Object.values],
+              banner = _ref3[0],
+              picker = _ref3[1];
+
+          var rowSet = samples.map(picker);
+          return Jso.of([head, banner], [rows, rowSet]);
+        } else {
+          return null;
+        }
+      } else throw new VehoError('The input \'rows\' is not an Array');
+    }
+    /**
      * Transform json of samples to matrix(2d-array).
      * A Json of samples is formed like :
      *  [
@@ -687,13 +913,13 @@
      */
     ;
 
-    JsonTable.samplesToMatrix = function samplesToMatrix(jsonArr) {
+    Samples.toMatrix = function toMatrix(jsonArr) {
       return [].concat(jsonArr.map(function (json) {
         return Object.values(json);
       }));
     };
 
-    JsonTable.matrixToSamples = function matrixToSamples(matrix, side, banner) {
+    Samples.fromMatrix = function fromMatrix(matrix, side, banner) {
       var rows = matrix.map(function (row) {
         return banner.zip(row, function (itm, obj) {
           return [itm, obj];
@@ -704,214 +930,28 @@
       });
       var obj = {};
 
-      for (var _iterator6 = indexedRows, _isArray6 = Array.isArray(_iterator6), _i7 = 0, _iterator6 = _isArray6 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
-        var _ref11;
+      for (var _iterator = indexedRows, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        var _ref4;
 
-        if (_isArray6) {
-          if (_i7 >= _iterator6.length) break;
-          _ref11 = _iterator6[_i7++];
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref4 = _iterator[_i++];
         } else {
-          _i7 = _iterator6.next();
-          if (_i7.done) break;
-          _ref11 = _i7.value;
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref4 = _i.value;
         }
 
-        var _ref12 = _ref11,
-            k = _ref12[0],
-            v = _ref12[1];
+        var _ref5 = _ref4,
+            k = _ref5[0],
+            v = _ref5[1];
         obj[k] = v;
       }
 
       return obj;
     };
 
-    return JsonTable;
-  }();
-
-  /**
-   * Static class containing methods to create 2d-array.
-   */
-
-  var Mat =
-  /*#__PURE__*/
-  function () {
-    function Mat() {}
-
-    /**
-     *
-     * @param {number} height
-     * @param {number} width
-     * @param {function} ject
-     * @returns {number[][]}
-     */
-    Mat.ini = function ini(height, width, ject) {
-      return Array.from({
-        length: height
-      }, function (_, x) {
-        return Array.from({
-          length: width
-        }, function (_, y) {
-          return ject(x, y);
-        });
-      });
-    }
-    /**
-     *
-     * @param {*[][]} mx
-     * @return {number[]}
-     */
-    ;
-
-    Mat.columnIndexes = function columnIndexes(mx) {
-      var arr = mx[0];
-      return !!arr ? [].concat(arr.keys()) : [];
-    }
-    /**
-     * Transpose a 2d-array.
-     * @param {*[][]} mx
-     * @returns {*[][]}
-     */
-    ;
-
-    Mat.transpose = function transpose(mx) {
-      return Mat.columnIndexes(mx).map(function (c) {
-        return mx.map(function (r) {
-          return r[c];
-        });
-      });
-    };
-
-    Mat.column = function column(mx, index) {
-      return mx.map(function (r) {
-        return r[index];
-      });
-    }
-    /**
-     * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
-     * @param {*[][]} mx
-     * @param elementJect
-     * @returns {*[]}
-     */
-    ;
-
-    Mat.veho = function veho(mx, elementJect) {
-      return mx.map(function (row) {
-        return row.map(elementJect);
-      });
-    }
-    /**
-     * Iterate through the columns of a 2d-array.
-     * @param {*[][]} mx
-     * @param {function(*[]):[]} columnJect
-     * @returns {*[]}
-     */
-    ;
-
-    Mat.vehoCol = function vehoCol(mx, columnJect) {
-      return Mat.transpose(mx).map(columnJect);
-    };
-
-    return Mat;
-  }();
-  //   let mtx = [];
-  //   for (let j = 0; j < this[0].length; j++) {
-  //     mtx[j] = [];
-  //     for (let i = 0; i < this.length; i++) {
-  //       mtx[j][i] = this[i][j]
-  //     }
-  //   }
-  //   array[0].map((col, i) => array.map(row => row[i]));
-  //   return mtx
-  // };
-
-  var Dic =
-  /*#__PURE__*/
-  function () {
-    function Dic() {}
-
-    /**
-     * Create a map from separate key-array and value-array.
-     * @param {*[]} keys Array of keys.
-     * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
-     * @returns {Map<*, *>}
-     */
-    Dic.ini = function ini(keys, values) {
-      var lex = keys.map(function (k, i) {
-        return [k, values[i]];
-      });
-      return new Map(lex);
-    };
-
-    return Dic;
-  }();
-
-  _defineProperty(Dic, "clone", cloneMap);
-
-  var Fun =
-  /*#__PURE__*/
-  function () {
-    function Fun() {}
-
-    Fun.getMethodNames = function getMethodNames(cls) {
-      return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
-    }
-    /**
-     *
-     * @param {class} cls
-     * @return {string[]}
-     */
-    ;
-
-    Fun.getStaticMethodNames = function getStaticMethodNames(cls) {
-      return Object.getOwnPropertyNames(cls).filter(function (prop) {
-        return typeof cls[prop] === 'function';
-      });
-    }
-    /**
-     *
-     * @param {class} cls
-     * @return {string[]}
-     */
-    ;
-
-    Fun.getStaticPropertyNames = function getStaticPropertyNames(cls) {
-      return Object.keys(cls);
-    }
-    /**
-     *
-     * @param {function(*): *} pointwiseFunc
-     * @return {function(*[]): *[]}
-     */
-    ;
-
-    Fun.rowwise = function rowwise(pointwiseFunc) {
-      return function (row) {
-        return row.map(function (x) {
-          return pointwiseFunc(x);
-        });
-      };
-    }
-    /**
-     *
-     * @param {function(*): *} seinFunc function
-     * @param {function(*): *} funcs function whose sole parameter and return value are typed identically
-     * @return {function(*): *}
-     */
-    ;
-
-    Fun.chain = function chain(seinFunc) {
-      for (var _len = arguments.length, funcs = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        funcs[_key - 1] = arguments[_key];
-      }
-
-      return funcs.reduce(function (prevFunc, currFunc) {
-        return function (x) {
-          return currFunc(prevFunc(x));
-        };
-      }, seinFunc);
-    };
-
-    return Fun;
+    return Samples;
   }();
 
   // /**
@@ -949,8 +989,8 @@
   exports.Dic = Dic;
   exports.Fun = Fun;
   exports.Jso = Jso;
-  exports.JsonTable = JsonTable;
   exports.Mat = Mat;
+  exports.Samples = Samples;
   exports.Vec = Vec;
 
   Object.defineProperty(exports, '__esModule', { value: true });

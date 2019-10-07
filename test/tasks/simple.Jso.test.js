@@ -1,6 +1,6 @@
 import { boxoffice } from '../asset/map/boxoffice.180817'
 import { deco, StrX, Typ, VecX, MapX } from 'xbrief'
-import { Jso, JsonTable } from '../../src/ext/Jso'
+import { Jso, JTab } from '../../src/ext/Jso'
 import { GP } from 'elprimero'
 import { highestGrossingFilmsInChina } from '../asset/highestGrossingFilmsInChina'
 
@@ -64,18 +64,18 @@ class SimpleJsoTest {
     deco(a).wL()
   }
 
-  static jsonTableTest () {
+  static JTabTest () {
     const original = macrotable
     const rowAbstract = row => JSON.stringify(row)
     'original samples form' |> console.log
     VecX.vBrief(macrotable, { abstract: rowAbstract }) |> console.log
 
     'samples form to table form' |> console.log
-    const table = JsonTable.samplesToTable(macrotable, 'head', 'rows')
+    const table = JTab.fromSamples(macrotable, 'head', 'rows')
     table |> console.log
 
     'table form to samples form' |> console.log
-    const samples = JsonTable.tableToSamples(table.rows, table.head)
+    const samples = JTab.toSamples(table.rows, table.head)
     // deco(samples |> console.log
     VecX.vBrief(samples, { abstract: rowAbstract }) |> console.log
   }

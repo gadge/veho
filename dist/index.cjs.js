@@ -229,6 +229,70 @@ class Vec {
 
 _defineProperty(Vec, "clone", cloneArray);
 
+class Dic {
+  /**
+   * Create a map from separate key-array and value-array.
+   * @param {*[]} keys Array of keys.
+   * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
+   * @returns {Map<*, *>}
+   */
+  static ini(keys, values) {
+    const lex = keys.map((k, i) => [k, values[i]]);
+    return new Map(lex);
+  }
+
+}
+
+_defineProperty(Dic, "clone", cloneMap);
+
+class Fun {
+  static getMethodNames(cls) {
+    return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
+  }
+  /**
+   *
+   * @param {class} cls
+   * @return {string[]}
+   */
+
+
+  static getStaticMethodNames(cls) {
+    return Object.getOwnPropertyNames(cls).filter(prop => typeof cls[prop] === 'function');
+  }
+  /**
+   *
+   * @param {class} cls
+   * @return {string[]}
+   */
+
+
+  static getStaticPropertyNames(cls) {
+    return Object.keys(cls);
+  }
+  /**
+   *
+   * @param {function(*): *} pointwiseFunc
+   * @return {function(*[]): *[]}
+   */
+
+
+  static rowwise(pointwiseFunc) {
+    return row => row.map(x => pointwiseFunc(x));
+  }
+  /**
+   *
+   * @param {function(*): *} seinFunc function
+   * @param {function(*): *} funcs function whose sole parameter and return value are typed identically
+   * @return {function(*): *}
+   */
+
+
+  static chain(seinFunc, ...funcs) {
+    return funcs.reduce((prevFunc, currFunc) => x => currFunc(prevFunc(x)), seinFunc);
+  }
+
+}
+
 // Create an object type VehoError
 class VehoError extends Error {
   constructor(message) {
@@ -244,6 +308,85 @@ class VehoError extends Error {
   }
 
 }
+
+/**
+ * Static class containing methods to create 2d-array.
+ */
+
+class Mat {
+  /**
+   *
+   * @param {number} height
+   * @param {number} width
+   * @param {function} ject
+   * @returns {number[][]}
+   */
+  static ini(height, width, ject) {
+    return Array.from({
+      length: height
+    }, (_, x) => Array.from({
+      length: width
+    }, (_, y) => ject(x, y)));
+  }
+  /**
+   *
+   * @param {*[][]} mx
+   * @return {number[]}
+   */
+
+
+  static columnIndexes(mx) {
+    const arr = mx[0];
+    return !!arr ? [...arr.keys()] : [];
+  }
+  /**
+   * Transpose a 2d-array.
+   * @param {*[][]} mx
+   * @returns {*[][]}
+   */
+
+
+  static transpose(mx) {
+    return Mat.columnIndexes(mx).map(c => mx.map(r => r[c]));
+  }
+
+  static column(mx, index) {
+    return mx.map(r => r[index]);
+  }
+  /**
+   * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
+   * @param {*[][]} mx
+   * @param elementJect
+   * @returns {*[]}
+   */
+
+
+  static veho(mx, elementJect) {
+    return mx.map(row => row.map(elementJect));
+  }
+  /**
+   * Iterate through the columns of a 2d-array.
+   * @param {*[][]} mx
+   * @param {function(*[]):[]} columnJect
+   * @returns {*[]}
+   */
+
+
+  static vehoCol(mx, columnJect) {
+    return Mat.transpose(mx).map(columnJect);
+  }
+
+}
+//   let mtx = [];
+//   for (let j = 0; j < this[0].length; j++) {
+//     mtx[j] = [];
+//     for (let i = 0; i < this.length; i++) {
+//       mtx[j][i] = this[i][j]
+//     }
+//   }
+//   array[0].map((col, i) => array.map(row => row[i]));
+//   return mtx
+// };
 
 class Jso {
   /**
@@ -349,12 +492,15 @@ class Jso {
   }
 
 }
+
+_defineProperty(Jso, "clone", cloneObject);
+
 /**
  * Transform between Json table and Json of samples.
  * A Json table is formed like :
  *  {
- *    headers:[a, b, ...],
- *    rowSet:*[][]
+ *    head:[a, b, ...],
+ *    rows:*[][]
  *  }.
  * A Json of samples is formed like :
  *  [
@@ -364,28 +510,23 @@ class Jso {
  *  ]
  */
 
-
-_defineProperty(Jso, "clone", cloneObject);
-
-class JsonTable {
+class Samples {
   /**
    *
    * @param {*[][]} samples
    * @param {*[]}banner
    * @return {Object[]}
    */
-  static tableToSamples(samples, banner) {
-    if (!!samples && samples.constructor === Array) {
-      const firstRow = samples[0];
+  static fromTable(samples, banner) {
+    if (!!samples && Array.isArray(samples)) {
+      const [firstRow] = samples;
 
-      if (!!firstRow && firstRow.constructor === Array) {
+      if (!!firstRow && Array.isArray(firstRow)) {
         let [i, len] = [0, Math.min(firstRow.length, banner.length)];
         return samples.map(row => {
           let o = {};
 
-          for (i = 0; i < len; i++) {
-            o[banner[i]] = row[i];
-          }
+          for (i = 0; i < len; i++) o[banner[i]] = row[i];
 
           return o;
         });
@@ -401,7 +542,7 @@ class JsonTable {
    */
 
 
-  static samplesToTable(rows, bannerLabel = 'head', samplesLabel = 'rows') {
+  static toTable2(rows, bannerLabel = 'head', samplesLabel = 'rows') {
     if (!!rows && rows.constructor === Array) {
       const firstRow = rows[0];
 
@@ -410,6 +551,38 @@ class JsonTable {
         const samples = rows.map(row => Object.values(row));
         return Jso.of([bannerLabel, banner], [samplesLabel, samples]);
       } else return null;
+    } else throw new VehoError('The input \'rows\' is not an Array');
+  }
+  /**
+   *
+   * @param {*[][]} samples
+   * @param {string[]} [fields]
+   * @param {{head:string,rows:string}} [label]
+   * @returns {null|Object|Object<string, *>}
+   */
+
+
+  static toTable(samples, {
+    fields = null,
+    label = {
+      head: 'head',
+      rows: 'rows'
+    }
+  } = {}) {
+    if (!!samples && Array.isArray(samples)) {
+      const [firstRow] = samples;
+      const {
+        head,
+        rows
+      } = label;
+
+      if (!!firstRow && firstRow instanceof Object) {
+        const [banner, picker] = fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(firstRow), Object.values];
+        const rowSet = samples.map(picker);
+        return Jso.of([head, banner], [rows, rowSet]);
+      } else {
+        return null;
+      }
     } else throw new VehoError('The input \'rows\' is not an Array');
   }
   /**
@@ -431,11 +604,11 @@ class JsonTable {
    */
 
 
-  static samplesToMatrix(jsonArr) {
+  static toMatrix(jsonArr) {
     return [...jsonArr.map(json => Object.values(json))];
   }
 
-  static matrixToSamples(matrix, side, banner) {
+  static fromMatrix(matrix, side, banner) {
     const rows = matrix.map(row => banner.zip(row, (itm, obj) => [itm, obj]));
     const indexedRows = side.zip(rows, (itm, row) => [itm, row]);
     let obj = {};
@@ -445,149 +618,6 @@ class JsonTable {
     }
 
     return obj;
-  }
-
-}
-
-/**
- * Static class containing methods to create 2d-array.
- */
-
-class Mat {
-  /**
-   *
-   * @param {number} height
-   * @param {number} width
-   * @param {function} ject
-   * @returns {number[][]}
-   */
-  static ini(height, width, ject) {
-    return Array.from({
-      length: height
-    }, (_, x) => Array.from({
-      length: width
-    }, (_, y) => ject(x, y)));
-  }
-  /**
-   *
-   * @param {*[][]} mx
-   * @return {number[]}
-   */
-
-
-  static columnIndexes(mx) {
-    const arr = mx[0];
-    return !!arr ? [...arr.keys()] : [];
-  }
-  /**
-   * Transpose a 2d-array.
-   * @param {*[][]} mx
-   * @returns {*[][]}
-   */
-
-
-  static transpose(mx) {
-    return Mat.columnIndexes(mx).map(c => mx.map(r => r[c]));
-  }
-
-  static column(mx, index) {
-    return mx.map(r => r[index]);
-  }
-  /**
-   * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
-   * @param {*[][]} mx
-   * @param elementJect
-   * @returns {*[]}
-   */
-
-
-  static veho(mx, elementJect) {
-    return mx.map(row => row.map(elementJect));
-  }
-  /**
-   * Iterate through the columns of a 2d-array.
-   * @param {*[][]} mx
-   * @param {function(*[]):[]} columnJect
-   * @returns {*[]}
-   */
-
-
-  static vehoCol(mx, columnJect) {
-    return Mat.transpose(mx).map(columnJect);
-  }
-
-}
-//   let mtx = [];
-//   for (let j = 0; j < this[0].length; j++) {
-//     mtx[j] = [];
-//     for (let i = 0; i < this.length; i++) {
-//       mtx[j][i] = this[i][j]
-//     }
-//   }
-//   array[0].map((col, i) => array.map(row => row[i]));
-//   return mtx
-// };
-
-class Dic {
-  /**
-   * Create a map from separate key-array and value-array.
-   * @param {*[]} keys Array of keys.
-   * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
-   * @returns {Map<*, *>}
-   */
-  static ini(keys, values) {
-    const lex = keys.map((k, i) => [k, values[i]]);
-    return new Map(lex);
-  }
-
-}
-
-_defineProperty(Dic, "clone", cloneMap);
-
-class Fun {
-  static getMethodNames(cls) {
-    return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
-  }
-  /**
-   *
-   * @param {class} cls
-   * @return {string[]}
-   */
-
-
-  static getStaticMethodNames(cls) {
-    return Object.getOwnPropertyNames(cls).filter(prop => typeof cls[prop] === 'function');
-  }
-  /**
-   *
-   * @param {class} cls
-   * @return {string[]}
-   */
-
-
-  static getStaticPropertyNames(cls) {
-    return Object.keys(cls);
-  }
-  /**
-   *
-   * @param {function(*): *} pointwiseFunc
-   * @return {function(*[]): *[]}
-   */
-
-
-  static rowwise(pointwiseFunc) {
-    return row => row.map(x => pointwiseFunc(x));
-  }
-  /**
-   *
-   * @param {function(*): *} seinFunc function
-   * @param {function(*): *} funcs function whose sole parameter and return value are typed identically
-   * @return {function(*): *}
-   */
-
-
-  static chain(seinFunc, ...funcs) {
-    return funcs.reduce((prevFunc, currFunc) => x => currFunc(prevFunc(x)), seinFunc);
   }
 
 }
@@ -627,6 +657,6 @@ Array.prototype.zip = function (another, zipper) {
 exports.Dic = Dic;
 exports.Fun = Fun;
 exports.Jso = Jso;
-exports.JsonTable = JsonTable;
 exports.Mat = Mat;
+exports.Samples = Samples;
 exports.Vec = Vec;
