@@ -2,7 +2,7 @@
  * Static class containing methods to create 2d-array.
  */
 
-import { cloneArray } from '../misc/clone_beta'
+import { cloneArray } from '../misc/clone'
 import { VehoError } from '../misc/VehoError'
 
 class Mat {

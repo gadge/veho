@@ -1,7 +1,7 @@
 /**
  * Static class containing methods create 1d-array.
  */
-import { cloneArray } from '../misc/clone_beta'
+import { cloneArray } from '../misc/clone'
 
 class Vec {
   /**

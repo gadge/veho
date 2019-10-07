@@ -3,7 +3,7 @@ import { Mat } from './ext/Mat'
 import { Vec } from './ext/Vec'
 import { Dic } from './ext/Dic'
 import { Fun } from './ext/Fun'
-import { clone } from './misc/clone_beta'
+import { clone } from './misc/clone'
 // Array extension
 
 // /**

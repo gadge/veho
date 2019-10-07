@@ -1,4 +1,5 @@
 import { Samples } from '../../src/ext/Samples'
+import { Mat } from '../../src/ext/Mat'
 
 const samples = [
   { country: 'USA', year: '2017', gdp: 19390, pop: 325 },
@@ -39,12 +40,34 @@ export class JsoSamplesTest {
     '' |> console.log
 
     'samples' |> console.log
-    const s = Samples.fromTable({ samples: table })
-    s |> console.log
+    const sampleList = Samples.fromTable(table)
+    sampleList |> console.log
     '' |> console.log
 
     'samples picked' |> console.log
+    const sampleListPicked = Samples.fromTable(table, ['country', 'year', 'pop', 'marketcap'])
+    sampleListPicked |> console.log
+    '' |> console.log
+  }
 
+  static crosTabToSamples () {
+    'crosTab original' |> console.log
+    const { head, rows } = Samples.toTable(samples)
+    const y = head.indexOf('country')
+    const columns = [...new Set(rows.map(row => row[y]))]
+    const newRows = columns.map(country => rows.filter(row => row[y] === country)[0])
+    const crosTab = { matrix: newRows, side: columns, banner: head }
+    crosTab |> console.log
+    '' |> console.log
+
+    'samples' |> console.log
+    const sampleList = Samples.fromCrosTab(crosTab)
+    sampleList |> console.log
+    '' |> console.log
+
+    'to matrix' |> console.log
+    const matrix = Samples.toMatrix(samples)
+    matrix |> console.log
     '' |> console.log
   }
 }

@@ -19,7 +19,10 @@
 // SimpleJsoTest.JTabTest()
 
 import { JsoSamplesTest } from './tasks/jso.samples.test'
-JsoSamplesTest.samplesToTable()
+
+// JsoSamplesTest.samplesToTable()
+// JsoSamplesTest.tableToSample()
+JsoSamplesTest.crosTabToSamples()
 
 // import { SimpleVectorTest } from './simple.vector.testIni'
 //

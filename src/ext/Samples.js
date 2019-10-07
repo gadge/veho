@@ -18,52 +18,33 @@ import { Jso } from './Jso'
 export class Samples {
   /**
    *
+   * @param {*[]} head
    * @param {*[][]} rows
-   * @param {*[]}head
+   * @param {*[]} [fields]
    * @return {Object[]}
    */
-  static fromTable ({ head, rows }) {
-    if (!!rows && Array.isArray(rows)) {
-      const [row] = rows
-      if (!!row && Array.isArray(row)) {
-        let [i, len] = [0, Math.min(row.length, head.length)]
-        return rows.map(row => {
-          let o = {}
-          for (i = 0; i < len; i++) o[head[i]] = row[i]
-          return o
-        })
-      } else {
-        return null
-      }
-    } else throw new VehoError('The input \'samples\' is not an Array')
+  static fromTable ({ head, rows }, fields) {
+    if (!head || !Array.isArray(head)) throw new VehoError('The input \'head\' is not valid.')
+    if (!rows || !Array.isArray(rows)) throw new VehoError('The input \'rows\' is not valid.')
+    const [row] = rows
+    if (!row || !Array.isArray(row)) return null
+
+    let k_i = fields && Array.isArray(fields)
+      ? fields.map(field => [field, head.indexOf(field)])
+      : [...head.entries()].map(([k, v]) => [v, k])
+    return rows.map(row => {
+      let o = {}
+      for (let [k, i] of k_i) o[k] = row[i]
+      return o
+    })
   }
 
   /**
    *
-   * @param {Object<string,*>[]}rows
-   * @param {string} bannerLabel
-   * @param {string} samplesLabel
-   * @returns {Object<string,*>|null}
-   */
-  static toTable2 (rows, bannerLabel = 'head', samplesLabel = 'rows') {
-    if (!!rows && Array.isArray(rows)) {
-      const [row] = rows
-      if (!!row && row instanceof Object) {
-        const banner = Object.keys(row)
-        const samples = rows.map(row => Object.values(row))
-        return Jso.of([bannerLabel, banner], [samplesLabel, samples])
-      } else {
-        return null
-      }
-    } else throw new VehoError('The input \'rows\' is not an Array')
-  }
-
-  /**
-   *
-   * @param {*[][]} samples
+   * @param {Object[]} samples
    * @param {string[]} [fields]
    * @param {{head:string,rows:string}} [label]
-   * @returns {null|Object|Object<string, *>}
+   * @returns {null|{head:*[],rows:*[][]}|Object}
    */
   static toTable (samples, {
     fields = null,
@@ -72,22 +53,19 @@ export class Samples {
       rows: 'rows'
     }
   } = {}) {
-    if (!!samples && Array.isArray(samples)) {
-      const [firstRow] = samples
-      const { head, rows } = label
-      if (!!firstRow && firstRow instanceof Object) {
-        const [banner, picker] = fields
-          ? [fields, row => banner.map(x => row[x])]
-          : [Object.keys(firstRow), Object.values]
-        const rowSet = samples.map(picker)
-        return Jso.of(
-          [head, banner],
-          [rows, rowSet]
-        )
-      } else {
-        return null
-      }
-    } else throw new VehoError('The input \'rows\' is not an Array')
+    if (!samples || !Array.isArray(samples)) throw new VehoError('The input \'rows\' is not an Array')
+    const [sample] = samples
+    if (!sample || !(sample instanceof Object)) return null
+
+    const { head, rows } = label
+    const [banner, picker] = fields
+      ? [fields, row => banner.map(x => row[x])]
+      : [Object.keys(sample), Object.values]
+    const rowSet = samples.map(picker)
+    return Jso.of(
+      [head, banner],
+      [rows, rowSet]
+    )
   }
 
   /**
@@ -104,7 +82,7 @@ export class Samples {
    *    [*, *, ...],
    *    ...
    *  ]
-   * @param {*[]} samples Table in json-array form: [{c1:*,c2:*,..},{c1:*,c2:*,..},..]
+   * @param {Object[]} samples Table in json-array form: [{c1:*,c2:*,..},{c1:*,c2:*,..},..]
    * @returns {*[][]} Table content in 2d-array, excluding the input table head.
    */
   static toMatrix (samples) {
@@ -112,10 +90,8 @@ export class Samples {
   }
 
   static fromCrosTab ({ matrix, side, banner }) {
-    const rows = matrix.map(row => banner.zip(row, (itm, obj) => [itm, obj]))
-    const indexedRows = side.zip(rows, (itm, row) => [itm, row])
-    let o = {}
-    for (let [k, v] of indexedRows) o[k] = v
-    return o
+    const sampleList = matrix.map(row => Jso.ini(banner, row))
+    const result = Jso.ini(side, sampleList)
+    return result
   }
 }

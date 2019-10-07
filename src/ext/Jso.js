@@ -3,7 +3,18 @@ import { VehoError } from '../misc/VehoError'
 import { cloneObject } from '../misc/clone'
 
 class Jso {
-  static clone = cloneObject
+  /**
+   * Create a object from separate key-array and value-array.
+   * @param {*[]} keys Array of keys.
+   * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
+   * @returns {Object<*, *>}
+   */
+  static ini (keys, values) {
+    const o = {}
+    let i, k
+    for ([i, k] of keys.entries()) o[k] = values[i]
+    return o
+  }
 
   /**
    *
@@ -22,9 +33,7 @@ class Jso {
    */
   static fromArr (arr, val) {
     let o = {}
-    for (let k of arr) {
-      o[k] = val
-    }
+    for (let k of arr) o[k] = val
     return o
   }
 
@@ -35,9 +44,7 @@ class Jso {
    */
   static of (...entries) {
     let o = {}
-    for (let [k, v] of entries) {
-      o[k] = v
-    }
+    for (let [k, v] of entries) o[k] = v
     return o
   }
 
@@ -89,6 +96,10 @@ class Jso {
     }
     return o
     // return Object.fromEntries(dict)
+  }
+
+  static clone (jso) {
+    return cloneObject(jso)
   }
 }
 

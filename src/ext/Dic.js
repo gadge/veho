@@ -1,4 +1,4 @@
-import { cloneMap } from '../misc/clone_beta'
+import { cloneMap } from '../misc/clone'
 
 class Dic {
   /**
