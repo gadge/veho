@@ -1,6 +1,6 @@
 {
   "name": "veho",
-  "version": "0.1.11",
+  "version": "0.1.19",
   "description": "An array extension (grammatical sugar) to create, iterate and query 1d, 2d array and JSON object.",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -15,12 +15,8 @@
     "build-rollup": "rollup -c",
     "prepare": "npm run build-rollup",
     "publish": "npm publish",
-    "test": "node test/utils/test-main.js",
-    "clitest": "node test/utils/test-cli.js --arg1=5",
-    "mocha": "mocha"
-  },
-  "bin": {
-    "clitest": "test/utils/test-cli.js"
+    "test": "node test/utils/test-main.js -r @babel/register",
+    "jest-test": "jest"
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,8 +29,7 @@
     "@babel/runtime": "^7.6.0",
     "axios": "^0.19.0",
     "crawler": "^1.2.1",
-    "elprimero": "^0.0.17",
-    "mocha": "^6.2.1",
+    "jest": "^24.9.0",
     "rollup": "^1.21.4",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -43,7 +38,10 @@
     "stocks.js": "^0.0.17",
     "webpack": "^4.40.2",
     "webpack-cli": "^3.3.9",
-    "xbrief": "^0.1.30"
+    "crostab": "^0.1.22",
+    "elprimero": "^0.0.18",
+    "xbrief": "^0.1.34",
+    "borel": "^0.1.0"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,6 @@
 let nba_players_performance = {
-  banr: ['Player', 'Season', 'Team', 'GP', 'GS', 'Minutes', 'FGM', 'FGA', '3PM', '3PA', 'FTM', 'FTA', 'Rebound', 'OfsRbd', 'DfsRbd', 'Assist', 'Steal', 'Block', 'Turnover', 'Fouls', 'Score', 'Win', 'Lose'],
-  matr: [
+  head: ['Player', 'Season', 'Team', 'GP', 'GS', 'Minutes', 'FGM', 'FGA', '3PM', '3PA', 'FTM', 'FTA', 'Rebound', 'OfsRbd', 'DfsRbd', 'Assist', 'Steal', 'Block', 'Turnover', 'Fouls', 'Score', 'Win', 'Lose'],
+  rows: [
     ['Joel Embiid', '17-18', 'Philadelphia 76ers', '63', '63', '1913', '510', '1056', '66', '214', '359', '467', '690', '143', '547', '199', '40', '111', '234', '209', '1445', '41', '22'],
     ['Joel Embiid', '16-17', 'Philadelphia 76ers', '31', '31', '786', '200', '429', '36', '98', '191', '244', '243', '61', '182', '66', '27', '76', '117', '112', '627', '13', '18'],
     ['Ben Simmons', '17-18', 'Philadelphia 76ers', '81', '81', '2737', '544', '998', '0', '11', '191', '341', '659', '145', '514', '661', '140', '70', '278', '211', '1279', '51', '30'],

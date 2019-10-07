@@ -1,20 +1,45 @@
 /**
  * Static class containing methods create 1d-array.
  */
-import { cloneArray } from '../misc/clone'
+import { cloneArray } from '../misc/clone_beta'
 
 class Vec {
   /**
    * Create an array.
    * @param {number} size Integer starts at zero.
-   * @param {function} jectValue Defines the how index i decides value(i).
+   * @param {function|*} [ject] Defines the how index i decides value(i).
    * @returns {number[]} The
    */
-  static ini (size, jectValue = (i) => 0) {
-    return Array.from({ length: size }, (v, i) => jectValue(i))
+  static ini (size, ject) {
+    if (typeof ject === 'function') {
+      if (size <= 128) {
+        let arr = []
+        for (let i = 0; i < size; i++) arr[i] = ject(i)
+        return arr
+      } else {
+        return Array(size).fill(null).map((_, i) => ject(i))
+      }
+    } else {
+      if (size <= 128) {
+        let arr = []
+        for (let i = 0; i < size; i++) arr[i] = ject
+        return arr
+      } else {
+        return Array(size).fill(ject)
+      }
+    }
+
   }
 
-  static clone = cloneArray
+  static isEmpty (arr) {
+    return !arr || !arr.length
+  }
+
+  static clone (arr) {return cloneArray(arr)}
+
+  static indexes (arr) {
+    return arr.map((_, i) => i)
+  }
 
   /**
    * Returns an array built from the elements of a given set of arrays.
@@ -29,9 +54,9 @@ class Vec {
     const firstArray = arraySet[0]
     if (!!firstArray) {
       const [len, cnt] = [firstArray.length, arraySet.length]
-      const result = Array.from({ length: len })
+      const result = Array(len)
       for (let i = 0; i < len; i++) {
-        const params = Array.from({ length: cnt })
+        const params = Array(cnt)
         for (let j = 0; j < cnt; j++) {
           params[j] = arraySet[j][i]
         }
