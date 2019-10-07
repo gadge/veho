@@ -1,21 +1,22 @@
-// import { MatrixTest } from './simple.testIni.matrix'
+// import { SimpleMatrixTest } from './simple.testIni.matrix'
 
 // import { testAxiosBoxOfficeMojo } from './axios.boxofficemojo.testIni'
 // import { TestAxiosAlphaVantage } from './axios.alphavantage.test'
 //
 // TestAxiosAlphaVantage.test()
 
-// MatrixTest()
-// import { MatrixTest } from './simple.matrix.test'
+// SimpleMatrixTest()
+// import { SimpleMatrixTest } from './tasks/simple.matrix.test'
 //
-// MatrixTest.testColumnIndexes()
-// simpleTestVector()
-// testAxiosBoxOfficeMojo()
-// testAxiosAlphaVantage()
+// SimpleMatrixTest.testIni()
 
-import { SimpleJsoTest } from './tasks/simple.Jso.test'
+import { CloneTest } from './tasks/clone.test'
 
-SimpleJsoTest.createObjectTest()
+CloneTest.cloneArray()
+
+// import { SimpleJsoTest } from './tasks/simple.Jso.test'
+//
+// SimpleJsoTest.createObjectTest()
 // SimpleJsoTest.jsonTableTest()
 
 // import { SimpleVectorTest } from './simple.vector.testIni'

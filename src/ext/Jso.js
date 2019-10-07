@@ -1,32 +1,24 @@
-import './Vec'
 import { VehoError } from '../misc/VehoError'
-import { cloneObject } from '../misc/clone'
+import { cloneObject } from '../misc/clone_beta'
+import { Mat } from './Mat'
 
 class Jso {
-  static clone = cloneObject
 
   /**
-   *
-   * @param {Object<string,*>} jso
-   * @return {[string, *][]}
+   * Create an Object from separate key-array and value-array.
+   * @param {*[]} keys Array of keys.
+   * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
+   * @returns {Map<*, *>}
    */
-  static toEntries (jso) {
-    return Object.entries(jso)
-  }
-
-  /**
-   * Shallow.
-   * @param {string[]} arr
-   * @param {*} val
-   * @return {Object<string,*>}
-   */
-  static fromArr (arr, val) {
-    let o = {}
-    for (let k of arr) {
-      o[k] = val
+  static ini (keys, values) {
+    const o = {}
+    for (let [i, k] of keys.entries()) {
+      o[k] = values[i]
     }
     return o
   }
+
+  static clone (o) {return cloneObject(o)}
 
   /**
    * Shallow.
@@ -69,12 +61,17 @@ class Jso {
   }
 
   /**
-   *
-   * @param {Object<string,*>} jso
-   * @return {Map<string, *>}
+   * Shallow.
+   * @param {string[]} arr
+   * @param {*} val
+   * @return {Object<string,*>}
    */
-  static toMap (jso) {
-    return new Map(Object.entries(jso))
+  static fromArr (arr, val) {
+    let o = {}
+    for (let k of arr) {
+      o[k] = val
+    }
+    return o
   }
 
   /**
@@ -89,6 +86,24 @@ class Jso {
     }
     return o
     // return Object.fromEntries(dict)
+  }
+
+  /**
+   *
+   * @param {Object<string,*>} jso
+   * @return {Map<string, *>}
+   */
+  static toMap (jso) {
+    return new Map(Object.entries(jso))
+  }
+
+  /**
+   *
+   * @param {Object<string,*>} jso
+   * @return {[string, *][]}
+   */
+  static toEntries (jso) {
+    return Object.entries(jso)
   }
 }
 
@@ -114,19 +129,17 @@ class JsonTable {
    * @return {Object[]}
    */
   static tableToSamples (samples, banner) {
-    if (!!samples && samples.constructor === Array) {
+    if (Mat.isMat(samples)) {
       const firstRow = samples[0]
-      if (!!firstRow && firstRow.constructor === Array) {
-        let [i, len] = [0, Math.min(firstRow.length, banner.length)]
-        return samples.map(row => {
-          let o = {}
-          for (i = 0; i < len; i++) {
-            o[banner[i]] = row[i]
-          }
-          return o
-        })
-      } else return null
-    } else throw new VehoError('The input \'samples\' is not an Array')
+      let len = Math.min(firstRow.length, banner.length)
+      return samples.map(row => {
+        let o = {}
+        for (let i = 0; i < len; i++) {
+          o[banner[i]] = row[i]
+        }
+        return o
+      })
+    } else throw new VehoError('The input \'samples\' is not a 2d-array')
   }
 
   /**
@@ -137,7 +150,7 @@ class JsonTable {
    * @returns {Object<string,*>}
    */
   static samplesToTable (rows, bannerLabel = 'head', samplesLabel = 'rows') {
-    if (!!rows && rows.constructor === Array) {
+    if (!!rows && Array.isArray(rows)) {
       const firstRow = rows[0]
       if (!!firstRow && typeof firstRow === 'object') {
         const banner = Object.keys(firstRow)

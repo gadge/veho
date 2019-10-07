@@ -3,7 +3,7 @@ import { Mat } from './ext/Mat'
 import { Vec } from './ext/Vec'
 import { Dic } from './ext/Dic'
 import { Fun } from './ext/Fun'
-
+import { clone } from './misc/clone_beta'
 // Array extension
 
 // /**
@@ -24,8 +24,7 @@ Array.prototype.take = function (len) {
 }
 
 Array.prototype.zip = function (another, zipper) {
-  const length = this.length
-  const arr = Array.from({ length })
+  const { length } = this, arr = Array(length)
   for (let i = 0; i < length; i++) {
     arr[i] = zipper(this[i], another[i], i)
   }
@@ -85,5 +84,6 @@ export {
   Mat,
   Vec,
   Dic,
-  Fun
+  Fun,
+  clone
 }

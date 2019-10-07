@@ -1,6 +1,7 @@
 import pkg from './package.json'
 import { BabelLocal } from './build/BabelLocal'
 import babel from 'rollup-plugin-babel'
+import { terser } from 'rollup-plugin-terser'
 
 const input = 'src/index.js'
 
@@ -36,6 +37,20 @@ export default [
         ...BabelLocal.base,
         plugins: BabelLocal.plugins
       })
+    ]
+  },
+  {
+    input,
+    external: externalDependencies,
+    output: [
+      { file: 'test/dist/index.esm.js', format: 'esm' },  // CommonJS (for Node) build.
+    ],
+    plugins: [
+      babel({
+        ...BabelLocal.base,
+        plugins: BabelLocal.plugins
+      }),
+      terser()
     ]
   }
 ]

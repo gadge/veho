@@ -23,7 +23,7 @@ class SimpleJsoTest {
 
   static createObjectTest () {
     const entries = Object.entries(highestGrossingFilmsInChina)
-    'entries'.tag(entries |> Typ.inferType) |> console.log
+    'entries'.tag(entries |> Typ.infer) |> console.log
     entries |> console.log
 
     let objByOf = Jso.of(...entries)
@@ -46,15 +46,15 @@ class SimpleJsoTest {
 
   static mapTransferTest () {
     let original = boxoffice
-    'original'.tag(original |> Typ.inferType) |> console.log
+    'original'.tag(original |> Typ.infer) |> console.log
     original |> console.log
 
     let jso = Jso.fromMap(boxoffice)
-    'map to object'.tag(jso|> Typ.inferType) |> console.log
+    'map to object'.tag(jso|> Typ.infer) |> console.log
     jso |> console.log
 
     let mpo = Jso.toMap(jso)
-    'object to map'.tag(mpo|> Typ.inferType) |> console.log
+    'object to map'.tag(mpo|> Typ.infer) |> console.log
     mpo |> console.log
   }
 
@@ -67,14 +67,14 @@ class SimpleJsoTest {
   static jsonTableTest () {
     const original = macrotable
     const rowAbstract = row => JSON.stringify(row)
-    'original samples form' |> console.log
+    'original \'samples\' form' |> console.log
     VecX.vBrief(macrotable, { abstract: rowAbstract }) |> console.log
 
-    'samples form to table form' |> console.log
+    '\'samples\' form to \'table\' form' |> console.log
     const table = JsonTable.samplesToTable(macrotable, 'head', 'rows')
     table |> console.log
 
-    'table form to samples form' |> console.log
+    '\'table\' form to \'samples\' form' |> console.log
     const samples = JsonTable.tableToSamples(table.rows, table.head)
     // deco(samples |> console.log
     VecX.vBrief(samples, { abstract: rowAbstract }) |> console.log
@@ -84,6 +84,10 @@ class SimpleJsoTest {
 //
 // test('SimpleJsoTest createObjectTest', () => {
 //   SimpleJsoTest.createObjectTest()
+// })
+
+// test('SimpleJsoTest jsonTableTest', () => {
+//   SimpleJsoTest.jsonTableTest()
 // })
 
 test('clone', () => {

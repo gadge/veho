@@ -1,6 +1,8 @@
 /**
  * Static class containing methods to create 2d-array.
  */
+
+import { cloneArray } from '../misc/clone_beta'
 import { VehoError } from '../misc/VehoError'
 
 class Mat {
@@ -12,11 +14,27 @@ class Mat {
    * @returns {number[][]}
    */
   static ini (height, width, ject) {
-    return Array.from({ length: height }, (_, x) =>
-      Array.from({ length: width }, (_, y) =>
+    return Array(height).fill(null).map((_, x) =>
+      Array(width).fill(null).map((_, y) =>
         ject(x, y)
       )
     )
+  }
+
+  static isMat (mx) {
+    return Array.isArray(mx) && mx.length
+      ? Array.isArray(mx[0])
+      : false
+  }
+
+  static is (mx) {
+    return !!mx && mx.length
+      ? !!mx[0]
+      : false
+  }
+
+  static clone (mx) {
+    return mx.map(cloneArray)
   }
 
   /**
@@ -25,8 +43,11 @@ class Mat {
    * @return {number[]}
    */
   static columnIndexes (mx) {
-    const arr = mx[0]
-    return !!arr ? [...arr.keys()] : []
+    return !!mx && mx.length
+      ? !!mx[0]
+        ? mx[0].map((_, i) => i)
+        : []
+      : []
   }
 
   /**

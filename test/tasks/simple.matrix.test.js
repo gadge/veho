@@ -15,9 +15,10 @@ const matrices = {
   simple_matrix: Mat.ini(3, 5, (x, y) => x + y + 1)
 }
 
-class MatrixTest {
+class SimpleMatrixTest {
   static testIni () {
     const matrix = Mat.ini(5, 4, (x, y) => x + y)
+    matrix |> console.log
     GP.now().tag(MatX.xBrief(matrix)).wL()
   }
 
@@ -50,5 +51,5 @@ class MatrixTest {
 }
 
 export {
-  MatrixTest
+  SimpleMatrixTest
 }

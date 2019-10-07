@@ -1,4 +1,4 @@
-import { cloneMap } from '../misc/clone'
+import { cloneMap } from '../misc/clone_beta'
 
 class Dic {
   /**
@@ -12,7 +12,9 @@ class Dic {
     return new Map(lex)
   }
 
-  static clone = cloneMap
+  static clone (dic) {
+    return cloneMap(dic)
+  }
 }
 
 export {
