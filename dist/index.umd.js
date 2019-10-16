@@ -803,7 +803,7 @@
       if (!rows || !Array.isArray(rows)) throw new VehoError('The input \'rows\' is not valid.');
       var row = rows[0];
       if (!row || !Array.isArray(row)) return null;
-      var k_i = fields && Array.isArray(fields) ? fields.map(function (field) {
+      var fieldToIndex = fields && Array.isArray(fields) ? fields.map(function (field) {
         return [field, head.indexOf(field)];
       }) : [].concat(head.entries()).map(function (_ref2) {
         var k = _ref2[0],
@@ -813,7 +813,7 @@
       return rows.map(function (row) {
         var o = {};
 
-        for (var _iterator = k_i, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+        for (var _iterator = fieldToIndex, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
           var _ref3;
 
           if (_isArray) {
@@ -856,18 +856,18 @@
       if (!samples || !Array.isArray(samples)) throw new VehoError('The input \'rows\' is not an Array');
       var sample = samples[0];
       if (!sample || !(sample instanceof Object)) return null;
-      var head = label.head,
-          rows = label.rows;
 
-      var _ref6 = fields ? [fields, function (row) {
+      var head = label.head,
+          rows = label.rows,
+          _ref6 = fields ? [fields, function (row) {
         return banner.map(function (x) {
           return row[x];
         });
       }] : [Object.keys(sample), Object.values],
           banner = _ref6[0],
-          picker = _ref6[1];
+          picker = _ref6[1],
+          rowSet = samples.map(picker);
 
-      var rowSet = samples.map(picker);
       return Jso.of([head, banner], [rows, rowSet]);
     }
     /**
@@ -893,15 +893,19 @@
       return samples.map(Object.values);
     };
 
-    Samples.fromCrosTab = function fromCrosTab(_ref7) {
+    Samples.fromCrosTab = function fromCrosTab(_ref7, _ref8) {
       var matrix = _ref7.matrix,
           side = _ref7.side,
           banner = _ref7.banner;
-      var sampleList = matrix.map(function (row) {
+      var _ref8$sideLabel = _ref8.sideLabel,
+          sideLabel = _ref8$sideLabel === void 0 ? '_' : _ref8$sideLabel;
+      var sides = side.map(function (x) {
+        return Jso.of([sideLabel, x]);
+      }),
+          rows = matrix.map(function (row) {
         return Jso.ini(banner, row);
       });
-      var result = Jso.ini(side, sampleList);
-      return result;
+      return sides.zip(rows, Object.assign);
     };
 
     return Samples;

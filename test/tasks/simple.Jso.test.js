@@ -1,7 +1,6 @@
 import { boxoffice } from '../asset/map/boxoffice.180817'
-import { deco, StrX, Typ, VecX, MapX } from 'xbrief'
-import { Jso, JTab } from '../../src/ext/Jso'
-import { GP } from 'elprimero'
+import { deco, Typ, VecX } from 'xbrief'
+import { Jso, Samples } from '../../src'
 import { highestGrossingFilmsInChina } from '../asset/highestGrossingFilmsInChina'
 
 const macrotable = [
@@ -64,47 +63,36 @@ class SimpleJsoTest {
     deco(a).wL()
   }
 
-  static JTabTest () {
+  static SamplesTest () {
     const original = macrotable
     const rowAbstract = row => JSON.stringify(row)
-    'original samples form' |> console.log
+    'original samples' |> console.log
     VecX.vBrief(macrotable, { abstract: rowAbstract }) |> console.log
 
-    'samples form to table form' |> console.log
-    const table = JTab.fromSamples(macrotable, 'head', 'rows')
+    'samples to table' |> console.log
+    const table = Samples.toTable(macrotable)
     table |> console.log
 
-    'table form to samples form' |> console.log
-    const samples = JTab.toSamples(table.rows, table.head)
+    'table to crostab' |> console.log
+    const crostab = {
+      side: Object.keys(table.rows),
+      banner: table.head,
+      matrix: table.rows
+    }
+    crostab |> console.log
+
+    'table to samples' |> console.log
+    const samples = Samples.fromCrosTab(crostab, { sideLabel: 'srno' })
     // deco(samples |> console.log
     VecX.vBrief(samples, { abstract: rowAbstract }) |> console.log
   }
 }
 
-//
-// test('SimpleJsoTest createObjectTest', () => {
-//   SimpleJsoTest.createObjectTest()
-// })
-
-test('clone', () => {
-  const abc = {
-    f: 1,
-    b: 2,
-    c: [1, 2]
-  }
-  'original abc' |> console.log
-  abc |> console.log
-
-  'clone abc as bcd' |> console.log
-  const bcd = Jso.clone(abc)
-
-  'abc changed c[1] to 4' |> console.log
-  abc.c[1] = 4
-  abc |> console.log
-
-  'bcd' |> console.log
-  bcd |> console.log
-
+describe('Simple Jso Test', function () {
+  this.timeout(1000 * 60)
+  it('Simple Jso Test: Samples Test ', () => {
+    SimpleJsoTest.SamplesTest()
+  })
 })
 
 export {

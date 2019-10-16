@@ -502,11 +502,11 @@ class Samples {
     if (!rows || !Array.isArray(rows)) throw new VehoError('The input \'rows\' is not valid.');
     const [row] = rows;
     if (!row || !Array.isArray(row)) return null;
-    let k_i = fields && Array.isArray(fields) ? fields.map(field => [field, head.indexOf(field)]) : [...head.entries()].map(([k, v]) => [v, k]);
+    let fieldToIndex = fields && Array.isArray(fields) ? fields.map(field => [field, head.indexOf(field)]) : [...head.entries()].map(([k, v]) => [v, k]);
     return rows.map(row => {
       let o = {};
 
-      for (let [k, i] of k_i) o[k] = row[i];
+      for (let [k, i] of fieldToIndex) o[k] = row[i];
 
       return o;
     });
@@ -533,9 +533,9 @@ class Samples {
     const {
       head,
       rows
-    } = label;
-    const [banner, picker] = fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values];
-    const rowSet = samples.map(picker);
+    } = label,
+          [banner, picker] = fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values],
+          rowSet = samples.map(picker);
     return Jso.of([head, banner], [rows, rowSet]);
   }
   /**
@@ -565,10 +565,12 @@ class Samples {
     matrix,
     side,
     banner
+  }, {
+    sideLabel = '_'
   }) {
-    const sampleList = matrix.map(row => Jso.ini(banner, row));
-    const result = Jso.ini(side, sampleList);
-    return result;
+    const sides = side.map(x => Jso.of([sideLabel, x])),
+          rows = matrix.map(row => Jso.ini(banner, row));
+    return sides.zip(rows, Object.assign);
   }
 
 }

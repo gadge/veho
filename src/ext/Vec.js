@@ -7,28 +7,23 @@ class Vec {
   /**
    * Create an array.
    * @param {number} size Integer starts at zero.
-   * @param {function|*} [ject] Defines the how index i decides value(i).
+   * @param {function(number):*|*} [ject] Defines the how index i decides value(i).
    * @returns {number[]} The
    */
   static ini (size, ject) {
-    if (typeof ject === 'function') {
-      if (size <= 128) {
-        let arr = []
+    if (size <= 128) {
+      let arr = []
+      if (typeof ject === 'function') {
         for (let i = 0; i < size; i++) arr[i] = ject(i)
-        return arr
       } else {
-        return Array(size).fill(null).map((_, i) => ject(i))
-      }
-    } else {
-      if (size <= 128) {
-        let arr = []
         for (let i = 0; i < size; i++) arr[i] = ject
-        return arr
-      } else {
-        return Array(size).fill(ject)
       }
+      return arr
+    } else {
+      return typeof ject === 'function'
+        ? Array(size).fill(null).map((_, i) => ject(i))
+        : Array(size).fill(ject)
     }
-
   }
 
   static isEmpty (arr) {
