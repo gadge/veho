@@ -6,6 +6,16 @@
   ],
   "plugins": [
     [
+      "@babel/transform-runtime",
+      {
+        "absoluteRuntime": false,
+        "corejs": false,
+        "helpers": false,
+        "regenerator": true,
+        "useESModules": true
+      }
+    ],
+    [
       "@babel/plugin-proposal-pipeline-operator",
       {
         "proposal": "minimal"
@@ -13,6 +23,9 @@
     ],
     [
       "@babel/plugin-proposal-class-properties"
+    ],
+    [
+      "@babel/plugin-proposal-private-methods"
     ]
   ]
 }

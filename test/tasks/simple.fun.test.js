@@ -1,5 +1,6 @@
-import { Fun } from '../../src'
-import { deco, Str, Typ } from 'xbrief'
+import { Fn } from '../../src'
+import { deco, StrX } from 'xbrief'
+import { Typ } from 'typen'
 
 class Staff {
   constructor (id, name, pos) {
@@ -38,8 +39,8 @@ Staff.staffCopyright = 'MIT'
 export class SimpleFunTest {
   static testGetStaticNames () {
     `Test: ${SimpleFunTest.name}.${SimpleFunTest.testGetStaticNames.name}`.wL()
-    Fun.getStaticMethodNames.name.deco(Fun.getStaticMethodNames(Staff)).wL()
-    Fun.getStaticPropertyNames.name.deco(Fun.getStaticPropertyNames(Staff)).wL()
+    Fn.getStaticMethodNames.name.deco(Fn.getStaticMethodNames(Staff)).wL()
+    Fn.getStaticPropertyNames.name.deco(Fn.getStaticPropertyNames(Staff)).wL()
   }
 
   static testGetFuncMethods () {
@@ -49,7 +50,7 @@ export class SimpleFunTest {
     //   b: x => x * 2,
     //   c: x => x + 1
     // }
-    // const fun = Fun.chain(...Object.values(funcSet))
+    // const fun = Fn.chain(...Object.values(funcSet))
     // Str.tag('JSON.stringify(fun)', deco(fun)).wL()
     // Typ.check(fun).wL()
     // const arr = [1, 2, 3, 5, 7]
@@ -63,7 +64,7 @@ export class SimpleFunTest {
       c: x => x / 3
     }
     const seinFunc = x => 3 * x
-    const finalFunc = Fun.chain(seinFunc, ...Object.values(chains))
+    const finalFunc = Fn.chain(seinFunc, ...Object.values(chains))
     'finalFunc'.deco(finalFunc).wL()
     'result'.deco(finalFunc(2)).wL()
     // const z = 2
@@ -72,6 +73,4 @@ export class SimpleFunTest {
     //   |> chains.c
     // console.log(z)
   }
-
-
 }

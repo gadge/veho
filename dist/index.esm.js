@@ -1,3 +1,5 @@
+import { Num, NumLoose } from 'typen';
+
 const oc = Object.prototype.toString;
 /**
  *
@@ -10,19 +12,19 @@ function clone(o) {
 
   switch (oc.call(o).slice(8, 11)) {
     case 'Arr':
-      return cloneArray(o);
+      return dpArr(o);
 
     case 'Obj':
-      return cloneObject(o);
+      return dpObj(o);
 
     case 'Map':
-      return cloneMap(o);
+      return dpMap(o);
 
     case 'Dat':
       return new Date(+o);
 
     case 'Set':
-      return new Set(cloneArray([...o]));
+      return new Set(dpArr([...o]));
   }
 
   throw new Error('Unable to copy obj. Unsupported type.');
@@ -34,7 +36,7 @@ function clone(o) {
  */
 
 
-function cloneMap(o) {
+function dpMap(o) {
   return new Map([...o.entries()].map(([k, v]) => [k, clone(v)]));
 }
 /**
@@ -44,7 +46,7 @@ function cloneMap(o) {
  */
 
 
-function cloneArray(o) {
+function dpArr(o) {
   return o.map(clone);
 }
 /**
@@ -55,7 +57,7 @@ function cloneArray(o) {
  */
 
 
-function cloneObject(o) {
+function dpObj(o) {
   const x = {};
 
   for (let [k, v] of Object.entries(o)) x[k] = clone(v);
@@ -66,44 +68,55 @@ function cloneObject(o) {
 /**
  * Static class containing methods create 1d-array.
  */
+const {
+  numeric: num
+} = Num,
+      {
+  numeric: numLoose
+} = NumLoose;
 
-class Vec {
+class Ar {
   /**
    * Create an array.
    * @param {number} size Integer starts at zero.
-   * @param {function|*} [ject] Defines the how index i decides value(i).
+   * @param {function(number):*|*} [ject] Defines the how index i decides value(i).
    * @returns {number[]} The
    */
   static ini(size, ject) {
-    if (typeof ject === 'function') {
-      if (size <= 128) {
-        let arr = [];
+    if (size <= 128) {
+      let arr = [];
 
+      if (typeof ject === 'function') {
         for (let i = 0; i < size; i++) arr[i] = ject(i);
-
-        return arr;
       } else {
-        return Array(size).fill(null).map((_, i) => ject(i));
-      }
-    } else {
-      if (size <= 128) {
-        let arr = [];
-
         for (let i = 0; i < size; i++) arr[i] = ject;
-
-        return arr;
-      } else {
-        return Array(size).fill(ject);
       }
+
+      return arr;
+    } else {
+      return typeof ject === 'function' ? Array(size).fill(null).map((_, i) => ject(i)) : Array(size).fill(ject);
     }
   }
 
   static isEmpty(arr) {
     return !arr || !arr.length;
   }
+  /**
+   *
+   * @param {Array} arr
+   * @param {boolean} [loose]=false
+   * @returns {*}
+   */
+
+
+  static numeric(arr, {
+    loose = false
+  }) {
+    return arr.map(loose ? numLoose : num);
+  }
 
   static clone(arr) {
-    return cloneArray(arr);
+    return dpArr(arr);
   }
 
   static indexes(arr) {
@@ -180,7 +193,7 @@ class Vec {
 
 
   static arithmetic(size, initial, delta) {
-    return Vec.progression(size, initial, previous => previous + delta);
+    return Ar.progression(size, initial, previous => previous + delta);
   }
   /**
    * Create a geometric progression
@@ -192,7 +205,7 @@ class Vec {
 
 
   static geometric(size, initial, ratio) {
-    return Vec.progression(size, initial, previous => previous * ratio);
+    return Ar.progression(size, initial, previous => previous * ratio);
   }
   /**
    *
@@ -233,23 +246,175 @@ class Vec {
 
 } // Array.prototype.zip = function (another, zipper) {
 
-// Create an object type VehoError
-class VehoError extends Error {
-  constructor(message) {
+/**
+ * Static class containing methods to create 2d-array.
+ */
+const {
+  numeric: num$1
+} = Num,
+      {
+  numeric: numLoose$1
+} = NumLoose;
+
+class Mx {
+  /**
+   *
+   * @param {number} height
+   * @param {number} width
+   * @param {function} ject
+   * @returns {number[][]}
+   */
+  static ini(height, width, ject) {
+    return Array(height).fill(null).map((_, x) => Array(width).fill(null).map((_, y) => ject(x, y)));
+  }
+
+  static isMat(mx) {
+    return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
+  }
+
+  static is(mx) {
+    return !!mx && mx.length ? !!mx[0] : false;
+  }
+
+  static clone(mx) {
+    return mx.map(dpArr);
+  }
+  /**
+   *
+   * @param {*[][]} mx
+   * @param {boolean=false} [loose]
+   * @returns {*}
+   */
+
+
+  static numeric(mx, {
+    loose = false
+  }) {
+    const fn = loose ? numLoose$1 : num$1;
+    return mx.map(r => r.map(fn));
+  }
+  /**
+   *
+   * @param {*[][]} mx
+   * @return {number[]}
+   */
+
+
+  static columnIndexes(mx) {
+    return !!mx && mx.length ? !!mx[0] ? mx[0].map((_, i) => i) : [] : [];
+  }
+  /**
+   *
+   * @param {*[][]} mx
+   * @return {number[]}
+   */
+
+
+  static coins(mx) {
+    return !!mx && mx.length ? !!mx[0] ? mx[0].map((_, i) => i) : [] : [];
+  }
+  /**
+   * Transpose a 2d-array.
+   * @param {*[][]} mx
+   * @returns {*[][]}
+   */
+
+
+  static transpose(mx) {
+    return Mx.columnIndexes(mx).map(c => mx.map(r => r[c]));
+  }
+
+  static column(mx, index) {
+    return mx.map(r => r[index]);
+  }
+  /**
+   * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
+   * @param {*[][]} mx
+   * @param {function} fn
+   * @returns {*[]}
+   */
+
+
+  static map(mx, fn) {
+    return mx.map((r, i) => r.map((el, j) => fn(el, i, j)));
+  }
+  /**
+   * Iterate through the columns of a 2d-array.
+   * @param {*[][]} mx
+   * @param {function(*[]):[]} fnOnColumn
+   * @returns {*[]}
+   */
+
+
+  static mapCol(mx, fnOnColumn) {
+    return Mx.transpose(mx).map(fnOnColumn);
+  }
+
+}
+//   let mtx = [];
+//   for (let j = 0; j < this[0].length; j++) {
+//     mtx[j] = [];
+//     for (let i = 0; i < this.length; i++) {
+//       mtx[j][i] = this[i][j]
+//     }
+//   }
+//   array[0].map((col, i) => array.map(row => row[i]));
+//   return mtx
+// };
+
+// Create an object type Er
+class Er extends Error {
+  constructor(name, message) {
     super();
-    this.name = 'VehoError';
+    this.name = name;
     this.message = message;
+  }
+
+  static ini({
+    name,
+    message
+  }) {
+    return new Er(name || 'Error', message || '');
   } // Make the exception convert to a pretty string when used as
   // a string (e.g. by the error console)
 
 
   toString() {
-    return this.name + ': "' + this.message + '"';
+    return `${this.name}: "${this.message}"`;
   }
 
 }
 
-class Jso {
+class Dc {
+  /**
+   * Create a map from separate key-array and value-array.
+   * @param {*[]} keys Array of keys.
+   * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
+   * @returns {Map<*, *>}
+   */
+  static ini(keys, values) {
+    // const lex = keys.map((k, i) => [k, values[i]])
+    // return new Map(lex)
+    if (!keys || !values || !Array.isArray(keys) || !Array.isArray(values)) throw Er('The input contains invalid array.');
+    const {
+      length
+    } = keys,
+          map = new Map();
+
+    for (let i = 0; i < length; i++) map.set(keys[i], values[i]);
+
+    return map;
+  }
+
+  static clone(dc) {
+    return dpMap(dc);
+  }
+
+}
+
+// import './Ar'
+
+class Ob {
   /**
    * Create a object from separate key-array and value-array.
    * @param {*[]} keys Array of keys.
@@ -257,10 +422,13 @@ class Jso {
    * @returns {Object<*, *>}
    */
   static ini(keys, values) {
-    const o = {};
-    let i, k;
+    const o = {},
+          {
+      length
+    } = keys;
 
-    for ([i, k] of keys.entries()) o[k] = values[i];
+    for (let i = 0; i < length; i++) o[keys[i]] = values[i]; // let i, k; for ([i, k] of keys.entries()) o[k] = values[i]
+
 
     return o;
   }
@@ -271,7 +439,7 @@ class Jso {
    */
 
 
-  static toEntries(jso) {
+  static entries(jso) {
     return Object.entries(jso);
   }
   /**
@@ -325,9 +493,6 @@ class Jso {
           for (let [i, [k, v]] of entries.entries()) o[k] = ject(v, i);
 
           break;
-
-        default:
-          break;
       }
     } else {
       for (let [k, v] of entries) {
@@ -357,112 +522,13 @@ class Jso {
   static fromMap(dict) {
     let o = {};
 
-    for (let [k, v] of dict.entries()) {
-      o[k] = v;
-    }
+    for (let [k, v] of dict.entries()) o[k] = v;
 
     return o; // return Object.fromEntries(dict)
   }
 
   static clone(jso) {
-    return cloneObject(jso);
-  }
-
-}
-/**
- * Transform between Json table and Json of samples.
- * A Json table is formed like :
- *  {
- *    headers:[a, b, ...],
- *    rowSet:*[][]
- *  }.
- * A Json of samples is formed like :
- *  [
- *    {a:*, b:*, ...},
- *    {a:*, b:*, ...},
- *    ...
- *  ]
- */
-
-
-class JsonTable {
-  /**
-   *
-   * @param {*[][]} samples
-   * @param {*[]}banner
-   * @return {Object[]}
-   */
-  static tableToSamples(samples, banner) {
-    if (!!samples && samples.constructor === Array) {
-      const firstRow = samples[0];
-
-      if (!!firstRow && firstRow.constructor === Array) {
-        let [i, len] = [0, Math.min(firstRow.length, banner.length)];
-        return samples.map(row => {
-          let o = {};
-
-          for (i = 0; i < len; i++) {
-            o[banner[i]] = row[i];
-          }
-
-          return o;
-        });
-      } else return null;
-    } else throw new VehoError('The input \'samples\' is not an Array');
-  }
-  /**
-   *
-   * @param {Object<string,*>[]}rows
-   * @param {string} bannerLabel
-   * @param {string} samplesLabel
-   * @returns {Object<string,*>}
-   */
-
-
-  static samplesToTable(rows, bannerLabel = 'head', samplesLabel = 'rows') {
-    if (!!rows && rows.constructor === Array) {
-      const firstRow = rows[0];
-
-      if (!!firstRow && typeof firstRow === 'object') {
-        const banner = Object.keys(firstRow);
-        const samples = rows.map(row => Object.values(row));
-        return Jso.of([bannerLabel, banner], [samplesLabel, samples]);
-      } else return null;
-    } else throw new VehoError('The input \'rows\' is not an Array');
-  }
-  /**
-   * Transform json of samples to matrix(2d-array).
-   * A Json of samples is formed like :
-   *  [
-   *    {a:*, b:*, ...},
-   *    {a:*, b:*, ...},
-   *    ...
-   *  ]
-   * A matrix(2d-array) is formed like :
-   *  [
-   *    [*, *, ...],
-   *    [*, *, ...],
-   *    ...
-   *  ]
-   * @param {*[]} jsonArr Table in json-array form: [{c1:*,c2:*,..},{c1:*,c2:*,..},..]
-   * @returns {*[][]} Table content in 2d-array, excluding the input table head.
-   */
-
-
-  static samplesToMatrix(jsonArr) {
-    return [...jsonArr.map(json => Object.values(json))];
-  }
-
-  static matrixToSamples(matrix, side, banner) {
-    const rows = matrix.map(row => banner.zip(row, (itm, obj) => [itm, obj]));
-    const indexedRows = side.zip(rows, (itm, row) => [itm, row]);
-    let obj = {};
-
-    for (let [k, v] of indexedRows) {
-      obj[k] = v;
-    }
-
-    return obj;
+    return dpObj(jso);
   }
 
 }
@@ -494,15 +560,15 @@ class Samples {
     head,
     rows
   }, fields) {
-    if (!head || !Array.isArray(head)) throw new VehoError('The input \'head\' is not valid.');
-    if (!rows || !Array.isArray(rows)) throw new VehoError('The input \'rows\' is not valid.');
+    if (!head || !Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
+    if (!rows || !Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
     const [row] = rows;
     if (!row || !Array.isArray(row)) return null;
-    let fieldToIndex = fields && Array.isArray(fields) ? fields.map(field => [field, head.indexOf(field)]) : [...head.entries()].map(([k, v]) => [v, k]);
+    let fieldIndexPairs = fields && Array.isArray(fields) ? fields.map(field => [field, head.indexOf(field)]) : head.map((field, index) => [field, index]);
     return rows.map(row => {
       let o = {};
 
-      for (let [k, i] of fieldToIndex) o[k] = row[i];
+      for (let [k, i] of fieldIndexPairs) o[k] = row[i];
 
       return o;
     });
@@ -512,7 +578,7 @@ class Samples {
    * @param {Object[]} samples
    * @param {string[]} [fields]
    * @param {{head:string,rows:string}} [label]
-   * @returns {null|{head:*[],rows:*[][]}|Object}
+   * @returns {null|{head:*[],rows:*[][]}}
    */
 
 
@@ -523,7 +589,7 @@ class Samples {
       rows: 'rows'
     }
   } = {}) {
-    if (!samples || !Array.isArray(samples)) throw new VehoError('The input \'rows\' is not an Array');
+    if (!samples || !Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
     const [sample] = samples;
     if (!sample || !(sample instanceof Object)) return null;
     const {
@@ -532,7 +598,7 @@ class Samples {
     } = label,
           [banner, picker] = fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values],
           rowSet = samples.map(picker);
-    return Jso.of([head, banner], [rows, rowSet]);
+    return Ob.of([head, banner], [rows, rowSet]);
   }
   /**
    * Transform json of samples to matrix(2d-array).
@@ -556,6 +622,15 @@ class Samples {
   static toMatrix(samples) {
     return samples.map(Object.values);
   }
+  /**
+   *
+   * @param {*[][]} matrix
+   * @param {*[]} side
+   * @param {*[]} banner
+   * @param {string} [sideLabel]
+   * @returns {Object[]}
+   */
+
 
   static fromCrosTab({
     matrix,
@@ -563,119 +638,21 @@ class Samples {
     banner
   }, {
     sideLabel = '_'
-  }) {
-    const sides = side.map(x => Jso.of([sideLabel, x])),
-          rows = matrix.map(row => Jso.ini(banner, row));
-    return sides.zip(rows, Object.assign);
+  } = {}) {
+    const sides = side.map(x => Ob.of([sideLabel, x])),
+          rows = matrix.map(row => Ob.ini(banner, row)),
+          {
+      length
+    } = sides;
+
+    for (let i = 0; i < length; i++) Object.assign(sides[i], rows[i]);
+
+    return sides;
   }
 
 }
 
-/**
- * Static class containing methods to create 2d-array.
- */
-
-class Mat {
-  /**
-   *
-   * @param {number} height
-   * @param {number} width
-   * @param {function} ject
-   * @returns {number[][]}
-   */
-  static ini(height, width, ject) {
-    return Array(height).fill(null).map((_, x) => Array(width).fill(null).map((_, y) => ject(x, y)));
-  }
-
-  static isMat(mx) {
-    return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
-  }
-
-  static is(mx) {
-    return !!mx && mx.length ? !!mx[0] : false;
-  }
-
-  static clone(mx) {
-    return mx.map(cloneArray);
-  }
-  /**
-   *
-   * @param {*[][]} mx
-   * @return {number[]}
-   */
-
-
-  static columnIndexes(mx) {
-    return !!mx && mx.length ? !!mx[0] ? mx[0].map((_, i) => i) : [] : [];
-  }
-  /**
-   * Transpose a 2d-array.
-   * @param {*[][]} mx
-   * @returns {*[][]}
-   */
-
-
-  static transpose(mx) {
-    return Mat.columnIndexes(mx).map(c => mx.map(r => r[c]));
-  }
-
-  static column(mx, index) {
-    return mx.map(r => r[index]);
-  }
-  /**
-   * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
-   * @param {*[][]} mx
-   * @param elementJect
-   * @returns {*[]}
-   */
-
-
-  static veho(mx, elementJect) {
-    return mx.map(row => row.map(elementJect));
-  }
-  /**
-   * Iterate through the columns of a 2d-array.
-   * @param {*[][]} mx
-   * @param {function(*[]):[]} columnJect
-   * @returns {*[]}
-   */
-
-
-  static vehoCol(mx, columnJect) {
-    return Mat.transpose(mx).map(columnJect);
-  }
-
-}
-//   let mtx = [];
-//   for (let j = 0; j < this[0].length; j++) {
-//     mtx[j] = [];
-//     for (let i = 0; i < this.length; i++) {
-//       mtx[j][i] = this[i][j]
-//     }
-//   }
-//   array[0].map((col, i) => array.map(row => row[i]));
-//   return mtx
-// };
-
-class Dic {
-  /**
-   * Create a map from separate key-array and value-array.
-   * @param {*[]} keys Array of keys.
-   * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
-   * @returns {Map<*, *>}
-   */
-  static ini(keys, values) {
-    const lex = keys.map((k, i) => [k, values[i]]);
-    return new Map(lex);
-  }
-
-  static clone(dic) {
-    return cloneMap(dic);
-  }
-
-}
-
-class Fun {
+class Fn {
   static getMethodNames(cls) {
     return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
   }
@@ -723,20 +700,11 @@ class Fun {
 
 }
 
-// /**
-//  * Get the last item in an array.
-//  * @returns {*}. The last item in the array.
-//  */
-// Array.prototype.last = function () {
-//   return this[this.length - 1]
-// }
-
 /**
  * Take the first "n" elements from an array.
  * @param len. The number denote the first "n" elements in an array.
  * @returns {*[]}. A new array length at "len".
  */
-
 Array.prototype.take = function (len) {
   return this.slice(0, len);
 };
@@ -747,12 +715,10 @@ Array.prototype.zip = function (another, zipper) {
   } = this,
         arr = Array(length);
 
-  for (let i = 0; i < length; i++) {
-    arr[i] = zipper(this[i], another[i], i);
-  }
+  for (let i = 0; i < length; i++) arr[i] = zipper(this[i], another[i], i);
 
   return arr; // return Array.from({ length: size }, (v, i) => zipper(this[i], another[i], i))
   // return this.map((x, i) => zipper(x, another[i]))
 }; // Matrix extension
 
-export { Dic, Fun, Jso, JsonTable, Mat, Samples, Vec, clone };
+export { Ar, Dc, Fn, Mx, Ob, Samples, clone };

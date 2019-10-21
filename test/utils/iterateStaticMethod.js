@@ -1,9 +1,9 @@
-import { Fun } from '../../src/ext/Fun'
+import { Fn } from '../../src/ext/Fn'
 import { GP } from 'elprimero'
 import { deco } from 'xbrief'
 
 export function iterateStaticMethod (someClass) {
-  const funcNames = Fun.getStaticMethodNames(someClass)
+  const funcNames = Fn.getStaticMethodNames(someClass)
   const results = funcNames.map(async name => {
     const func = someClass[name]
     const title = `${someClass.name}.${name}`

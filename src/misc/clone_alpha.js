@@ -7,15 +7,15 @@ function clone (o) {
   if (!o || typeof o != 'object') return o
   switch (true) {
     case Array.isArray(o) :
-      return cloneArray(o)
+      return dpArr(o)
     case o instanceof Date :
       return new Date(+o) // new Date(o.valueOf()) //new Date(+o);
     case o instanceof Map:
-      return cloneMap(o)
+      return dpMap(o)
     case o instanceof Set:
-      return new Set(cloneArray([...o]))
+      return new Set(dpArr([...o]))
     case o instanceof Object :
-      return cloneObject(o)
+      return dpObj(o)
   }
   throw new Error('Unable to copy obj. Unsupported type.')
 }
@@ -25,7 +25,7 @@ function clone (o) {
  * @param {Map<*, *>} o
  * @return {Map<*, *>}
  */
-function cloneMap (o) {
+function dpMap (o) {
   return new Map([...o.entries()].map(([k, v]) => [k, clone(v)]))
 }
 
@@ -34,7 +34,7 @@ function cloneMap (o) {
  * @param {*[]} o
  * @return {*[]}
  */
-function cloneArray (o) {
+function dpArr (o) {
   return o.map(clone)
 }
 
@@ -44,7 +44,7 @@ function cloneArray (o) {
  * @param {{}} o
  * @return {{}}
  */
-function cloneObject (o) {
+function dpObj (o) {
   const x = {}
   for (let [k, v] of Object.entries(o)) x[k] = clone(v)
   return x
@@ -52,7 +52,7 @@ function cloneObject (o) {
 
 export {
   clone,
-  cloneArray,
-  cloneObject,
-  cloneMap
+  dpArr,
+  dpObj,
+  dpMap
 }

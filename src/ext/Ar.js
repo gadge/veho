@@ -1,9 +1,14 @@
 /**
  * Static class containing methods create 1d-array.
  */
-import { cloneArray } from '../misc/clone'
+import { dpArr } from '../misc/clone'
+import { Num, NumLoose } from 'typen'
 
-class Vec {
+const
+  { numeric: num } = Num,
+  { numeric: numLoose } = NumLoose
+
+class Ar {
   /**
    * Create an array.
    * @param {number} size Integer starts at zero.
@@ -30,7 +35,17 @@ class Vec {
     return !arr || !arr.length
   }
 
-  static clone (arr) {return cloneArray(arr)}
+  /**
+   *
+   * @param {Array} arr
+   * @param {boolean} [loose]=false
+   * @returns {*}
+   */
+  static numeric (arr, { loose = false }) {
+    return arr.map(loose ? numLoose : num)
+  }
+
+  static clone (arr) {return dpArr(arr)}
 
   static indexes (arr) {
     return arr.map((_, i) => i)
@@ -94,7 +109,7 @@ class Vec {
    * @returns {*[]}
    */
   static arithmetic (size, initial, delta) {
-    return Vec.progression(size, initial, previous => previous + delta)
+    return Ar.progression(size, initial, previous => previous + delta)
   }
 
   /**
@@ -105,7 +120,7 @@ class Vec {
    * @returns {*[]}}
    */
   static geometric (size, initial, ratio) {
-    return Vec.progression(size, initial, previous => previous * ratio)
+    return Ar.progression(size, initial, previous => previous * ratio)
   }
 
   /**
@@ -150,4 +165,4 @@ class Vec {
 //   return ar
 // };
 
-export { Vec }
+export { Ar }

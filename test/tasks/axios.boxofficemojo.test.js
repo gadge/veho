@@ -5,10 +5,10 @@ import { deco } from 'xbrief'
 
 axios.defaults.withCredentials = true
 
-function testAxiosBoxOfficeMojo () {
-  const arr = 'Let\'s testIni boxOfficeMojo'
+async function testAxiosBoxOfficeMojo () {
+  'Let\'s testIni boxOfficeMojo' |> console.log
   let content = ''
-  axios
+  await axios
     .get(`https://www.boxofficemojo.com/yearly/chart/`, {
       params: {
         'yr': '2019',
@@ -20,8 +20,16 @@ function testAxiosBoxOfficeMojo () {
       console.log(response.data)
     })
     .catch(Xio.logErr)
-  deco(content).wL()
+  deco(content) |> console.log
 }
+
+describe('test Axios Box Office Mojo', function () {
+  this.timeout(1000 * 60)
+  it('test Axios Box Office Mojo: ', async () => {
+    await testAxiosBoxOfficeMojo()
+  })
+})
+
 
 export {
   testAxiosBoxOfficeMojo

@@ -1,8 +1,8 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = global || self, factory(global.veho = {}));
-}(this, function (exports) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('typen')) :
+  typeof define === 'function' && define.amd ? define(['exports', 'typen'], factory) :
+  (global = global || self, factory(global.veho = {}, global.typen));
+}(this, function (exports, typen) { 'use strict';
 
   var oc = Object.prototype.toString;
   /**
@@ -16,19 +16,19 @@
 
     switch (oc.call(o).slice(8, 11)) {
       case 'Arr':
-        return cloneArray(o);
+        return dpArr(o);
 
       case 'Obj':
-        return cloneObject(o);
+        return dpObj(o);
 
       case 'Map':
-        return cloneMap(o);
+        return dpMap(o);
 
       case 'Dat':
         return new Date(+o);
 
       case 'Set':
-        return new Set(cloneArray([].concat(o)));
+        return new Set(dpArr([].concat(o)));
     }
 
     throw new Error('Unable to copy obj. Unsupported type.');
@@ -40,7 +40,7 @@
    */
 
 
-  function cloneMap(o) {
+  function dpMap(o) {
     return new Map([].concat(o.entries()).map(function (_ref) {
       var k = _ref[0],
           v = _ref[1];
@@ -54,7 +54,7 @@
    */
 
 
-  function cloneArray(o) {
+  function dpArr(o) {
     return o.map(clone);
   }
   /**
@@ -65,7 +65,7 @@
    */
 
 
-  function cloneObject(o) {
+  function dpObj(o) {
     var x = {};
 
     for (var _i = 0, _Object$entries = Object.entries(o); _i < _Object$entries.length; _i++) {
@@ -81,57 +81,64 @@
   /**
    * Static class containing methods create 1d-array.
    */
+  var num = typen.Num.numeric,
+      numLoose = typen.NumLoose.numeric;
 
-  var Vec =
+  var Ar =
   /*#__PURE__*/
   function () {
-    function Vec() {}
+    function Ar() {}
 
     /**
      * Create an array.
      * @param {number} size Integer starts at zero.
-     * @param {function|*} [ject] Defines the how index i decides value(i).
+     * @param {function(number):*|*} [ject] Defines the how index i decides value(i).
      * @returns {number[]} The
      */
-    Vec.ini = function ini(size, ject) {
-      if (typeof ject === 'function') {
-        if (size <= 128) {
-          var arr = [];
+    Ar.ini = function ini(size, ject) {
+      if (size <= 128) {
+        var arr = [];
 
+        if (typeof ject === 'function') {
           for (var i = 0; i < size; i++) {
             arr[i] = ject(i);
           }
-
-          return arr;
         } else {
-          return Array(size).fill(null).map(function (_, i) {
-            return ject(i);
-          });
-        }
-      } else {
-        if (size <= 128) {
-          var _arr = [];
-
           for (var _i = 0; _i < size; _i++) {
-            _arr[_i] = ject;
+            arr[_i] = ject;
           }
-
-          return _arr;
-        } else {
-          return Array(size).fill(ject);
         }
+
+        return arr;
+      } else {
+        return typeof ject === 'function' ? Array(size).fill(null).map(function (_, i) {
+          return ject(i);
+        }) : Array(size).fill(ject);
       }
     };
 
-    Vec.isEmpty = function isEmpty(arr) {
+    Ar.isEmpty = function isEmpty(arr) {
       return !arr || !arr.length;
+    }
+    /**
+     *
+     * @param {Array} arr
+     * @param {boolean} [loose]=false
+     * @returns {*}
+     */
+    ;
+
+    Ar.numeric = function numeric(arr, _ref) {
+      var _ref$loose = _ref.loose,
+          loose = _ref$loose === void 0 ? false : _ref$loose;
+      return arr.map(loose ? numLoose : num);
     };
 
-    Vec.clone = function clone(arr) {
-      return cloneArray(arr);
+    Ar.clone = function clone(arr) {
+      return dpArr(arr);
     };
 
-    Vec.indexes = function indexes(arr) {
+    Ar.indexes = function indexes(arr) {
       return arr.map(function (_, i) {
         return i;
       });
@@ -147,7 +154,7 @@
      */
     ;
 
-    Vec.multiZip = function multiZip(zipper) {
+    Ar.multiZip = function multiZip(zipper) {
       for (var _len = arguments.length, arraySet = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         arraySet[_key - 1] = arguments[_key];
       }
@@ -155,9 +162,9 @@
       var firstArray = arraySet[0];
 
       if (!!firstArray) {
-        var _ref = [firstArray.length, arraySet.length],
-            len = _ref[0],
-            cnt = _ref[1];
+        var _ref2 = [firstArray.length, arraySet.length],
+            len = _ref2[0],
+            cnt = _ref2[1];
         var result = Array(len);
 
         for (var i = 0; i < len; i++) {
@@ -184,7 +191,7 @@
      */
     ;
 
-    Vec.progression = function progression(size, initial, progress) {
+    Ar.progression = function progression(size, initial, progress) {
       switch (size) {
         case 0:
           return [];
@@ -212,8 +219,8 @@
      */
     ;
 
-    Vec.arithmetic = function arithmetic(size, initial, delta) {
-      return Vec.progression(size, initial, function (previous) {
+    Ar.arithmetic = function arithmetic(size, initial, delta) {
+      return Ar.progression(size, initial, function (previous) {
         return previous + delta;
       });
     }
@@ -226,8 +233,8 @@
      */
     ;
 
-    Vec.geometric = function geometric(size, initial, ratio) {
-      return Vec.progression(size, initial, function (previous) {
+    Ar.geometric = function geometric(size, initial, ratio) {
+      return Ar.progression(size, initial, function (previous) {
         return previous * ratio;
       });
     }
@@ -240,27 +247,27 @@
      */
     ;
 
-    Vec.decartes = function decartes(ar1, ar2, product) {
+    Ar.decartes = function decartes(ar1, ar2, product) {
       var arr = [];
 
       var _loop = function _loop() {
         if (_isArray) {
           if (_i2 >= _iterator.length) return "break";
-          _ref2 = _iterator[_i2++];
+          _ref3 = _iterator[_i2++];
         } else {
           _i2 = _iterator.next();
           if (_i2.done) return "break";
-          _ref2 = _i2.value;
+          _ref3 = _i2.value;
         }
 
-        var x = _ref2;
+        var x = _ref3;
         arr.push.apply(arr, ar2.map(function (y) {
           return product(x, y);
         }));
       };
 
       for (var _iterator = ar1, _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref2;
+        var _ref3;
 
         var _ret = _loop();
 
@@ -270,7 +277,7 @@
       return arr;
     };
 
-    Vec.randSample = function randSample(arr) {
+    Ar.randSample = function randSample(arr) {
       // const len = arr.length
       // switch (len) {
       //   case 0:
@@ -284,12 +291,149 @@
       return arr[~~(Math.random() * arr.length)];
     };
 
-    Vec.take = function take(arr, len) {
+    Ar.take = function take(arr, len) {
       return arr.slice(0, len);
     };
 
-    return Vec;
+    return Ar;
   }(); // Array.prototype.zip = function (another, zipper) {
+
+  /**
+   * Static class containing methods to create 2d-array.
+   */
+  var num$1 = typen.Num.numeric,
+      numLoose$1 = typen.NumLoose.numeric;
+
+  var Mx =
+  /*#__PURE__*/
+  function () {
+    function Mx() {}
+
+    /**
+     *
+     * @param {number} height
+     * @param {number} width
+     * @param {function} ject
+     * @returns {number[][]}
+     */
+    Mx.ini = function ini(height, width, ject) {
+      return Array(height).fill(null).map(function (_, x) {
+        return Array(width).fill(null).map(function (_, y) {
+          return ject(x, y);
+        });
+      });
+    };
+
+    Mx.isMat = function isMat(mx) {
+      return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
+    };
+
+    Mx.is = function is(mx) {
+      return !!mx && mx.length ? !!mx[0] : false;
+    };
+
+    Mx.clone = function clone(mx) {
+      return mx.map(dpArr);
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @param {boolean=false} [loose]
+     * @returns {*}
+     */
+    ;
+
+    Mx.numeric = function numeric(mx, _ref) {
+      var _ref$loose = _ref.loose,
+          loose = _ref$loose === void 0 ? false : _ref$loose;
+      var fn = loose ? numLoose$1 : num$1;
+      return mx.map(function (r) {
+        return r.map(fn);
+      });
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @return {number[]}
+     */
+    ;
+
+    Mx.columnIndexes = function columnIndexes(mx) {
+      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
+        return i;
+      }) : [] : [];
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @return {number[]}
+     */
+    ;
+
+    Mx.coins = function coins(mx) {
+      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
+        return i;
+      }) : [] : [];
+    }
+    /**
+     * Transpose a 2d-array.
+     * @param {*[][]} mx
+     * @returns {*[][]}
+     */
+    ;
+
+    Mx.transpose = function transpose(mx) {
+      return Mx.columnIndexes(mx).map(function (c) {
+        return mx.map(function (r) {
+          return r[c];
+        });
+      });
+    };
+
+    Mx.column = function column(mx, index) {
+      return mx.map(function (r) {
+        return r[index];
+      });
+    }
+    /**
+     * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
+     * @param {*[][]} mx
+     * @param {function} fn
+     * @returns {*[]}
+     */
+    ;
+
+    Mx.map = function map(mx, fn) {
+      return mx.map(function (r, i) {
+        return r.map(function (el, j) {
+          return fn(el, i, j);
+        });
+      });
+    }
+    /**
+     * Iterate through the columns of a 2d-array.
+     * @param {*[][]} mx
+     * @param {function(*[]):[]} fnOnColumn
+     * @returns {*[]}
+     */
+    ;
+
+    Mx.mapCol = function mapCol(mx, fnOnColumn) {
+      return Mx.transpose(mx).map(fnOnColumn);
+    };
+
+    return Mx;
+  }();
+  //   let mtx = [];
+  //   for (let j = 0; j < this[0].length; j++) {
+  //     mtx[j] = [];
+  //     for (let i = 0; i < this.length; i++) {
+  //       mtx[j][i] = this[i][j]
+  //     }
+  //   }
+  //   array[0].map((col, i) => array.map(row => row[i]));
+  //   return mtx
+  // };
 
   function _inheritsLoose(subClass, superClass) {
     subClass.prototype = Object.create(superClass.prototype);
@@ -381,36 +525,76 @@
     return _wrapNativeSuper(Class);
   }
 
-  // Create an object type VehoError
-  var VehoError =
+  // Create an object type Er
+  var Er =
   /*#__PURE__*/
   function (_Error) {
-    _inheritsLoose(VehoError, _Error);
+    _inheritsLoose(Er, _Error);
 
-    function VehoError(message) {
+    function Er(name, message) {
       var _this;
 
       _this = _Error.call(this) || this;
-      _this.name = 'VehoError';
+      _this.name = name;
       _this.message = message;
       return _this;
+    }
+
+    Er.ini = function ini(_ref) {
+      var name = _ref.name,
+          message = _ref.message;
+      return new Er(name || 'Error', message || '');
     } // Make the exception convert to a pretty string when used as
     // a string (e.g. by the error console)
+    ;
 
-
-    var _proto = VehoError.prototype;
+    var _proto = Er.prototype;
 
     _proto.toString = function toString() {
-      return this.name + ': "' + this.message + '"';
+      return this.name + ": \"" + this.message + "\"";
     };
 
-    return VehoError;
+    return Er;
   }(_wrapNativeSuper(Error));
 
-  var Jso =
+  var Dc =
   /*#__PURE__*/
   function () {
-    function Jso() {}
+    function Dc() {}
+
+    /**
+     * Create a map from separate key-array and value-array.
+     * @param {*[]} keys Array of keys.
+     * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
+     * @returns {Map<*, *>}
+     */
+    Dc.ini = function ini(keys, values) {
+      // const lex = keys.map((k, i) => [k, values[i]])
+      // return new Map(lex)
+      if (!keys || !values || !Array.isArray(keys) || !Array.isArray(values)) throw Er('The input contains invalid array.');
+      var length = keys.length,
+          map = new Map();
+
+      for (var i = 0; i < length; i++) {
+        map.set(keys[i], values[i]);
+      }
+
+      return map;
+    };
+
+    Dc.clone = function clone(dc) {
+      return dpMap(dc);
+    };
+
+    return Dc;
+  }();
+
+  // import './Ar'
+
+  var Ob =
+  /*#__PURE__*/
+  function () {
+    function Ob() {}
 
     /**
      * Create a object from separate key-array and value-array.
@@ -418,26 +602,14 @@
      * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
      * @returns {Object<*, *>}
      */
-    Jso.ini = function ini(keys, values) {
-      var o = {};
-      var i, k;
+    Ob.ini = function ini(keys, values) {
+      var o = {},
+          length = keys.length;
 
-      for (var _iterator = keys.entries(), _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        if (_isArray) {
-          if (_i >= _iterator.length) break;
-          var _iterator2 = _iterator[_i++];
-          i = _iterator2[0];
-          k = _iterator2[1];
-        } else {
-          _i = _iterator.next();
-          if (_i.done) break;
-          var _i$value = _i.value;
-          i = _i$value[0];
-          k = _i$value[1];
-        }
+      for (var i = 0; i < length; i++) {
+        o[keys[i]] = values[i];
+      } // let i, k; for ([i, k] of keys.entries()) o[k] = values[i]
 
-        o[k] = values[i];
-      }
 
       return o;
     }
@@ -448,7 +620,7 @@
      */
     ;
 
-    Jso.toEntries = function toEntries(jso) {
+    Ob.entries = function entries(jso) {
       return Object.entries(jso);
     }
     /**
@@ -459,19 +631,19 @@
      */
     ;
 
-    Jso.fromArr = function fromArr(arr, val) {
+    Ob.fromArr = function fromArr(arr, val) {
       var o = {};
 
-      for (var _iterator3 = arr, _isArray2 = Array.isArray(_iterator3), _i2 = 0, _iterator3 = _isArray2 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+      for (var _iterator = arr, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
         var _ref;
 
-        if (_isArray2) {
-          if (_i2 >= _iterator3.length) break;
-          _ref = _iterator3[_i2++];
+        if (_isArray) {
+          if (_i >= _iterator.length) break;
+          _ref = _iterator[_i++];
         } else {
-          _i2 = _iterator3.next();
-          if (_i2.done) break;
-          _ref = _i2.value;
+          _i = _iterator.next();
+          if (_i.done) break;
+          _ref = _i.value;
         }
 
         var k = _ref;
@@ -487,15 +659,15 @@
      */
     ;
 
-    Jso.of = function of() {
+    Ob.of = function of() {
       var o = {};
 
       for (var _len = arguments.length, entries = new Array(_len), _key = 0; _key < _len; _key++) {
         entries[_key] = arguments[_key];
       }
 
-      for (var _i3 = 0, _entries = entries; _i3 < _entries.length; _i3++) {
-        var _entries$_i = _entries[_i3],
+      for (var _i2 = 0, _entries = entries; _i2 < _entries.length; _i2++) {
+        var _entries$_i = _entries[_i2],
             k = _entries$_i[0],
             v = _entries$_i[1];
         o[k] = v;
@@ -511,22 +683,22 @@
      */
     ;
 
-    Jso.fromEntries = function fromEntries(entries, ject) {
+    Ob.fromEntries = function fromEntries(entries, ject) {
       var o = {};
 
       if (!!ject) {
         switch (ject.length) {
           case 1:
-            for (var _iterator4 = entries, _isArray3 = Array.isArray(_iterator4), _i4 = 0, _iterator4 = _isArray3 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+            for (var _iterator2 = entries, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
               var _ref2;
 
-              if (_isArray3) {
-                if (_i4 >= _iterator4.length) break;
-                _ref2 = _iterator4[_i4++];
+              if (_isArray2) {
+                if (_i3 >= _iterator2.length) break;
+                _ref2 = _iterator2[_i3++];
               } else {
-                _i4 = _iterator4.next();
-                if (_i4.done) break;
-                _ref2 = _i4.value;
+                _i3 = _iterator2.next();
+                if (_i3.done) break;
+                _ref2 = _i3.value;
               }
 
               var _ref3 = _ref2,
@@ -538,48 +710,45 @@
             break;
 
           case 2:
-            for (var _iterator5 = entries.entries(), _isArray4 = Array.isArray(_iterator5), _i5 = 0, _iterator5 = _isArray4 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
+            for (var _iterator3 = entries.entries(), _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
               var _ref4;
 
-              if (_isArray4) {
-                if (_i5 >= _iterator5.length) break;
-                _ref4 = _iterator5[_i5++];
+              if (_isArray3) {
+                if (_i4 >= _iterator3.length) break;
+                _ref4 = _iterator3[_i4++];
               } else {
-                _i5 = _iterator5.next();
-                if (_i5.done) break;
-                _ref4 = _i5.value;
+                _i4 = _iterator3.next();
+                if (_i4.done) break;
+                _ref4 = _i4.value;
               }
 
               var _ref5 = _ref4,
                   i = _ref5[0],
                   _ref5$ = _ref5[1],
-                  k = _ref5$[0],
-                  v = _ref5$[1];
-              o[k] = ject(v, i);
+                  _k = _ref5$[0],
+                  _v = _ref5$[1];
+              o[_k] = ject(_v, i);
             }
 
             break;
-
-          default:
-            break;
         }
       } else {
-        for (var _iterator6 = entries, _isArray5 = Array.isArray(_iterator6), _i6 = 0, _iterator6 = _isArray5 ? _iterator6 : _iterator6[Symbol.iterator]();;) {
+        for (var _iterator4 = entries, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
           var _ref6;
 
-          if (_isArray5) {
-            if (_i6 >= _iterator6.length) break;
-            _ref6 = _iterator6[_i6++];
+          if (_isArray4) {
+            if (_i5 >= _iterator4.length) break;
+            _ref6 = _iterator4[_i5++];
           } else {
-            _i6 = _iterator6.next();
-            if (_i6.done) break;
-            _ref6 = _i6.value;
+            _i5 = _iterator4.next();
+            if (_i5.done) break;
+            _ref6 = _i5.value;
           }
 
           var _ref7 = _ref6,
-              k = _ref7[0],
-              v = _ref7[1];
-          o[k] = v;
+              _k2 = _ref7[0],
+              _v2 = _ref7[1];
+          o[_k2] = _v2;
         }
       }
 
@@ -592,7 +761,7 @@
      */
     ;
 
-    Jso.toMap = function toMap(jso) {
+    Ob.toMap = function toMap(jso) {
       return new Map(Object.entries(jso));
     }
     /**
@@ -602,19 +771,19 @@
      */
     ;
 
-    Jso.fromMap = function fromMap(dict) {
+    Ob.fromMap = function fromMap(dict) {
       var o = {};
 
-      for (var _iterator7 = dict.entries(), _isArray6 = Array.isArray(_iterator7), _i7 = 0, _iterator7 = _isArray6 ? _iterator7 : _iterator7[Symbol.iterator]();;) {
+      for (var _iterator5 = dict.entries(), _isArray5 = Array.isArray(_iterator5), _i6 = 0, _iterator5 = _isArray5 ? _iterator5 : _iterator5[Symbol.iterator]();;) {
         var _ref8;
 
-        if (_isArray6) {
-          if (_i7 >= _iterator7.length) break;
-          _ref8 = _iterator7[_i7++];
+        if (_isArray5) {
+          if (_i6 >= _iterator5.length) break;
+          _ref8 = _iterator5[_i6++];
         } else {
-          _i7 = _iterator7.next();
-          if (_i7.done) break;
-          _ref8 = _i7.value;
+          _i6 = _iterator5.next();
+          if (_i6.done) break;
+          _ref8 = _i6.value;
         }
 
         var _ref9 = _ref8,
@@ -626,147 +795,11 @@
       return o; // return Object.fromEntries(dict)
     };
 
-    Jso.clone = function clone(jso) {
-      return cloneObject(jso);
+    Ob.clone = function clone(jso) {
+      return dpObj(jso);
     };
 
-    return Jso;
-  }();
-  /**
-   * Transform between Json table and Json of samples.
-   * A Json table is formed like :
-   *  {
-   *    headers:[a, b, ...],
-   *    rowSet:*[][]
-   *  }.
-   * A Json of samples is formed like :
-   *  [
-   *    {a:*, b:*, ...},
-   *    {a:*, b:*, ...},
-   *    ...
-   *  ]
-   */
-
-
-  var JsonTable =
-  /*#__PURE__*/
-  function () {
-    function JsonTable() {}
-
-    /**
-     *
-     * @param {*[][]} samples
-     * @param {*[]}banner
-     * @return {Object[]}
-     */
-    JsonTable.tableToSamples = function tableToSamples(samples, banner) {
-      if (!!samples && samples.constructor === Array) {
-        var firstRow = samples[0];
-
-        if (!!firstRow && firstRow.constructor === Array) {
-          var _ref10 = [0, Math.min(firstRow.length, banner.length)],
-              i = _ref10[0],
-              len = _ref10[1];
-          return samples.map(function (row) {
-            var o = {};
-
-            for (i = 0; i < len; i++) {
-              o[banner[i]] = row[i];
-            }
-
-            return o;
-          });
-        } else return null;
-      } else throw new VehoError('The input \'samples\' is not an Array');
-    }
-    /**
-     *
-     * @param {Object<string,*>[]}rows
-     * @param {string} bannerLabel
-     * @param {string} samplesLabel
-     * @returns {Object<string,*>}
-     */
-    ;
-
-    JsonTable.samplesToTable = function samplesToTable(rows, bannerLabel, samplesLabel) {
-      if (bannerLabel === void 0) {
-        bannerLabel = 'head';
-      }
-
-      if (samplesLabel === void 0) {
-        samplesLabel = 'rows';
-      }
-
-      if (!!rows && rows.constructor === Array) {
-        var firstRow = rows[0];
-
-        if (!!firstRow && typeof firstRow === 'object') {
-          var banner = Object.keys(firstRow);
-          var samples = rows.map(function (row) {
-            return Object.values(row);
-          });
-          return Jso.of([bannerLabel, banner], [samplesLabel, samples]);
-        } else return null;
-      } else throw new VehoError('The input \'rows\' is not an Array');
-    }
-    /**
-     * Transform json of samples to matrix(2d-array).
-     * A Json of samples is formed like :
-     *  [
-     *    {a:*, b:*, ...},
-     *    {a:*, b:*, ...},
-     *    ...
-     *  ]
-     * A matrix(2d-array) is formed like :
-     *  [
-     *    [*, *, ...],
-     *    [*, *, ...],
-     *    ...
-     *  ]
-     * @param {*[]} jsonArr Table in json-array form: [{c1:*,c2:*,..},{c1:*,c2:*,..},..]
-     * @returns {*[][]} Table content in 2d-array, excluding the input table head.
-     */
-    ;
-
-    JsonTable.samplesToMatrix = function samplesToMatrix(jsonArr) {
-      return [].concat(jsonArr.map(function (json) {
-        return Object.values(json);
-      }));
-    };
-
-    JsonTable.matrixToSamples = function matrixToSamples(matrix, side, banner) {
-      var rows = matrix.map(function (row) {
-        return banner.zip(row, function (itm, obj) {
-          return [itm, obj];
-        });
-      });
-      var indexedRows = side.zip(rows, function (itm, row) {
-        return [itm, row];
-      });
-      var obj = {};
-
-      for (var _iterator8 = indexedRows, _isArray7 = Array.isArray(_iterator8), _i8 = 0, _iterator8 = _isArray7 ? _iterator8 : _iterator8[Symbol.iterator]();;) {
-        var _ref11;
-
-        if (_isArray7) {
-          if (_i8 >= _iterator8.length) break;
-          _ref11 = _iterator8[_i8++];
-        } else {
-          _i8 = _iterator8.next();
-          if (_i8.done) break;
-          _ref11 = _i8.value;
-        }
-
-        var _ref12 = _ref11,
-            k = _ref12[0],
-            v = _ref12[1];
-        obj[k] = v;
-      }
-
-      return obj;
-    };
-
-    return JsonTable;
+    return Ob;
   }();
 
   /**
@@ -799,35 +832,33 @@
     Samples.fromTable = function fromTable(_ref, fields) {
       var head = _ref.head,
           rows = _ref.rows;
-      if (!head || !Array.isArray(head)) throw new VehoError('The input \'head\' is not valid.');
-      if (!rows || !Array.isArray(rows)) throw new VehoError('The input \'rows\' is not valid.');
+      if (!head || !Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
+      if (!rows || !Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
       var row = rows[0];
       if (!row || !Array.isArray(row)) return null;
-      var fieldToIndex = fields && Array.isArray(fields) ? fields.map(function (field) {
+      var fieldIndexPairs = fields && Array.isArray(fields) ? fields.map(function (field) {
         return [field, head.indexOf(field)];
-      }) : [].concat(head.entries()).map(function (_ref2) {
-        var k = _ref2[0],
-            v = _ref2[1];
-        return [v, k];
+      }) : head.map(function (field, index) {
+        return [field, index];
       });
       return rows.map(function (row) {
         var o = {};
 
-        for (var _iterator = fieldToIndex, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-          var _ref3;
+        for (var _iterator = fieldIndexPairs, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+          var _ref2;
 
           if (_isArray) {
             if (_i >= _iterator.length) break;
-            _ref3 = _iterator[_i++];
+            _ref2 = _iterator[_i++];
           } else {
             _i = _iterator.next();
             if (_i.done) break;
-            _ref3 = _i.value;
+            _ref2 = _i.value;
           }
 
-          var _ref4 = _ref3,
-              k = _ref4[0],
-              i = _ref4[1];
+          var _ref3 = _ref2,
+              k = _ref3[0],
+              i = _ref3[1];
           o[k] = row[i];
         }
 
@@ -839,36 +870,36 @@
      * @param {Object[]} samples
      * @param {string[]} [fields]
      * @param {{head:string,rows:string}} [label]
-     * @returns {null|{head:*[],rows:*[][]}|Object}
+     * @returns {null|{head:*[],rows:*[][]}}
      */
     ;
 
     Samples.toTable = function toTable(samples, _temp) {
-      var _ref5 = _temp === void 0 ? {} : _temp,
-          _ref5$fields = _ref5.fields,
-          fields = _ref5$fields === void 0 ? null : _ref5$fields,
-          _ref5$label = _ref5.label,
-          label = _ref5$label === void 0 ? {
+      var _ref4 = _temp === void 0 ? {} : _temp,
+          _ref4$fields = _ref4.fields,
+          fields = _ref4$fields === void 0 ? null : _ref4$fields,
+          _ref4$label = _ref4.label,
+          label = _ref4$label === void 0 ? {
         head: 'head',
         rows: 'rows'
-      } : _ref5$label;
+      } : _ref4$label;
 
-      if (!samples || !Array.isArray(samples)) throw new VehoError('The input \'rows\' is not an Array');
+      if (!samples || !Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
       var sample = samples[0];
       if (!sample || !(sample instanceof Object)) return null;
 
       var head = label.head,
           rows = label.rows,
-          _ref6 = fields ? [fields, function (row) {
+          _ref5 = fields ? [fields, function (row) {
         return banner.map(function (x) {
           return row[x];
         });
       }] : [Object.keys(sample), Object.values],
-          banner = _ref6[0],
-          picker = _ref6[1],
+          banner = _ref5[0],
+          picker = _ref5[1],
           rowSet = samples.map(picker);
 
-      return Jso.of([head, banner], [rows, rowSet]);
+      return Ob.of([head, banner], [rows, rowSet]);
     }
     /**
      * Transform json of samples to matrix(2d-array).
@@ -891,162 +922,50 @@
 
     Samples.toMatrix = function toMatrix(samples) {
       return samples.map(Object.values);
-    };
+    }
+    /**
+     *
+     * @param {*[][]} matrix
+     * @param {*[]} side
+     * @param {*[]} banner
+     * @param {string} [sideLabel]
+     * @returns {Object[]}
+     */
+    ;
 
-    Samples.fromCrosTab = function fromCrosTab(_ref7, _ref8) {
-      var matrix = _ref7.matrix,
-          side = _ref7.side,
-          banner = _ref7.banner;
-      var _ref8$sideLabel = _ref8.sideLabel,
-          sideLabel = _ref8$sideLabel === void 0 ? '_' : _ref8$sideLabel;
+    Samples.fromCrosTab = function fromCrosTab(_ref6, _temp2) {
+      var matrix = _ref6.matrix,
+          side = _ref6.side,
+          banner = _ref6.banner;
+
+      var _ref7 = _temp2 === void 0 ? {} : _temp2,
+          _ref7$sideLabel = _ref7.sideLabel,
+          sideLabel = _ref7$sideLabel === void 0 ? '_' : _ref7$sideLabel;
+
       var sides = side.map(function (x) {
-        return Jso.of([sideLabel, x]);
+        return Ob.of([sideLabel, x]);
       }),
           rows = matrix.map(function (row) {
-        return Jso.ini(banner, row);
-      });
-      return sides.zip(rows, Object.assign);
+        return Ob.ini(banner, row);
+      }),
+          length = sides.length;
+
+      for (var i = 0; i < length; i++) {
+        Object.assign(sides[i], rows[i]);
+      }
+
+      return sides;
     };
 
     return Samples;
   }();
 
-  /**
-   * Static class containing methods to create 2d-array.
-   */
-
-  var Mat =
+  var Fn =
   /*#__PURE__*/
   function () {
-    function Mat() {}
+    function Fn() {}
 
-    /**
-     *
-     * @param {number} height
-     * @param {number} width
-     * @param {function} ject
-     * @returns {number[][]}
-     */
-    Mat.ini = function ini(height, width, ject) {
-      return Array(height).fill(null).map(function (_, x) {
-        return Array(width).fill(null).map(function (_, y) {
-          return ject(x, y);
-        });
-      });
-    };
-
-    Mat.isMat = function isMat(mx) {
-      return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
-    };
-
-    Mat.is = function is(mx) {
-      return !!mx && mx.length ? !!mx[0] : false;
-    };
-
-    Mat.clone = function clone(mx) {
-      return mx.map(cloneArray);
-    }
-    /**
-     *
-     * @param {*[][]} mx
-     * @return {number[]}
-     */
-    ;
-
-    Mat.columnIndexes = function columnIndexes(mx) {
-      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
-        return i;
-      }) : [] : [];
-    }
-    /**
-     * Transpose a 2d-array.
-     * @param {*[][]} mx
-     * @returns {*[][]}
-     */
-    ;
-
-    Mat.transpose = function transpose(mx) {
-      return Mat.columnIndexes(mx).map(function (c) {
-        return mx.map(function (r) {
-          return r[c];
-        });
-      });
-    };
-
-    Mat.column = function column(mx, index) {
-      return mx.map(function (r) {
-        return r[index];
-      });
-    }
-    /**
-     * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
-     * @param {*[][]} mx
-     * @param elementJect
-     * @returns {*[]}
-     */
-    ;
-
-    Mat.veho = function veho(mx, elementJect) {
-      return mx.map(function (row) {
-        return row.map(elementJect);
-      });
-    }
-    /**
-     * Iterate through the columns of a 2d-array.
-     * @param {*[][]} mx
-     * @param {function(*[]):[]} columnJect
-     * @returns {*[]}
-     */
-    ;
-
-    Mat.vehoCol = function vehoCol(mx, columnJect) {
-      return Mat.transpose(mx).map(columnJect);
-    };
-
-    return Mat;
-  }();
-  //   let mtx = [];
-  //   for (let j = 0; j < this[0].length; j++) {
-  //     mtx[j] = [];
-  //     for (let i = 0; i < this.length; i++) {
-  //       mtx[j][i] = this[i][j]
-  //     }
-  //   }
-  //   array[0].map((col, i) => array.map(row => row[i]));
-  //   return mtx
-  // };
-
-  var Dic =
-  /*#__PURE__*/
-  function () {
-    function Dic() {}
-
-    /**
-     * Create a map from separate key-array and value-array.
-     * @param {*[]} keys Array of keys.
-     * @param {*[]} values Array of values. The value-array and the key-array need to be equal in size.
-     * @returns {Map<*, *>}
-     */
-    Dic.ini = function ini(keys, values) {
-      var lex = keys.map(function (k, i) {
-        return [k, values[i]];
-      });
-      return new Map(lex);
-    };
-
-    Dic.clone = function clone(dic) {
-      return cloneMap(dic);
-    };
-
-    return Dic;
-  }();
-
-  var Fun =
-  /*#__PURE__*/
-  function () {
-    function Fun() {}
-
-    Fun.getMethodNames = function getMethodNames(cls) {
+    Fn.getMethodNames = function getMethodNames(cls) {
       return !!cls && !!cls.prototype ? Object.getOwnPropertyNames(cls.prototype) : [];
     }
     /**
@@ -1056,7 +975,7 @@
      */
     ;
 
-    Fun.getStaticMethodNames = function getStaticMethodNames(cls) {
+    Fn.getStaticMethodNames = function getStaticMethodNames(cls) {
       return Object.getOwnPropertyNames(cls).filter(function (prop) {
         return typeof cls[prop] === 'function';
       });
@@ -1068,7 +987,7 @@
      */
     ;
 
-    Fun.getStaticPropertyNames = function getStaticPropertyNames(cls) {
+    Fn.getStaticPropertyNames = function getStaticPropertyNames(cls) {
       return Object.keys(cls);
     }
     /**
@@ -1078,7 +997,7 @@
      */
     ;
 
-    Fun.rowwise = function rowwise(pointwiseFunc) {
+    Fn.rowwise = function rowwise(pointwiseFunc) {
       return function (row) {
         return row.map(function (x) {
           return pointwiseFunc(x);
@@ -1093,7 +1012,7 @@
      */
     ;
 
-    Fun.chain = function chain(seinFunc) {
+    Fn.chain = function chain(seinFunc) {
       for (var _len = arguments.length, funcs = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
         funcs[_key - 1] = arguments[_key];
       }
@@ -1105,23 +1024,14 @@
       }, seinFunc);
     };
 
-    return Fun;
+    return Fn;
   }();
-
-  // /**
-  //  * Get the last item in an array.
-  //  * @returns {*}. The last item in the array.
-  //  */
-  // Array.prototype.last = function () {
-  //   return this[this.length - 1]
-  // }
 
   /**
    * Take the first "n" elements from an array.
    * @param len. The number denote the first "n" elements in an array.
    * @returns {*[]}. A new array length at "len".
    */
-
   Array.prototype.take = function (len) {
     return this.slice(0, len);
   };
@@ -1138,13 +1048,12 @@
     // return this.map((x, i) => zipper(x, another[i]))
   }; // Matrix extension
 
-  exports.Dic = Dic;
-  exports.Fun = Fun;
-  exports.Jso = Jso;
-  exports.JsonTable = JsonTable;
-  exports.Mat = Mat;
+  exports.Ar = Ar;
+  exports.Dc = Dc;
+  exports.Fn = Fn;
+  exports.Mx = Mx;
+  exports.Ob = Ob;
   exports.Samples = Samples;
-  exports.Vec = Vec;
   exports.clone = clone;
 
   Object.defineProperty(exports, '__esModule', { value: true });

@@ -2,10 +2,14 @@
  * Static class containing methods to create 2d-array.
  */
 
-import { cloneArray } from '../misc/clone'
-import { VehoError } from '../misc/VehoError'
+import { dpArr } from '../misc/clone'
+import { Num, NumLoose } from 'typen'
 
-class Mat {
+const
+  { numeric: num } = Num,
+  { numeric: numLoose } = NumLoose
+
+class Mx {
   /**
    *
    * @param {number} height
@@ -34,7 +38,18 @@ class Mat {
   }
 
   static clone (mx) {
-    return mx.map(cloneArray)
+    return mx.map(dpArr)
+  }
+
+  /**
+   *
+   * @param {*[][]} mx
+   * @param {boolean=false} [loose]
+   * @returns {*}
+   */
+  static numeric (mx, { loose = false }) {
+    const fn = loose ? numLoose : num
+    return mx.map(r => r.map(fn))
   }
 
   /**
@@ -51,12 +66,25 @@ class Mat {
   }
 
   /**
+   *
+   * @param {*[][]} mx
+   * @return {number[]}
+   */
+  static coins (mx) {
+    return !!mx && mx.length
+      ? !!mx[0]
+        ? mx[0].map((_, i) => i)
+        : []
+      : []
+  }
+
+  /**
    * Transpose a 2d-array.
    * @param {*[][]} mx
    * @returns {*[][]}
    */
   static transpose (mx) {
-    return Mat.columnIndexes(mx).map(c => mx.map(r => r[c]))
+    return Mx.columnIndexes(mx).map(c => mx.map(r => r[c]))
   }
 
   static column (mx, index) {
@@ -66,26 +94,26 @@ class Mat {
   /**
    * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
    * @param {*[][]} mx
-   * @param elementJect
+   * @param {function} fn
    * @returns {*[]}
    */
-  static veho (mx, elementJect) {
-    return mx.map(row => row.map(elementJect))
+  static map (mx, fn) {
+    return mx.map((r, i) => r.map((el, j) => fn(el, i, j)))
   }
 
   /**
    * Iterate through the columns of a 2d-array.
    * @param {*[][]} mx
-   * @param {function(*[]):[]} columnJect
+   * @param {function(*[]):[]} fnOnColumn
    * @returns {*[]}
    */
-  static vehoCol (mx, columnJect) {
-    return Mat.transpose(mx).map(columnJect)
+  static mapCol (mx, fnOnColumn) {
+    return Mx.transpose(mx).map(fnOnColumn)
   }
 }
 
 export {
-  Mat
+  Mx
 }
 
 // Array.prototype.transpose = function () {

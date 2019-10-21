@@ -1,5 +1,4 @@
 import { Samples } from '../../src/ext/Samples'
-import { Mat } from '../../src/ext/Mat'
 
 const samples = [
   { country: 'USA', year: '2017', gdp: 19390, pop: 325 },
@@ -72,8 +71,14 @@ export class JsoSamplesTest {
   }
 }
 
-// describe('Jso Samples Test', function () {
-//   it('Jso Samples Test: samples To Table ', () => {
-//     JsoSamplesTest.samplesToTable()
-//   })
-// })
+describe('Ob Samples Test', function () {
+  it('Ob Samples Test: samples To Table ', () => {
+    JsoSamplesTest.samplesToTable()
+  })
+  it('Jso Samples Test: table To Sample ', () => {
+    JsoSamplesTest.tableToSample()
+  })
+  it('Jso Samples Test: cros Tab To Samples ', () => {
+    JsoSamplesTest.crosTabToSamples()
+  })
+})

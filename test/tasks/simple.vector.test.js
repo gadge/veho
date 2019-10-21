@@ -1,27 +1,27 @@
-import { deco, VecX, Typ } from 'xbrief'
+import { deco, ArrX, Typ } from 'xbrief'
 import { nbaScoreLeaders } from '../asset/map/nba.score.leaders'
-import { iterateStaticMethod } from '../utils/iterateStaticMethod'
-import { Vec } from '../../src/ext/Vec'
+import { Ar } from '../../src/ext/Ar'
 
 function take (arr, len) {
   return arr.slice(0, len)
 }
 
-const localHBrief = (arr) => `[ ${VecX.hBrief(arr, { head: 3, tail: 2 })} ]`
+const localHBrief = (arr) => `[ ${ArrX.hBrief(arr, { head: 3, tail: 2 })} ]`
 
 class SimpleVectorTest {
+
   static test_ini () {
-    'Vec.ini(5, i => i * 2)' |> console.log
-    Vec.ini(5, i => i * 2) |> console.log
+    'Ar.ini(5, i => i * 2)' |> console.log
+    Ar.ini(5, i => i * 2) |> console.log
 
-    'Vec.ini(128, i => i ^ 2) ' |> console.log
-    Vec.ini(128, i => i ** 2)  |> localHBrief |> console.log
+    'Ar.ini(128, i => i ^ 2) ' |> console.log
+    Ar.ini(128, i => i ** 2)  |> localHBrief |> console.log
 
-    'Vec.ini(5, \'x\')' |> console.log
-    Vec.ini(5, 'x') |> console.log
+    'Ar.ini(5, \'x\')' |> console.log
+    Ar.ini(5, 'x') |> console.log
 
-    'Vec.ini(256, null)' |> console.log
-    Vec.ini(256, null) |> localHBrief |> console.log
+    'Ar.ini(256, null)' |> console.log
+    Ar.ini(256, null) |> localHBrief |> console.log
   }
 
   static zip_test () {
@@ -39,7 +39,7 @@ class SimpleVectorTest {
     let parameters = [-1, 0, 1, 3]
     for (let [k, v] of Object.entries(specials)) {
       for (let p of parameters) {
-        `${take.name}(${k},${p})`.tag(take(v, p).vBrief()).wL()
+        `${take.name}(${k},${p})`.tag(take(v, p) |> ArrX.vBrief).wL()
       }
     }
     return 0
@@ -58,23 +58,28 @@ class SimpleVectorTest {
       iterArrPrototypeKeys: arr.keys(),
       iterArrPrototypeKeys_Arr: [...arr.keys()]
     };
-    (arr|>VecX.vBrief).wL()
+    (arr|>ArrX.vBrief).wL()
     for (let [k, iterInstance] of Object.entries(samples)) {
       k.wL()
       Typ.check(iterInstance).wL()
-      VecX.vBrief(iterInstance).wL()
+      ArrX.vBrief(iterInstance).wL()
     }
 
   }
 }
 
-// test('SimpleVectorTest vec.ini test', () => {
-//   SimpleVectorTest.test_ini()
-// })
-//
-// test('SimpleVectorTest zip test', () => {
-//   SimpleVectorTest.zip_test()
-// })
+describe('Simple Vector Test', function () {
+  this.timeout(1000 * 60)
+  it('Simple Vector Test: test ini ', () => {
+    SimpleVectorTest.test_ini()
+  })
+  it('Simple Vector Test: zip test ', () => {
+    SimpleVectorTest.zip_test()
+  })
+  it('Simple Vector Test: test one ', () => {
+    SimpleVectorTest.test_one()
+  })
+})
 
 export {
   SimpleVectorTest

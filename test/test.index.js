@@ -1,5 +1,6 @@
-// import { MatrixTest } from './simple.testIni.matrix'
+import { SimpleMatrixTest } from './tasks/simple.matrix.test'
 
+SimpleMatrixTest.testTranspose()
 // import { testAxiosBoxOfficeMojo } from './axios.boxofficemojo.testIni'
 // import { TestAxiosAlphaVantage } from './axios.alphavantage.test'
 //
@@ -13,7 +14,7 @@
 // testAxiosBoxOfficeMojo()
 // testAxiosAlphaVantage()
 
-// import { SimpleJsoTest } from './tasks/simple.Jso.test'
+// import { SimpleJsoTest } from './tasks/simple.Ob.test'
 //
 // SimpleJsoTest.createObjectTest()
 // SimpleJsoTest.JTabTest()
@@ -24,9 +25,9 @@
 // JsoSamplesTest.tableToSample()
 // JsoSamplesTest.crosTabToSamples()
 
-// import { SimpleVectorTest } from './simple.vector.testIni'
+// import { SimpleVectorTest } from './tasks/simple.vector.test'
 //
-// SimpleVectorTest.main()
+// SimpleVectorTest.test_ini()
 
 // import { SimpleFunTest } from './simple.fun.test'
 //
@@ -34,7 +35,7 @@
 // // SimpleFunTest.testGetFuncMethods()
 // SimpleFunTest.testFuncChains()
 
-import { CloneTest } from './tasks/clone.test'
-
-CloneTest.cloneArray()
+// import { CloneTest } from './tasks/clone.test'
+//
+// CloneTest.cloneArray()
 

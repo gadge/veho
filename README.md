@@ -9,7 +9,7 @@
 
 ## Usage
 
-Three class JExt, Mat and Vec.
+Three class JExt, Mx and Ar.
 JExt, JSON-extension, static class contains functions to transform JSON object into 
 
 

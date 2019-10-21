@@ -1,6 +1,7 @@
 import { boxoffice } from '../asset/map/boxoffice.180817'
-import { deco, Typ, VecX } from 'xbrief'
-import { Jso, Samples } from '../../src'
+import { deco, ArrX } from 'xbrief'
+import { Typ } from 'typen'
+import { Ob, Samples } from '../../src'
 import { highestGrossingFilmsInChina } from '../asset/highestGrossingFilmsInChina'
 
 const macrotable = [
@@ -25,19 +26,19 @@ class SimpleJsoTest {
     'entries'.tag(entries |> Typ.inferType) |> console.log
     entries |> console.log
 
-    let objByOf = Jso.of(...entries)
+    let objByOf = Ob.of(...entries)
     'objByOf' |> console.log
     objByOf |> console.log
 
-    let objByFromEntries = Jso.fromEntries(entries)
+    let objByFromEntries = Ob.fromEntries(entries)
     'objByFromEntries' |> console.log
     objByFromEntries |> console.log
 
-    let objByFromEntriesModified = Jso.fromEntries(entries, ([gross, , year]) => [gross * 1000, year])
+    let objByFromEntriesModified = Ob.fromEntries(entries, ([gross, , year]) => [gross * 1000, year])
     'objByFromEntriesModified' |> console.log
     objByFromEntriesModified |> console.log
 
-    let objByFromEntriesModifiedByIndex = Jso.fromEntries(entries, ([gross], i) => [i + 1, gross * 1000])
+    let objByFromEntriesModifiedByIndex = Ob.fromEntries(entries, ([gross], i) => [i + 1, gross * 1000])
     'objByFromEntriesModifiedByIndex' |> console.log
     objByFromEntriesModifiedByIndex |> console.log
 
@@ -45,15 +46,15 @@ class SimpleJsoTest {
 
   static mapTransferTest () {
     let original = boxoffice
-    'original'.tag(original |> Typ.inferType) |> console.log
+    'original'.tag(original |> Typ.infer) |> console.log
     original |> console.log
 
-    let jso = Jso.fromMap(boxoffice)
-    'map to object'.tag(jso|> Typ.inferType) |> console.log
+    let jso = Ob.fromMap(boxoffice)
+    'map to object'.tag(jso|> Typ.infer) |> console.log
     jso |> console.log
 
-    let mpo = Jso.toMap(jso)
-    'object to map'.tag(mpo|> Typ.inferType) |> console.log
+    let mpo = Ob.toMap(jso)
+    'object to map'.tag(mpo|> Typ.infer) |> console.log
     mpo |> console.log
   }
 
@@ -67,7 +68,7 @@ class SimpleJsoTest {
     const original = macrotable
     const rowAbstract = row => JSON.stringify(row)
     'original samples' |> console.log
-    VecX.vBrief(macrotable, { abstract: rowAbstract }) |> console.log
+    ArrX.vBrief(macrotable, { abstract: rowAbstract }) |> console.log
 
     'samples to table' |> console.log
     const table = Samples.toTable(macrotable)
@@ -84,13 +85,13 @@ class SimpleJsoTest {
     'table to samples' |> console.log
     const samples = Samples.fromCrosTab(crostab, { sideLabel: 'srno' })
     // deco(samples |> console.log
-    VecX.vBrief(samples, { abstract: rowAbstract }) |> console.log
+    ArrX.vBrief(samples, { abstract: rowAbstract }) |> console.log
   }
 }
 
-describe('Simple Jso Test', function () {
+describe('Simple Ob Test', function () {
   this.timeout(1000 * 60)
-  it('Simple Jso Test: Samples Test ', () => {
+  it('Simple Ob Test: Samples Test ', () => {
     SimpleJsoTest.SamplesTest()
   })
 })

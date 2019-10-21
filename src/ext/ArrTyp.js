@@ -1,25 +1,16 @@
-import { Typ } from 'xbrief'
+import { Num } from 'typen'
 
-/**
- *
- * @param {*} o
- * @return {string}
- */
-function inferEl (o) {
-  return (typeof o === 'string')
-    ? Typ.isNumeric(o) ? 'numstr' : 'string'
-    : Typ.infer(o)
-}
+const { inferData } = Num
 
 class ArrTyp {
   /**
    *
-   * @param {*[]} column
+   * @param {*[]} arr
    * @return {string|unknown}
    */
-  static inferList (column) {
-    if (column.length) {
-      const types = column.map(inferEl)
+  static inferList (arr) {
+    if (arr.length) {
+      const types = arr.map(inferData)
       const dist = new Set(types)
       switch (dist.size) {
         case 1:
@@ -39,51 +30,23 @@ class ArrTyp {
   /**
    *
    * Specify the type of a column. No return
-   * @param {*[]} column accept both column name in string or column index in integer
+   * @param {*[]} arr accept both column name in string or column index in integer
    * @param {string} typeName string | (number, float) | integer | boolean
    */
-  changeType (column, typeName) {
+  changeType (arr, typeName) {
     switch (typeName) {
       case 'string':
-        return column.map(it => `${it}`)
+        return arr.map(it => `${it}`)
       case 'number':
       case 'float':
-        return column.map(Number.parseFloat)
+        return arr.map(parseFloat)
       case 'integer':
-        return column.map(Number.parseInt)
+        return arr.map(parseInt)
       case 'boolean':
-        return column.map(Boolean)
+        return arr.map(Boolean)
       default:
-        return column
+        return arr
     }
-  }
-
-  /**
-   * Re-generate this.types based on DPTyp.inferArr method.
-   * Cautious: This method will change all elements of this.types.
-   * @return {string[]}
-   */
-  inferTypes () {
-    //|> Mat.transpose
-    /**
-     * @type {*[][]}
-     */
-    const { columns } = this, { infer } = ArrTyp
-    this.types = columns.map(infer)
-    for (let [i, typ] of this.types.entries()) {
-      switch (typ) {
-        case ('numstr') :
-          this.changeType(i, 'number')
-          break
-        case ('misc'):
-          this.changeType(i, 'string')
-          break
-        default:
-        // `${idx}:${typ}`.tag('no need to change type').wL()
-      }
-    }
-    return this.types
-    // 'banner types'.tag(Dic.ini(this.banner, this.types).vBrief()).wL()
   }
 }
 

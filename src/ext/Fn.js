@@ -1,4 +1,4 @@
-export class Fun {
+export class Fn {
   static getMethodNames (cls) {
     return !!cls && !!cls.prototype
       ? Object.getOwnPropertyNames(cls.prototype)

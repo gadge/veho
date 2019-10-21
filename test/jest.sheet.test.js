@@ -2,7 +2,7 @@ import { iterateStaticMethod } from './utils/iterateStaticMethod'
 import { TestAxiosAlphaVantage } from './tasks/axios.alphavantage.test'
 import { SimpleMatrixTest } from './tasks/simple.matrix.test'
 import { SimpleVectorTest } from './tasks/simple.vector.test'
-import { SimpleJsoTest } from './tasks/simple.Jso.test'
+import { SimpleJsoTest } from './tasks/simple.Ob.test'
 
 test('TestAxiosAlphaVantage', () => {
   iterateStaticMethod(TestAxiosAlphaVantage)

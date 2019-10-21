@@ -1,5 +1,5 @@
-import { VehoError } from '../misc/VehoError'
-import { Jso } from './Jso'
+import { Er } from '../misc/Er'
+import { Ob } from './Ob'
 
 /**
  * Transform between Json table and Json of samples.
@@ -24,17 +24,17 @@ export class Samples {
    * @return {Object[]}
    */
   static fromTable ({ head, rows }, fields) {
-    if (!head || !Array.isArray(head)) throw new VehoError('The input \'head\' is not valid.')
-    if (!rows || !Array.isArray(rows)) throw new VehoError('The input \'rows\' is not valid.')
+    if (!head || !Array.isArray(head)) throw new Er('The input \'head\' is not valid.')
+    if (!rows || !Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.')
     const [row] = rows
     if (!row || !Array.isArray(row)) return null
-    let fieldToIndex =
+    let fieldIndexPairs =
       fields && Array.isArray(fields)
         ? fields.map(field => [field, head.indexOf(field)])
-        : [...head.entries()].map(([k, v]) => [v, k])
+        : head.map((field, index) => [field, index])
     return rows.map(row => {
       let o = {}
-      for (let [k, i] of fieldToIndex) o[k] = row[i]
+      for (let [k, i] of fieldIndexPairs) o[k] = row[i]
       return o
     })
   }
@@ -44,7 +44,7 @@ export class Samples {
    * @param {Object[]} samples
    * @param {string[]} [fields]
    * @param {{head:string,rows:string}} [label]
-   * @returns {null|{head:*[],rows:*[][]}|Object}
+   * @returns {null|{head:*[],rows:*[][]}}
    */
   static toTable (samples, {
     fields = null,
@@ -53,7 +53,7 @@ export class Samples {
       rows: 'rows'
     }
   } = {}) {
-    if (!samples || !Array.isArray(samples)) throw new VehoError('The input \'rows\' is not an Array')
+    if (!samples || !Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array')
     const [sample] = samples
     if (!sample || !(sample instanceof Object)) return null
     const
@@ -61,8 +61,9 @@ export class Samples {
       [banner, picker] =
         fields
           ? [fields, row => banner.map(x => row[x])]
-          : [Object.keys(sample), Object.values], rowSet = samples.map(picker)
-    return Jso.of(
+          : [Object.keys(sample), Object.values],
+      rowSet = samples.map(picker)
+    return Ob.of(
       [head, banner],
       [rows, rowSet]
     )
@@ -89,10 +90,20 @@ export class Samples {
     return samples.map(Object.values)
   }
 
-  static fromCrosTab ({ matrix, side, banner }, { sideLabel = '_' }) {
+  /**
+   *
+   * @param {*[][]} matrix
+   * @param {*[]} side
+   * @param {*[]} banner
+   * @param {string} [sideLabel]
+   * @returns {Object[]}
+   */
+  static fromCrosTab ({ matrix, side, banner }, { sideLabel = '_' } = {}) {
     const
-      sides = side.map(x => Jso.of([sideLabel, x])),
-      rows = matrix.map(row => Jso.ini(banner, row))
-    return sides.zip(rows, Object.assign)
+      sides = side.map(x => Ob.of([sideLabel, x])),
+      rows = matrix.map(row => Ob.ini(banner, row)),
+      { length } = sides
+    for (let i = 0; i < length; i++) Object.assign(sides[i], rows[i])
+    return sides
   }
 }
