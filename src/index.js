@@ -3,6 +3,7 @@
  * @param len. The number denote the first "n" elements in an array.
  * @returns {*[]}. A new array length at "len".
  */
+
 Array.prototype.take = function (len) {
   return this.slice(0, len)
 }
@@ -15,8 +16,8 @@ Array.prototype.zip = function (another, zipper) {
   // return this.map((x, i) => zipper(x, another[i]))
 }
 
-// Matrix extension
-
+export { Pivot } from './utils/Pivot'
+export { PivotModes } from './utils/PivotModes'
 export { Ar } from './ext/Ar'
 export { Mx } from './ext/Mx'
 export { Dc } from './ext/Dc'

@@ -25,6 +25,11 @@ class Mx {
     )
   }
 
+  static size (mx) {
+    const l = mx?.length
+    return [l, l ? mx[0]?.length : undefined]
+  }
+
   static isMat (mx) {
     return Array.isArray(mx) && mx.length
       ? Array.isArray(mx[0])

@@ -1,5 +1,18 @@
 import { Er } from '../misc/Er'
 import { Ob } from './Ob'
+import { Pivot } from '../utils/Pivot'
+import { PivotModes } from '../utils/PivotModes'
+
+/**
+ *
+ * @param {*[]} arr
+ * @param {[*,number][]} fis
+ */
+const picker = (arr, fis) => {
+  let o = {}
+  for (let [k, i] of fis) o[k] = arr[i]
+  return o
+}
 
 /**
  * Transform between Json table and Json of samples.
@@ -24,19 +37,14 @@ export class Samples {
    * @return {Object[]}
    */
   static fromTable ({ head, rows }, fields) {
-    if (!head || !Array.isArray(head)) throw new Er('The input \'head\' is not valid.')
-    if (!rows || !Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.')
+    if (!Array.isArray(head)) throw new Er('The input \'head\' is not valid.')
+    if (!Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.')
     const [row] = rows
-    if (!row || !Array.isArray(row)) return null
-    let fieldIndexPairs =
-      fields && Array.isArray(fields)
-        ? fields.map(field => [field, head.indexOf(field)])
-        : head.map((field, index) => [field, index])
-    return rows.map(row => {
-      let o = {}
-      for (let [k, i] of fieldIndexPairs) o[k] = row[i]
-      return o
-    })
+    if (!Array.isArray(row)) return null
+    const fis = Array.isArray(fields)
+      ? fields.map(fd => [fd, head.indexOf(fd)])
+      : head.map((fd, i) => [fd, i])
+    return rows.map(row => picker(row, fis))
   }
 
   /**
@@ -53,15 +61,14 @@ export class Samples {
       rows: 'rows'
     }
   } = {}) {
-    if (!samples || !Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array')
+    if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array')
     const [sample] = samples
-    if (!sample || !(sample instanceof Object)) return null
+    if (!(sample instanceof Object)) return null
     const
       { head, rows } = label,
-      [banner, picker] =
-        fields
-          ? [fields, row => banner.map(x => row[x])]
-          : [Object.keys(sample), Object.values],
+      [banner, picker] = !!fields
+        ? [fields, row => banner.map(x => row[x])]
+        : [Object.keys(sample), Object.values],
       rowSet = samples.map(picker)
     return Ob.of(
       [head, banner],
@@ -105,5 +112,9 @@ export class Samples {
       { length } = sides
     for (let i = 0; i < length; i++) Object.assign(sides[i], rows[i])
     return sides
+  }
+
+  static toCrosTab (samples, { side, banner, field }, { mode = PivotModes.array, include } = {}) {
+    return new Pivot(samples).pivot([side, banner, field], { mode, include })
   }
 }

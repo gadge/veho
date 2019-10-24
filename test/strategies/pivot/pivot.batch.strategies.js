@@ -150,7 +150,7 @@ class PivotBatchStrategies {
         return CrosTab.from({ side: s, banner: b, matrix: mx })
       }
     }
-    const { lapse, result } = Chrono.crossByParamsAndFuncs({
+    const { lapse, result } = Chrono.strategies({
       repeat: 1E+4,
       paramsList: {
         simple: [samples, [0, 1, { v: 2 }]],

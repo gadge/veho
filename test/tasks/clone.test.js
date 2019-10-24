@@ -10,7 +10,7 @@ class CloneTest {
   static Stat
 
   static cloneArray () {
-    const { lapse, result } = Chrono.crossByParamsAndFuncs({
+    const { lapse, result } = Chrono.strategies({
       repeat: 256,
       paramsList: {
         nba_players_performance: [nba_players_performance.rows],

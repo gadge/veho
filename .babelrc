@@ -26,6 +26,9 @@
     ],
     [
       "@babel/plugin-proposal-private-methods"
+    ],
+    [
+      "@babel/plugin-proposal-optional-chaining"
     ]
   ]
 }

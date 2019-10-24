@@ -4,6 +4,242 @@
   (global = global || self, factory(global.veho = {}, global.typen));
 }(this, function (exports, typen) { 'use strict';
 
+  var PivotModes = {
+    array: 0,
+    sum: 1,
+    count: 2
+  };
+
+  /**
+   * Expand the side, 's' and the matrix, 'mx'.
+   * @param {*} x
+   * @param {*[]} s
+   * @param {*[][]} mx
+   * @param {function():(Array|number)} cr
+   * @returns {number}
+   * @private
+   */
+
+  var vertAmp = function vertAmp(x, _ref) {
+    var s = _ref.s,
+        mx = _ref.mx,
+        cr = _ref.cr;
+    mx.length ? mx.push(mx[0].map(cr)) : mx.push([]);
+    return s.push(x);
+  };
+  /**
+   * Expand the banner, 'b' and the matrix, 'mx'.
+   * @param {*} y
+   * @param {*[]} b
+   * @param {*[][]} mx
+   * @param {function():(Array|number)} cr
+   * @returns {number}
+   * @private
+   */
+
+
+  var horiAmp = function horiAmp(y, _ref2) {
+    var b = _ref2.b,
+        mx = _ref2.mx,
+        cr = _ref2.cr;
+
+    for (var i = mx.length - 1; i >= 0; i--) {
+      mx[i].push(cr());
+    }
+
+    return b.push(y);
+  };
+
+  var _sel = function _sel(row, _ref3) {
+    var x = _ref3[0],
+        y = _ref3[1],
+        v = _ref3[2];
+    return [row[x], row[y], row[v]];
+  };
+
+  var _amp = function _amp(x, y) {
+    this.roiAmp(x);
+    this.coiAmp(y);
+  };
+
+  var Pivot =
+  /*#__PURE__*/
+  function () {
+    function Pivot(rows, mode) {
+      if (mode === void 0) {
+        mode = PivotModes.array;
+      }
+
+      this.rows = rows;
+      this.cr = !mode ? function () {
+        return [];
+      } : function () {
+        return 0;
+      };
+      this.s = [];
+      this.b = [];
+      this.mx = [];
+    }
+
+    var _proto = Pivot.prototype;
+
+    _proto.roi = function roi(x) {
+      return this.s.indexOf(x);
+    };
+
+    _proto.coi = function coi(y) {
+      return this.b.indexOf(y);
+    };
+
+    _proto.roiAmp = function roiAmp(x) {
+      var i = this.s.indexOf(x);
+      if (i < 0) i += vertAmp(x, this);
+      return i;
+    };
+
+    _proto.coiAmp = function coiAmp(y) {
+      var j = this.b.indexOf(y);
+      if (j < 0) j += horiAmp(y, this);
+      return j;
+    };
+
+    _proto.pileAmp = function pileAmp(_ref4) {
+      var x = _ref4[0],
+          y = _ref4[1],
+          v = _ref4[2];
+      return this.mx[this.roiAmp(x)][this.coiAmp(y)].push(v);
+    };
+
+    _proto.addAmp = function addAmp(_ref5) {
+      var x = _ref5[0],
+          y = _ref5[1],
+          v = _ref5[2];
+      return this.mx[this.roiAmp(x)][this.coiAmp(y)] += v;
+    };
+
+    _proto.pileRep = function pileRep(_ref6) {
+      var x = _ref6[0],
+          y = _ref6[1],
+          v = _ref6[2];
+      this.mx[this.roi(x)][this.coi(y)].push(v);
+    };
+
+    _proto.addRep = function addRep(_ref7) {
+      var x = _ref7[0],
+          y = _ref7[1],
+          v = _ref7[2];
+      this.mx[this.roi(x)][this.coi(y)] += v;
+    };
+
+    _proto.pivot = function pivot(fields, _temp) {
+      var _ref8 = _temp === void 0 ? {} : _temp,
+          _ref8$mode = _ref8.mode,
+          mode = _ref8$mode === void 0 ? PivotModes.array : _ref8$mode,
+          _ref8$ini = _ref8.ini,
+          ini = _ref8$ini === void 0 ? true : _ref8$ini,
+          include = _ref8.include;
+
+      if (ini) {
+        this.reset(mode);
+      } else {
+        this.clearMatrix(mode);
+      }
+
+      var rows = this.rows,
+          s = this.s,
+          b = this.b,
+          mx = this.mx,
+          accum = this.accumLauncher(mode, ini, include);
+
+      for (var i = 0, length = rows.length; i < length; i++) {
+        accum(rows[i], fields);
+      }
+
+      return {
+        side: s,
+        banner: b,
+        matrix: mx
+      };
+    };
+
+    _proto.accumLauncher = function accumLauncher(mode, ini, include) {
+      if (mode === void 0) {
+        mode = 0;
+      }
+
+      if (ini === void 0) {
+        ini = true;
+      }
+
+      var f;
+      var accum = this[(!mode ? 'pile' : 'add') + (ini ? 'Amp' : 'Rep')].bind(this);
+
+      if (typeof include === 'function') {
+        var amp = _amp.bind(this);
+
+        f = mode === PivotModes.count ? function (_ref9) {
+          var x = _ref9[0],
+              y = _ref9[1],
+              v = _ref9[2];
+          include(v) ? accum([x, y, 1]) : amp(x, y);
+        } : function (_ref10) {
+          var x = _ref10[0],
+              y = _ref10[1],
+              v = _ref10[2];
+          include(v) ? accum([x, y, v]) : amp(x, y);
+        };
+      } else {
+        f = mode === PivotModes.count ? function (_ref11) {
+          var x = _ref11[0],
+              y = _ref11[1];
+          accum([x, y, 1]);
+        } : accum;
+      }
+
+      return function (row, fields) {
+        return f(_sel(row, fields));
+      };
+    };
+
+    _proto.reset = function reset(mode) {
+      this.cr = !mode ? function () {
+        return [];
+      } : function () {
+        return 0;
+      };
+      this.s = [];
+      this.b = [];
+      this.mx = [];
+    };
+
+    _proto.clearMatrix = function clearMatrix(mode) {
+      this.cr = !mode ? function () {
+        return [];
+      } : function () {
+        return 0;
+      };
+      var s = this.s,
+          b = this.b,
+          cr = this.cr;
+      var sl = s.length,
+          bl = b.length,
+          j;
+      var mx = Array(sl--);
+
+      for (var i = sl; i >= 0; i--) {
+        mx[i] = Array(bl);
+
+        for (j = bl - 1; j >= 0; j--) {
+          mx[i][j] = cr();
+        }
+      }
+
+      this.mx = mx;
+    };
+
+    return Pivot;
+  }();
+
   var oc = Object.prototype.toString;
   /**
    *
@@ -322,6 +558,13 @@
           return ject(x, y);
         });
       });
+    };
+
+    Mx.size = function size(mx) {
+      var _mx$;
+
+      var l = mx === null || mx === void 0 ? void 0 : mx.length;
+      return [l, l ? (_mx$ = mx[0]) === null || _mx$ === void 0 ? void 0 : _mx$.length : undefined];
     };
 
     Mx.isMat = function isMat(mx) {
@@ -803,6 +1046,35 @@
   }();
 
   /**
+   *
+   * @param {*[]} arr
+   * @param {[*,number][]} fis
+   */
+
+  var picker = function picker(arr, fis) {
+    var o = {};
+
+    for (var _iterator = fis, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+      var _ref;
+
+      if (_isArray) {
+        if (_i >= _iterator.length) break;
+        _ref = _iterator[_i++];
+      } else {
+        _i = _iterator.next();
+        if (_i.done) break;
+        _ref = _i.value;
+      }
+
+      var _ref2 = _ref,
+          k = _ref2[0],
+          i = _ref2[1];
+      o[k] = arr[i];
+    }
+
+    return o;
+  };
+  /**
    * Transform between Json table and Json of samples.
    * A Json table is formed like :
    *  {
@@ -817,6 +1089,7 @@
    *  ]
    */
 
+
   var Samples =
   /*#__PURE__*/
   function () {
@@ -829,40 +1102,20 @@
      * @param {*[]} [fields]
      * @return {Object[]}
      */
-    Samples.fromTable = function fromTable(_ref, fields) {
-      var head = _ref.head,
-          rows = _ref.rows;
-      if (!head || !Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
-      if (!rows || !Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
+    Samples.fromTable = function fromTable(_ref3, fields) {
+      var head = _ref3.head,
+          rows = _ref3.rows;
+      if (!Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
+      if (!Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
       var row = rows[0];
-      if (!row || !Array.isArray(row)) return null;
-      var fieldIndexPairs = fields && Array.isArray(fields) ? fields.map(function (field) {
-        return [field, head.indexOf(field)];
-      }) : head.map(function (field, index) {
-        return [field, index];
+      if (!Array.isArray(row)) return null;
+      var fis = Array.isArray(fields) ? fields.map(function (fd) {
+        return [fd, head.indexOf(fd)];
+      }) : head.map(function (fd, i) {
+        return [fd, i];
       });
       return rows.map(function (row) {
-        var o = {};
-
-        for (var _iterator = fieldIndexPairs, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-          var _ref2;
-
-          if (_isArray) {
-            if (_i >= _iterator.length) break;
-            _ref2 = _iterator[_i++];
-          } else {
-            _i = _iterator.next();
-            if (_i.done) break;
-            _ref2 = _i.value;
-          }
-
-          var _ref3 = _ref2,
-              k = _ref3[0],
-              i = _ref3[1];
-          o[k] = row[i];
-        }
-
-        return o;
+        return picker(row, fis);
       });
     }
     /**
@@ -884,13 +1137,13 @@
         rows: 'rows'
       } : _ref4$label;
 
-      if (!samples || !Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+      if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
       var sample = samples[0];
-      if (!sample || !(sample instanceof Object)) return null;
+      if (!(sample instanceof Object)) return null;
 
       var head = label.head,
           rows = label.rows,
-          _ref5 = fields ? [fields, function (row) {
+          _ref5 = !!fields ? [fields, function (row) {
         return banner.map(function (x) {
           return row[x];
         });
@@ -955,6 +1208,22 @@
       }
 
       return sides;
+    };
+
+    Samples.toCrosTab = function toCrosTab(samples, _ref8, _temp3) {
+      var side = _ref8.side,
+          banner = _ref8.banner,
+          field = _ref8.field;
+
+      var _ref9 = _temp3 === void 0 ? {} : _temp3,
+          _ref9$mode = _ref9.mode,
+          mode = _ref9$mode === void 0 ? PivotModes.array : _ref9$mode,
+          include = _ref9.include;
+
+      return new Pivot(samples).pivot([side, banner, field], {
+        mode: mode,
+        include: include
+      });
     };
 
     return Samples;
@@ -1046,13 +1315,15 @@
 
     return arr; // return Array.from({ length: size }, (v, i) => zipper(this[i], another[i], i))
     // return this.map((x, i) => zipper(x, another[i]))
-  }; // Matrix extension
+  };
 
   exports.Ar = Ar;
   exports.Dc = Dc;
   exports.Fn = Fn;
   exports.Mx = Mx;
   exports.Ob = Ob;
+  exports.Pivot = Pivot;
+  exports.PivotModes = PivotModes;
   exports.Samples = Samples;
   exports.clone = clone;
 

@@ -30,85 +30,79 @@ const horiAmp = (y, { b, mx, cr }) => {
 
 const _sel = (row, [x, y, v]) => [row[x], row[y], row[v]]
 
+const _amp = function (x, y) {
+  this.roiAmp(x)
+  this.coiAmp(y)
+}
+
 export class Pivot {
   constructor (rows, mode = PivotModes.array) {
     this.rows = rows
-    this.reset(mode)
+    this.cr = !mode ? () => [] : () => 0
+    this.s = []
+    this.b = []
+    this.mx = []
   }
 
-  roin (x) {
+  roi (x) {
     return this.s.indexOf(x)
   }
 
-  coin (y) {
+  coi (y) {
     return this.b.indexOf(y)
   }
 
-  cooAmp ([x, y]) {
-    let i = this.roin(x), j = this.coin(y)
+  roiAmp (x) {
+    let i = this.s.indexOf(x)
     if (i < 0) i += vertAmp(x, this)
+    return i
+  }
+
+  coiAmp (y) {
+    let j = this.b.indexOf(y)
     if (j < 0) j += horiAmp(y, this)
-    return [i, j]
+    return j
   }
 
-  pile ([x, y, v]) {
-    let i = this.roin(x), j = this.coin(y)
-    if (i < 0) i += vertAmp(x, this)
-    if (j < 0) j += horiAmp(y, this)
-    return this.mx[i][j].push(v)
+  pileAmp ([x, y, v]) {
+    return this.mx[this.roiAmp(x)][this.coiAmp(y)].push(v)
   }
 
-  rePile ([x, y, v]) {
-    this.mx[this.roin(x)][this.coin(y)].push(v)
+  addAmp ([x, y, v]) {
+    return this.mx[this.roiAmp(x)][this.coiAmp(y)] += v
   }
 
-  add ([x, y, v]) {
-    let i = this.roin(x), j = this.coin(y)
-    if (i < 0) i += vertAmp(x, this)
-    if (j < 0) j += horiAmp(y, this)
-    return this.mx[i][j] += v
+  pileRep ([x, y, v]) {
+    this.mx[this.roi(x)][this.coi(y)].push(v)
   }
 
-  reAdd ([x, y, v]) {
-    this.mx[this.roin(x)][this.coin(y)] += v
+  addRep ([x, y, v]) {
+    this.mx[this.roi(x)][this.coi(y)] += v
   }
 
   pivot (fields, { mode = PivotModes.array, ini = true, include } = {}) {
     if (ini) { this.reset(mode) } else {this.clearMatrix(mode)}
     const
       { rows, s, b, mx } = this,
-      accum = this.accumLauncher(mode, ini)
-    if (typeof include === 'function') {
-      for (let i = 0, { length } = rows, row; i < length; i++) {
-        row = rows[i]
-        if (!!include(row[fields[2]])) {
-          accum(row, fields)
-        } else {
-
-        }
-      }
-    } else {
-      for (let i = 0, { length } = rows; i < length; i++)
-        accum(rows[i], fields)
-    }
+      accum = this.accumLauncher(mode, ini, include)
+    for (let i = 0, { length } = rows; i < length; i++) accum(rows[i], fields)
     return { side: s, banner: b, matrix: mx }
   }
 
-  accumLauncher (mode = 0, ini = true) {
-    switch (mode) {
-      case PivotModes.array:
-        return ini
-          ? (row, fields) => this.pile(_sel(row, fields))
-          : (row, fields) => this.rePile(_sel(row, fields))
-      case PivotModes.sum:
-        return ini
-          ? (row, fields) => this.add(_sel(row, fields))
-          : (row, fields) => this.reAdd(_sel(row, fields))
-      case PivotModes.count:
-        return ini
-          ? (row, fields) => this.add([row[fields[0]], row[fields[1]], 1])
-          : (row, fields) => this.reAdd([row[fields[0]], row[fields[1]], 1])
+  accumLauncher (mode = 0, ini = true, include) {
+    let f
+    const accum = this[(!mode ? 'pile' : 'add') + (ini ? 'Amp' : 'Rep')].bind(this)
+    if (typeof include === 'function') {
+      const amp = _amp.bind(this)
+      f = (mode === PivotModes.count)
+        ? ([x, y, v]) => {include(v) ? accum([x, y, 1]) : amp(x, y)}
+        : ([x, y, v]) => {include(v) ? accum([x, y, v]) : amp(x, y)}
+    } else {
+      f = (mode === PivotModes.count)
+        ? ([x, y]) => {accum([x, y, 1]) }
+        : accum
     }
+    return (row, fields) => f(_sel(row, fields))
   }
 
   reset (mode) {
@@ -120,10 +114,14 @@ export class Pivot {
 
   clearMatrix (mode) {
     this.cr = !mode ? () => [] : () => 0
-    const { s, b, mx, cr } = this
-    let { length: sl } = s, { length: bl } = b, j = --bl
-    for (let i = sl - 1; i >= 0; i--)
-      for (j = bl; j >= 0; j--)
+    const { s, b, cr } = this
+    let { length: sl } = s, { length: bl } = b, j
+    const mx = Array(sl--)
+    for (let i = sl; i >= 0; i--) {
+      mx[i] = Array(bl)
+      for (j = bl - 1; j >= 0; j--)
         mx[i][j] = cr()
+    }
+    this.mx = mx
   }
 }

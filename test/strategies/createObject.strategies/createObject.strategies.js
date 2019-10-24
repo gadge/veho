@@ -23,7 +23,7 @@ class CreateObjectStrategies {
       }
     }
 
-    const { lapse, result } = Chrono.crossByParamsAndFuncs({
+    const { lapse, result } = Chrono.strategies({
       repeat: 2E+6,
       paramsList: {
         simple: [[['foo', []], ['bar', []], ['baz', []]]],
@@ -45,9 +45,9 @@ class CreateObjectStrategies {
   }
 }
 
-describe('Create Object Strategies', function () {
-  this.timeout(1000 * 60)
-  it('Create Object Strategies: test', () => {
-    CreateObjectStrategies.test()
-  })
-})
+// describe('Create Object Strategies', function () {
+//   this.timeout(1000 * 60)
+//   it('Create Object Strategies: test', () => {
+//     CreateObjectStrategies.test()
+//   })
+// })

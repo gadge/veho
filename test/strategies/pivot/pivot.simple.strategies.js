@@ -58,7 +58,7 @@ const toCell = fields => {
 
 class PivotSimpleStrategies {
   static test () {
-    const { lapse, result } = Chrono.crossByParamsAndFuncs({
+    const { lapse, result } = Chrono.strategies({
       repeat: 1E+5,
       paramsList: {
         simple: [samples],

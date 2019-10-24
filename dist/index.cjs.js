@@ -4,6 +4,188 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var typen = require('typen');
 
+const PivotModes = {
+  array: 0,
+  sum: 1,
+  count: 2
+};
+
+/**
+ * Expand the side, 's' and the matrix, 'mx'.
+ * @param {*} x
+ * @param {*[]} s
+ * @param {*[][]} mx
+ * @param {function():(Array|number)} cr
+ * @returns {number}
+ * @private
+ */
+
+const vertAmp = (x, {
+  s,
+  mx,
+  cr
+}) => {
+  mx.length ? mx.push(mx[0].map(cr)) : mx.push([]);
+  return s.push(x);
+};
+/**
+ * Expand the banner, 'b' and the matrix, 'mx'.
+ * @param {*} y
+ * @param {*[]} b
+ * @param {*[][]} mx
+ * @param {function():(Array|number)} cr
+ * @returns {number}
+ * @private
+ */
+
+
+const horiAmp = (y, {
+  b,
+  mx,
+  cr
+}) => {
+  for (let i = mx.length - 1; i >= 0; i--) mx[i].push(cr());
+
+  return b.push(y);
+};
+
+const _sel = (row, [x, y, v]) => [row[x], row[y], row[v]];
+
+const _amp = function (x, y) {
+  this.roiAmp(x);
+  this.coiAmp(y);
+};
+
+class Pivot {
+  constructor(rows, mode = PivotModes.array) {
+    this.rows = rows;
+    this.cr = !mode ? () => [] : () => 0;
+    this.s = [];
+    this.b = [];
+    this.mx = [];
+  }
+
+  roi(x) {
+    return this.s.indexOf(x);
+  }
+
+  coi(y) {
+    return this.b.indexOf(y);
+  }
+
+  roiAmp(x) {
+    let i = this.s.indexOf(x);
+    if (i < 0) i += vertAmp(x, this);
+    return i;
+  }
+
+  coiAmp(y) {
+    let j = this.b.indexOf(y);
+    if (j < 0) j += horiAmp(y, this);
+    return j;
+  }
+
+  pileAmp([x, y, v]) {
+    return this.mx[this.roiAmp(x)][this.coiAmp(y)].push(v);
+  }
+
+  addAmp([x, y, v]) {
+    return this.mx[this.roiAmp(x)][this.coiAmp(y)] += v;
+  }
+
+  pileRep([x, y, v]) {
+    this.mx[this.roi(x)][this.coi(y)].push(v);
+  }
+
+  addRep([x, y, v]) {
+    this.mx[this.roi(x)][this.coi(y)] += v;
+  }
+
+  pivot(fields, {
+    mode = PivotModes.array,
+    ini = true,
+    include
+  } = {}) {
+    if (ini) {
+      this.reset(mode);
+    } else {
+      this.clearMatrix(mode);
+    }
+
+    const {
+      rows,
+      s,
+      b,
+      mx
+    } = this,
+          accum = this.accumLauncher(mode, ini, include);
+
+    for (let i = 0, {
+      length
+    } = rows; i < length; i++) accum(rows[i], fields);
+
+    return {
+      side: s,
+      banner: b,
+      matrix: mx
+    };
+  }
+
+  accumLauncher(mode = 0, ini = true, include) {
+    let f;
+    const accum = this[(!mode ? 'pile' : 'add') + (ini ? 'Amp' : 'Rep')].bind(this);
+
+    if (typeof include === 'function') {
+      const amp = _amp.bind(this);
+
+      f = mode === PivotModes.count ? ([x, y, v]) => {
+        include(v) ? accum([x, y, 1]) : amp(x, y);
+      } : ([x, y, v]) => {
+        include(v) ? accum([x, y, v]) : amp(x, y);
+      };
+    } else {
+      f = mode === PivotModes.count ? ([x, y]) => {
+        accum([x, y, 1]);
+      } : accum;
+    }
+
+    return (row, fields) => f(_sel(row, fields));
+  }
+
+  reset(mode) {
+    this.cr = !mode ? () => [] : () => 0;
+    this.s = [];
+    this.b = [];
+    this.mx = [];
+  }
+
+  clearMatrix(mode) {
+    this.cr = !mode ? () => [] : () => 0;
+    const {
+      s,
+      b,
+      cr
+    } = this;
+    let {
+      length: sl
+    } = s,
+        {
+      length: bl
+    } = b,
+        j;
+    const mx = Array(sl--);
+
+    for (let i = sl; i >= 0; i--) {
+      mx[i] = Array(bl);
+
+      for (j = bl - 1; j >= 0; j--) mx[i][j] = cr();
+    }
+
+    this.mx = mx;
+  }
+
+}
+
 const oc = Object.prototype.toString;
 /**
  *
@@ -272,6 +454,13 @@ class Mx {
     return Array(height).fill(null).map((_, x) => Array(width).fill(null).map((_, y) => ject(x, y)));
   }
 
+  static size(mx) {
+    var _mx$;
+
+    const l = mx === null || mx === void 0 ? void 0 : mx.length;
+    return [l, l ? (_mx$ = mx[0]) === null || _mx$ === void 0 ? void 0 : _mx$.length : undefined];
+  }
+
   static isMat(mx) {
     return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
   }
@@ -499,9 +688,7 @@ class Ob {
           break;
       }
     } else {
-      for (let [k, v] of entries) {
-        o[k] = v;
-      }
+      for (let [k, v] of entries) o[k] = v;
     }
 
     return o;
@@ -538,6 +725,19 @@ class Ob {
 }
 
 /**
+ *
+ * @param {*[]} arr
+ * @param {[*,number][]} fis
+ */
+
+const picker = (arr, fis) => {
+  let o = {};
+
+  for (let [k, i] of fis) o[k] = arr[i];
+
+  return o;
+};
+/**
  * Transform between Json table and Json of samples.
  * A Json table is formed like :
  *  {
@@ -552,6 +752,7 @@ class Ob {
  *  ]
  */
 
+
 class Samples {
   /**
    *
@@ -564,18 +765,12 @@ class Samples {
     head,
     rows
   }, fields) {
-    if (!head || !Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
-    if (!rows || !Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
+    if (!Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
+    if (!Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
     const [row] = rows;
-    if (!row || !Array.isArray(row)) return null;
-    let fieldIndexPairs = fields && Array.isArray(fields) ? fields.map(field => [field, head.indexOf(field)]) : head.map((field, index) => [field, index]);
-    return rows.map(row => {
-      let o = {};
-
-      for (let [k, i] of fieldIndexPairs) o[k] = row[i];
-
-      return o;
-    });
+    if (!Array.isArray(row)) return null;
+    const fis = Array.isArray(fields) ? fields.map(fd => [fd, head.indexOf(fd)]) : head.map((fd, i) => [fd, i]);
+    return rows.map(row => picker(row, fis));
   }
   /**
    *
@@ -593,14 +788,14 @@ class Samples {
       rows: 'rows'
     }
   } = {}) {
-    if (!samples || !Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+    if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
     const [sample] = samples;
-    if (!sample || !(sample instanceof Object)) return null;
+    if (!(sample instanceof Object)) return null;
     const {
       head,
       rows
     } = label,
-          [banner, picker] = fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values],
+          [banner, picker] = !!fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values],
           rowSet = samples.map(picker);
     return Ob.of([head, banner], [rows, rowSet]);
   }
@@ -652,6 +847,20 @@ class Samples {
     for (let i = 0; i < length; i++) Object.assign(sides[i], rows[i]);
 
     return sides;
+  }
+
+  static toCrosTab(samples, {
+    side,
+    banner,
+    field
+  }, {
+    mode = PivotModes.array,
+    include
+  } = {}) {
+    return new Pivot(samples).pivot([side, banner, field], {
+      mode,
+      include
+    });
   }
 
 }
@@ -723,12 +932,14 @@ Array.prototype.zip = function (another, zipper) {
 
   return arr; // return Array.from({ length: size }, (v, i) => zipper(this[i], another[i], i))
   // return this.map((x, i) => zipper(x, another[i]))
-}; // Matrix extension
+};
 
 exports.Ar = Ar;
 exports.Dc = Dc;
 exports.Fn = Fn;
 exports.Mx = Mx;
 exports.Ob = Ob;
+exports.Pivot = Pivot;
+exports.PivotModes = PivotModes;
 exports.Samples = Samples;
 exports.clone = clone;

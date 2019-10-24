@@ -68,9 +68,7 @@ class Ob {
           break
       }
     } else {
-      for (let [k, v] of entries) {
-        o[k] = v
-      }
+      for (let [k, v] of entries) o[k] = v
     }
     return o
   }

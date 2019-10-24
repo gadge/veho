@@ -43,29 +43,29 @@ let pvt
 export class PivotStrategies {
   static test () {
     const funcList = {
-      // stable: (rows, [x, y, v]) => {
-      //   const crosTab = CrosTab.ini({
-      //     side: [...new Set(rows.map(r => r[x]))],
-      //     banner: [...new Set(rows.map(r => r[y]))],
-      //     ject: (x, y) => []
-      //   })
-      //   for (const row of rows) crosTab.queryCell(row[x], row[y]).push(row[v])
-      //   return crosTab
-      // },
-      // dev: (rows, [x, y, v]) => {
-      //   const { length } = rows
-      //   const [side, banner] = getSideBanner(rows, x, y)
-      //   const crosTab = CrosTab.ini({
-      //     side,
-      //     banner,
-      //     ject: (x, y) => []
-      //   })
-      //   for (let i = 0, row; i < length; i++) {
-      //     row = rows[i]
-      //     crosTab.queryCell(row[x], row[y]).push(row[v])
-      //   }
-      //   return crosTab
-      // },
+      stable: (rows, [x, y, v]) => {
+        const crosTab = CrosTab.ini({
+          side: [...new Set(rows.map(r => r[x]))],
+          banner: [...new Set(rows.map(r => r[y]))],
+          ject: (x, y) => []
+        })
+        for (const row of rows) crosTab.queryCell(row[x], row[y]).push(row[v])
+        return crosTab
+      },
+      dev: (rows, [x, y, v]) => {
+        const { length } = rows
+        const [side, banner] = getSideBanner(rows, x, y)
+        const crosTab = CrosTab.ini({
+          side,
+          banner,
+          ject: (x, y) => []
+        })
+        for (let i = 0, row; i < length; i++) {
+          row = rows[i]
+          crosTab.queryCell(row[x], row[y]).push(row[v])
+        }
+        return crosTab
+      },
       edge: pivotAmp,
       class: (rows, [x, y, v]) => {
         // return new Pivot(rows).pivot([x, y, v])
@@ -76,8 +76,8 @@ export class PivotStrategies {
         return pvt.pivot([x, y, v], { ini: false })
       },
     }
-    const { lapse, result } = Chrono.crossByParamsAndFuncs({
-      repeat: 1E+5,
+    const { lapse, result } = Chrono.strategies({
+      repeat: 1E+3,
       paramsList: {
         simple: [samples, [0, 1, 2]],
         nba: [nbaRows, [0, 1, 4]]
@@ -102,9 +102,9 @@ export class PivotStrategies {
   }
 }
 
-describe('Pivot Strategies', function () {
-  this.timeout(1000 * 60)
-  it('Pivot Strategies: test ', () => {
-    PivotStrategies.test()
-  })
-})
+// describe('Pivot Strategies', function () {
+//   this.timeout(1000 * 60)
+//   it('Pivot Strategies: test ', () => {
+//     PivotStrategies.test()
+//   })
+// })
