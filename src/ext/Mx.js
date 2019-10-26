@@ -84,16 +84,26 @@ class Mx {
   }
 
   /**
+   *
+   * @param {*[][]} mx
+   * @param {number[]} indexes
+   * @returns {*}
+   */
+  static select (mx, ...indexes) {
+    return mx.map(r => indexes.map(i => r[i]))
+  }
+
+  /**
    * Transpose a 2d-array.
    * @param {*[][]} mx
    * @returns {*[][]}
    */
   static transpose (mx) {
-    return Mx.columnIndexes(mx).map(c => mx.map(r => r[c]))
+    return Mx.coins(mx).map(c => mx.map(r => r[c]))
   }
 
-  static column (mx, index) {
-    return mx.map(r => r[index])
+  static column (mx, y) {
+    return mx.map(r => r[y])
   }
 
   /**

@@ -15,7 +15,7 @@
     "build-rollup": "rollup -c",
     "version:": "npm version patch",
     "prepare": "npm run build-rollup",
-    "publish": "npm publish",
+    "pub": "npm publish",
     "test": "node test/utils/test-main.js",
     "test-strategies": "node test/utils/test-strategies.js",
     "mocha": "mocha"
