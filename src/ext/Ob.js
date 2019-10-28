@@ -98,6 +98,22 @@ class Ob {
     return dpObj(jso)
   }
 
+  /**
+   *
+   * @param {Object} jso
+   * @param {*[]} keys
+   * @param {number} [lo]
+   * @param {number} [hi]
+   */
+  static select (jso, keys, lo = 0, hi) {
+    const ob = {}
+    hi = hi || keys.length
+    for (let k; lo < hi; lo++) {
+      k = keys[lo]
+      if (k in jso) ob[k] = jso[k]
+    }
+    return ob
+  };
 }
 
 export {

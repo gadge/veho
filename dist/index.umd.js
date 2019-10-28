@@ -619,6 +619,25 @@
       }) : [] : [];
     }
     /**
+     *
+     * @param {*[][]} mx
+     * @param {number[]} indexes
+     * @returns {*}
+     */
+    ;
+
+    Mx.select = function select(mx) {
+      for (var _len = arguments.length, indexes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        indexes[_key - 1] = arguments[_key];
+      }
+
+      return mx.map(function (r) {
+        return indexes.map(function (i) {
+          return r[i];
+        });
+      });
+    }
+    /**
      * Transpose a 2d-array.
      * @param {*[][]} mx
      * @returns {*[][]}
@@ -626,16 +645,16 @@
     ;
 
     Mx.transpose = function transpose(mx) {
-      return Mx.columnIndexes(mx).map(function (c) {
+      return Mx.coins(mx).map(function (c) {
         return mx.map(function (r) {
           return r[c];
         });
       });
     };
 
-    Mx.column = function column(mx, index) {
+    Mx.column = function column(mx, y) {
       return mx.map(function (r) {
-        return r[index];
+        return r[y];
       });
     }
     /**

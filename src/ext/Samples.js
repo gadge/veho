@@ -76,6 +76,13 @@ export class Samples {
     )
   }
 
+  static select (samples, fields) {
+    if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array')
+    if (!fields || !fields.length) return samples
+    const { length } = fields
+    return samples.map(sample => Ob.select(sample, fields, 0, length))
+  }
+
   /**
    * Transform json of samples to matrix(2d-array).
    * A Json of samples is formed like :

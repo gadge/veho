@@ -503,6 +503,17 @@ class Mx {
     return !!mx && mx.length ? !!mx[0] ? mx[0].map((_, i) => i) : [] : [];
   }
   /**
+   *
+   * @param {*[][]} mx
+   * @param {number[]} indexes
+   * @returns {*}
+   */
+
+
+  static select(mx, ...indexes) {
+    return mx.map(r => indexes.map(i => r[i]));
+  }
+  /**
    * Transpose a 2d-array.
    * @param {*[][]} mx
    * @returns {*[][]}
@@ -510,11 +521,11 @@ class Mx {
 
 
   static transpose(mx) {
-    return Mx.columnIndexes(mx).map(c => mx.map(r => r[c]));
+    return Mx.coins(mx).map(c => mx.map(r => r[c]));
   }
 
-  static column(mx, index) {
-    return mx.map(r => r[index]);
+  static column(mx, y) {
+    return mx.map(r => r[y]);
   }
   /**
    * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
