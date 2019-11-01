@@ -1059,6 +1059,30 @@
 
     Ob.clone = function clone(jso) {
       return dpObj(jso);
+    }
+    /**
+     *
+     * @param {Object} jso
+     * @param {*[]} keys
+     * @param {number} [lo]
+     * @param {number} [hi]
+     */
+    ;
+
+    Ob.select = function select(jso, keys, lo, hi) {
+      if (lo === void 0) {
+        lo = 0;
+      }
+
+      var ob = {};
+      hi = hi || keys.length;
+
+      for (var k; lo < hi; lo++) {
+        k = keys[lo];
+        if (k in jso) ob[k] = jso[k];
+      }
+
+      return ob;
     };
 
     return Ob;
@@ -1172,6 +1196,15 @@
           rowSet = samples.map(picker);
 
       return Ob.of([head, banner], [rows, rowSet]);
+    };
+
+    Samples.select = function select(samples, fields) {
+      if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+      if (!fields || !fields.length) return samples;
+      var length = fields.length;
+      return samples.map(function (sample) {
+        return Ob.select(sample, fields, 0, length);
+      });
     }
     /**
      * Transform json of samples to matrix(2d-array).

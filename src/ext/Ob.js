@@ -114,6 +114,33 @@ class Ob {
     }
     return ob
   };
+
+  static map (jso, fn) {
+    const ob = {}, ents = Object.entries(jso), { length } = ents
+    for (let i = 0, k, v; i < length; i++) {
+      [k, v] = fn(ents[i])
+      ob[k] = v
+    }
+    return ob
+  }
+
+  static mapValues (jso, fn) {
+    const ob = {}, ents = Object.entries(jso), { length } = ents
+    for (let i = 0, k, v; i < length; i++) {
+      [k, v] = ents[i]
+      ob[k] = fn(v)
+    }
+    return ob
+  }
+
+  static mapKeys (jso, fn) {
+    const ob = {}, ents = Object.entries(jso), { length } = ents
+    for (let i = 0, k, v; i < length; i++) {
+      [k, v] = ents[i]
+      ob[fn(k)] = v
+    }
+    return ob
+  }
 }
 
 export {

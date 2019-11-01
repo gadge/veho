@@ -732,6 +732,26 @@ class Ob {
   static clone(jso) {
     return dpObj(jso);
   }
+  /**
+   *
+   * @param {Object} jso
+   * @param {*[]} keys
+   * @param {number} [lo]
+   * @param {number} [hi]
+   */
+
+
+  static select(jso, keys, lo = 0, hi) {
+    const ob = {};
+    hi = hi || keys.length;
+
+    for (let k; lo < hi; lo++) {
+      k = keys[lo];
+      if (k in jso) ob[k] = jso[k];
+    }
+
+    return ob;
+  }
 
 }
 
@@ -809,6 +829,15 @@ class Samples {
           [banner, picker] = !!fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values],
           rowSet = samples.map(picker);
     return Ob.of([head, banner], [rows, rowSet]);
+  }
+
+  static select(samples, fields) {
+    if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+    if (!fields || !fields.length) return samples;
+    const {
+      length
+    } = fields;
+    return samples.map(sample => Ob.select(sample, fields, 0, length));
   }
   /**
    * Transform json of samples to matrix(2d-array).
