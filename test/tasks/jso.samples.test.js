@@ -22,7 +22,7 @@ export class JsoSamplesTest {
     '' |> console.log
 
     'table full' |> console.log
-    const tableFull = Samples.toTable(samples)
+    const tableFull = Samples.toTable(samples,)
     tableFull |> console.log
     '' |> console.log
 
@@ -34,7 +34,9 @@ export class JsoSamplesTest {
 
   static tableToSample () {
     'table original' |> console.log
-    const table = Samples.toTable(samples)
+    const table = Samples.toTable(samples, {
+      fields: [['country', 'nation'], 'year', 'pop', ['sales', 'rev']]
+    })
     table |> console.log
     '' |> console.log
 
@@ -43,8 +45,13 @@ export class JsoSamplesTest {
     sampleList |> console.log
     '' |> console.log
 
+    'samples select' |> console.log
+    const sampleSelect = Samples.select(sampleList, ['nation', 'rev'])
+    sampleSelect |> console.log
+    '' |> console.log
+
     'samples picked' |> console.log
-    const sampleListPicked = Samples.fromTable(table, ['country', 'year', 'pop', 'marketcap'])
+    const sampleListPicked = Samples.fromTable(table, [['nation', 'c'], 'year', ['pop', 'population'], 'marketcap'])
     sampleListPicked |> console.log
     '' |> console.log
   }

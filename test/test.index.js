@@ -1,6 +1,6 @@
-import { SimpleMatrixTest } from './tasks/simple.matrix.test'
-
-SimpleMatrixTest.testTranspose()
+// import { SimpleMatrixTest } from './tasks/simple.matrix.test'
+//
+// SimpleMatrixTest.testTranspose()
 // import { testAxiosBoxOfficeMojo } from './axios.boxofficemojo.testIni'
 // import { TestAxiosAlphaVantage } from './axios.alphavantage.test'
 //
@@ -19,10 +19,10 @@ SimpleMatrixTest.testTranspose()
 // SimpleJsoTest.createObjectTest()
 // SimpleJsoTest.JTabTest()
 
-// import { JsoSamplesTest } from './tasks/jso.samples.test'
+import { JsoSamplesTest } from './tasks/jso.samples.test'
 
 // JsoSamplesTest.samplesToTable()
-// JsoSamplesTest.tableToSample()
+JsoSamplesTest.tableToSample()
 // JsoSamplesTest.crosTabToSamples()
 
 // import { SimpleVectorTest } from './tasks/simple.vector.test'

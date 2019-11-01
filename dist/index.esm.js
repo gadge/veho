@@ -749,14 +749,12 @@ class Ob {
     return ob;
   }
 
-  static map(jso, fn) {
+  static map(jso, fn, len) {
     const ob = {},
-          ents = Object.entries(jso),
-          {
-      length
-    } = ents;
+          ents = Object.entries(jso);
+    len = len || ents.length;
 
-    for (let i = 0, k, v; i < length; i++) {
+    for (let i = 0, k, v; i < len; i++) {
       [k, v] = fn(ents[i]);
       ob[k] = v;
     }
@@ -764,14 +762,12 @@ class Ob {
     return ob;
   }
 
-  static mapValues(jso, fn) {
+  static mapValues(jso, fn, len) {
     const ob = {},
-          ents = Object.entries(jso),
-          {
-      length
-    } = ents;
+          ents = Object.entries(jso);
+    len = len || ents.length;
 
-    for (let i = 0, k, v; i < length; i++) {
+    for (let i = 0, k, v; i < len; i++) {
       [k, v] = ents[i];
       ob[k] = fn(v);
     }
@@ -779,14 +775,12 @@ class Ob {
     return ob;
   }
 
-  static mapKeys(jso, fn) {
+  static mapKeys(jso, fn, len) {
     const ob = {},
-          ents = Object.entries(jso),
-          {
-      length
-    } = ents;
+          ents = Object.entries(jso);
+    len = len || ents.length;
 
-    for (let i = 0, k, v; i < length; i++) {
+    for (let i = 0, k, v; i < len; i++) {
       [k, v] = ents[i];
       ob[fn(k)] = v;
     }

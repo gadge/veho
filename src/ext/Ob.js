@@ -1,5 +1,3 @@
-// import './Ar'
-import { Er } from '../misc/Er'
 import { dpObj } from '../misc/clone'
 
 class Ob {
@@ -56,7 +54,9 @@ class Ob {
    */
   static fromEntries (entries, ject) {
     let o = {}
-    if (!!ject) {
+    if (!ject) {
+      for (let [k, v] of entries) o[k] = v
+    } else {
       switch (ject.length) {
         case 1:
           for (let [k, v] of entries) o[k] = ject(v)
@@ -67,8 +67,6 @@ class Ob {
         default:
           break
       }
-    } else {
-      for (let [k, v] of entries) o[k] = v
     }
     return o
   }
@@ -110,10 +108,34 @@ class Ob {
     hi = hi || keys.length
     for (let k; lo < hi; lo++) {
       k = keys[lo]
-      if (k in jso) ob[k] = jso[k]
+      ob[k] = jso[k]
     }
     return ob
-  };
+  }
+
+  /**
+   *
+   * @param {Object} jso
+   * @param {[*,*][]} keyToNKeys
+   * @param {number} [lo]
+   * @param {number} [hi]
+   */
+  static selectReplKeys (jso, keyToNKeys, lo = 0, hi) {
+    const ob = {}
+    hi = hi || keyToNKeys.length
+    for (let k, v; lo < hi; lo++) {
+      [k, v] = keyToNKeys[lo]
+      ob[v] = jso[k]
+    }
+    return ob
+  }
+
+  static selectValues (jso, keys, lo = 0, hi) {
+    hi = hi || keys.length
+    const arr = Array(hi - lo)
+    for (; lo < hi; lo++) arr[lo] = jso[keys[lo]]
+    return arr
+  }
 
   static map (jso, fn, len) {
     const ob = {}, ents = Object.entries(jso)

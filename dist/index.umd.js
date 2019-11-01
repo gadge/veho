@@ -1085,12 +1085,12 @@
       return ob;
     };
 
-    Ob.map = function map(jso, fn) {
+    Ob.map = function map(jso, fn, len) {
       var ob = {},
-          ents = Object.entries(jso),
-          length = ents.length;
+          ents = Object.entries(jso);
+      len = len || ents.length;
 
-      for (var i = 0, k, v; i < length; i++) {
+      for (var i = 0, k, v; i < len; i++) {
         var _fn = fn(ents[i]);
 
         k = _fn[0];
@@ -1101,12 +1101,12 @@
       return ob;
     };
 
-    Ob.mapValues = function mapValues(jso, fn) {
+    Ob.mapValues = function mapValues(jso, fn, len) {
       var ob = {},
-          ents = Object.entries(jso),
-          length = ents.length;
+          ents = Object.entries(jso);
+      len = len || ents.length;
 
-      for (var i = 0, k, v; i < length; i++) {
+      for (var i = 0, k, v; i < len; i++) {
         var _ents$i = ents[i];
         k = _ents$i[0];
         v = _ents$i[1];
@@ -1116,12 +1116,12 @@
       return ob;
     };
 
-    Ob.mapKeys = function mapKeys(jso, fn) {
+    Ob.mapKeys = function mapKeys(jso, fn, len) {
       var ob = {},
-          ents = Object.entries(jso),
-          length = ents.length;
+          ents = Object.entries(jso);
+      len = len || ents.length;
 
-      for (var i = 0, k, v; i < length; i++) {
+      for (var i = 0, k, v; i < len; i++) {
         var _ents$i2 = ents[i];
         k = _ents$i2[0];
         v = _ents$i2[1];
