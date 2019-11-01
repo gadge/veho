@@ -1085,6 +1085,52 @@
       return ob;
     };
 
+    Ob.map = function map(jso, fn) {
+      var ob = {},
+          ents = Object.entries(jso),
+          length = ents.length;
+
+      for (var i = 0, k, v; i < length; i++) {
+        var _fn = fn(ents[i]);
+
+        k = _fn[0];
+        v = _fn[1];
+        ob[k] = v;
+      }
+
+      return ob;
+    };
+
+    Ob.mapValues = function mapValues(jso, fn) {
+      var ob = {},
+          ents = Object.entries(jso),
+          length = ents.length;
+
+      for (var i = 0, k, v; i < length; i++) {
+        var _ents$i = ents[i];
+        k = _ents$i[0];
+        v = _ents$i[1];
+        ob[k] = fn(v);
+      }
+
+      return ob;
+    };
+
+    Ob.mapKeys = function mapKeys(jso, fn) {
+      var ob = {},
+          ents = Object.entries(jso),
+          length = ents.length;
+
+      for (var i = 0, k, v; i < length; i++) {
+        var _ents$i2 = ents[i];
+        k = _ents$i2[0];
+        v = _ents$i2[1];
+        ob[fn(k)] = v;
+      }
+
+      return ob;
+    };
+
     return Ob;
   }();
 
