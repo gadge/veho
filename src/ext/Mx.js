@@ -4,6 +4,7 @@
 
 import { dpArr } from '../misc/clone'
 import { Num, NumLoose } from 'typen'
+import { Ar } from './Ar'
 
 const
   { numeric: num } = Num,
@@ -40,6 +41,10 @@ class Mx {
     return !!mx && mx.length
       ? !!mx[0]
       : false
+  }
+
+  static copy (mx) {
+    return mx.map(row => row.slice())
   }
 
   static clone (mx) {
@@ -90,7 +95,17 @@ class Mx {
    * @returns {*}
    */
   static select (mx, ...indexes) {
-    return mx.map(r => indexes.map(i => r[i]))
+    const hi = indexes.length
+    switch (hi) {
+      case 0:
+        return mx
+      case 1:
+        const [i] = indexes
+        return Mx.column(mx, i)
+      default:
+        const { select } = Ar
+        return mx.map(row => select(row, indexes, hi))
+    }
   }
 
   /**
@@ -124,6 +139,21 @@ class Mx {
    */
   static mapCol (mx, fnOnColumn) {
     return Mx.transpose(mx).map(fnOnColumn)
+  }
+
+  static spliceCols = (mx, ys) => {
+    const hi = ys.length
+    switch (hi) {
+      case 0:
+        return mx
+      case 1:
+        const [y] = ys
+        return mx.map(row => row.splice(y, 1))
+      default:
+        ys.sort((a, b) => b - a)
+        const { splices } = Ar
+        return mx.map(row => splices(row, ys, hi))
+    }
   }
 }
 

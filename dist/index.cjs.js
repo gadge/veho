@@ -616,8 +616,6 @@ class Dc {
 
 }
 
-// import './Ar'
-
 class Ob {
   /**
    * Create a object from separate key-array and value-array.
@@ -686,7 +684,9 @@ class Ob {
   static fromEntries(entries, ject) {
     let o = {};
 
-    if (!!ject) {
+    if (!ject) {
+      for (let [k, v] of entries) o[k] = v;
+    } else {
       switch (ject.length) {
         case 1:
           for (let [k, v] of entries) o[k] = ject(v);
@@ -698,8 +698,6 @@ class Ob {
 
           break;
       }
-    } else {
-      for (let [k, v] of entries) o[k] = v;
     }
 
     return o;
@@ -747,10 +745,39 @@ class Ob {
 
     for (let k; lo < hi; lo++) {
       k = keys[lo];
-      if (k in jso) ob[k] = jso[k];
+      ob[k] = jso[k];
     }
 
     return ob;
+  }
+  /**
+   *
+   * @param {Object} jso
+   * @param {[*,*][]} keyToNKeys
+   * @param {number} [lo]
+   * @param {number} [hi]
+   */
+
+
+  static selectReplKeys(jso, keyToNKeys, lo = 0, hi) {
+    const ob = {};
+    hi = hi || keyToNKeys.length;
+
+    for (let k, v; lo < hi; lo++) {
+      [k, v] = keyToNKeys[lo];
+      ob[v] = jso[k];
+    }
+
+    return ob;
+  }
+
+  static selectValues(jso, keys, lo = 0, hi) {
+    hi = hi || keys.length;
+    const arr = Array(hi - lo);
+
+    for (; lo < hi; lo++) arr[lo] = jso[keys[lo]];
+
+    return arr;
   }
 
   static map(jso, fn, len) {
@@ -794,19 +821,9 @@ class Ob {
 
 }
 
-/**
- *
- * @param {*[]} arr
- * @param {[*,number][]} fis
- */
-
-const picker = (arr, fis) => {
-  let o = {};
-
-  for (let [k, i] of fis) o[k] = arr[i];
-
-  return o;
-};
+const {
+  isArray: isAr
+} = Array;
 /**
  * Transform between Json table and Json of samples.
  * A Json table is formed like :
@@ -828,55 +845,78 @@ class Samples {
    *
    * @param {*[]} head
    * @param {*[][]} rows
-   * @param {*[]} [fields]
+   * @param {*[]|[*,*][]} [fields]
    * @return {Object[]}
    */
   static fromTable({
     head,
     rows
   }, fields) {
-    if (!Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
-    if (!Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
+    if (!isAr(head)) throw new Er('The input \'head\' is not valid.');
+    if (!isAr(rows)) throw new Er('The input \'rows\' is not valid.');
     const [row] = rows;
-    if (!Array.isArray(row)) return null;
-    const fis = Array.isArray(fields) ? fields.map(fd => [fd, head.indexOf(fd)]) : head.map((fd, i) => [fd, i]);
-    return rows.map(row => picker(row, fis));
+    if (!isAr(row)) return [];
+
+    if (!isAr(fields)) {
+      return rows.map(row => Ob.ini(head, row));
+    } else {
+      const field_ind = fields.map(x => isAr(x) ? [x[1], head.indexOf(x[0])] : [x, head.indexOf(x)]);
+      return rows.map(row => Ob.fromEntries(field_ind, i => row[i]));
+    }
   }
   /**
    *
    * @param {Object[]} samples
-   * @param {string[]} [fields]
-   * @param {{head:string,rows:string}} [label]
+   * @param {string[]|[*,*][]} [fields]
+   * @param {string} [h]
+   * @param {string} [r]
    * @returns {null|{head:*[],rows:*[][]}}
    */
 
 
   static toTable(samples, {
-    fields = null,
-    label = {
-      head: 'head',
-      rows: 'rows'
-    }
+    fields,
+    label: {
+      head: h = 'head',
+      rows: r = 'rows'
+    } = {}
   } = {}) {
-    if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+    if (!isAr(samples)) throw new Er('The input \'rows\' is not an Array');
     const [sample] = samples;
-    if (!(sample instanceof Object)) return null;
-    const {
-      head,
-      rows
-    } = label,
-          [banner, picker] = !!fields ? [fields, row => banner.map(x => row[x])] : [Object.keys(sample), Object.values],
-          rowSet = samples.map(picker);
-    return Ob.of([head, banner], [rows, rowSet]);
+    if (typeof sample !== 'object') return Ob.of([h, []], [r, [[]]]);
+
+    if (!fields) {
+      return Ob.of([h, Object.keys(sample)], [r, samples.map(Object.values)]);
+    } else {
+      const {
+        length
+      } = fields,
+            [_b, b] = [Array(length), Array(length)];
+
+      for (let i = 0, x; i < length; i++) {
+        x = fields[i];
+        [_b[i], b[i]] = isAr(x) ? [x[0], x[1]] : [x, x];
+      }
+
+      return Ob.of([h, b], [r, samples.map(sample => Ob.selectValues(sample, _b, 0, length))]);
+    }
   }
+  /**
+   *
+   * @param {Object[]} samples
+   * @param {*[]|[*,*][]} fields
+   * @returns {Object[]}
+   */
+
 
   static select(samples, fields) {
-    if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+    if (!isAr(samples)) throw new Er('The input \'rows\' is not an Array');
     if (!fields || !fields.length) return samples;
     const {
       length
-    } = fields;
-    return samples.map(sample => Ob.select(sample, fields, 0, length));
+    } = fields,
+          keyToNKeys = fields.map(x => isAr(x) ? [x[0], x[1]] : [x, x]);
+    return samples.map(sample => Ob.selectReplKeys(sample, keyToNKeys, 0, length));
   }
   /**
    * Transform json of samples to matrix(2d-array).
@@ -941,6 +981,12 @@ class Samples {
       include
     });
   }
+
+  static replaceKeys(samples, dict) {}
+
+  static unshiftCol(samples, ob) {}
+
+  static pushCol(samples, ob) {}
 
 }
 

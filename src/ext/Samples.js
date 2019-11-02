@@ -115,7 +115,7 @@ export class Samples {
    */
   static toMatrix (samples) {
     return samples.map(Object.values)
-  }
+  }z
 
   /**
    *

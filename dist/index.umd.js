@@ -851,8 +851,6 @@
     return Dc;
   }();
 
-  // import './Ar'
-
   var Ob =
   /*#__PURE__*/
   function () {
@@ -948,31 +946,28 @@
     Ob.fromEntries = function fromEntries(entries, ject) {
       var o = {};
 
-      if (!!ject) {
+      if (!ject) {
+        for (var _iterator2 = entries, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
+          var _ref2;
+
+          if (_isArray2) {
+            if (_i3 >= _iterator2.length) break;
+            _ref2 = _iterator2[_i3++];
+          } else {
+            _i3 = _iterator2.next();
+            if (_i3.done) break;
+            _ref2 = _i3.value;
+          }
+
+          var _ref3 = _ref2,
+              k = _ref3[0],
+              v = _ref3[1];
+          o[k] = v;
+        }
+      } else {
         switch (ject.length) {
           case 1:
-            for (var _iterator2 = entries, _isArray2 = Array.isArray(_iterator2), _i3 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[Symbol.iterator]();;) {
-              var _ref2;
-
-              if (_isArray2) {
-                if (_i3 >= _iterator2.length) break;
-                _ref2 = _iterator2[_i3++];
-              } else {
-                _i3 = _iterator2.next();
-                if (_i3.done) break;
-                _ref2 = _i3.value;
-              }
-
-              var _ref3 = _ref2,
-                  k = _ref3[0],
-                  v = _ref3[1];
-              o[k] = ject(v);
-            }
-
-            break;
-
-          case 2:
-            for (var _iterator3 = entries.entries(), _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
+            for (var _iterator3 = entries, _isArray3 = Array.isArray(_iterator3), _i4 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[Symbol.iterator]();;) {
               var _ref4;
 
               if (_isArray3) {
@@ -985,32 +980,35 @@
               }
 
               var _ref5 = _ref4,
-                  i = _ref5[0],
-                  _ref5$ = _ref5[1],
-                  _k = _ref5$[0],
-                  _v = _ref5$[1];
-              o[_k] = ject(_v, i);
+                  _k = _ref5[0],
+                  _v = _ref5[1];
+              o[_k] = ject(_v);
             }
 
             break;
-        }
-      } else {
-        for (var _iterator4 = entries, _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
-          var _ref6;
 
-          if (_isArray4) {
-            if (_i5 >= _iterator4.length) break;
-            _ref6 = _iterator4[_i5++];
-          } else {
-            _i5 = _iterator4.next();
-            if (_i5.done) break;
-            _ref6 = _i5.value;
-          }
+          case 2:
+            for (var _iterator4 = entries.entries(), _isArray4 = Array.isArray(_iterator4), _i5 = 0, _iterator4 = _isArray4 ? _iterator4 : _iterator4[Symbol.iterator]();;) {
+              var _ref6;
 
-          var _ref7 = _ref6,
-              _k2 = _ref7[0],
-              _v2 = _ref7[1];
-          o[_k2] = _v2;
+              if (_isArray4) {
+                if (_i5 >= _iterator4.length) break;
+                _ref6 = _iterator4[_i5++];
+              } else {
+                _i5 = _iterator4.next();
+                if (_i5.done) break;
+                _ref6 = _i5.value;
+              }
+
+              var _ref7 = _ref6,
+                  i = _ref7[0],
+                  _ref7$ = _ref7[1],
+                  _k2 = _ref7$[0],
+                  _v2 = _ref7$[1];
+              o[_k2] = ject(_v2, i);
+            }
+
+            break;
         }
       }
 
@@ -1079,10 +1077,51 @@
 
       for (var k; lo < hi; lo++) {
         k = keys[lo];
-        if (k in jso) ob[k] = jso[k];
+        ob[k] = jso[k];
       }
 
       return ob;
+    }
+    /**
+     *
+     * @param {Object} jso
+     * @param {[*,*][]} keyToNKeys
+     * @param {number} [lo]
+     * @param {number} [hi]
+     */
+    ;
+
+    Ob.selectReplKeys = function selectReplKeys(jso, keyToNKeys, lo, hi) {
+      if (lo === void 0) {
+        lo = 0;
+      }
+
+      var ob = {};
+      hi = hi || keyToNKeys.length;
+
+      for (var k, v; lo < hi; lo++) {
+        var _keyToNKeys$lo = keyToNKeys[lo];
+        k = _keyToNKeys$lo[0];
+        v = _keyToNKeys$lo[1];
+        ob[v] = jso[k];
+      }
+
+      return ob;
+    };
+
+    Ob.selectValues = function selectValues(jso, keys, lo, hi) {
+      if (lo === void 0) {
+        lo = 0;
+      }
+
+      hi = hi || keys.length;
+      var arr = Array(hi - lo);
+
+      for (; lo < hi; lo++) {
+        arr[lo] = jso[keys[lo]];
+      }
+
+      return arr;
     };
 
     Ob.map = function map(jso, fn, len) {
@@ -1134,35 +1173,7 @@
     return Ob;
   }();
 
-  /**
-   *
-   * @param {*[]} arr
-   * @param {[*,number][]} fis
-   */
-
-  var picker = function picker(arr, fis) {
-    var o = {};
-
-    for (var _iterator = fis, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-      var _ref;
-
-      if (_isArray) {
-        if (_i >= _iterator.length) break;
-        _ref = _iterator[_i++];
-      } else {
-        _i = _iterator.next();
-        if (_i.done) break;
-        _ref = _i.value;
-      }
-
-      var _ref2 = _ref,
-          k = _ref2[0],
-          i = _ref2[1];
-      o[k] = arr[i];
-    }
-
-    return o;
-  };
+  var isAr = Array.isArray;
   /**
    * Transform between Json table and Json of samples.
    * A Json table is formed like :
@@ -1188,68 +1199,95 @@
      *
      * @param {*[]} head
      * @param {*[][]} rows
-     * @param {*[]} [fields]
+     * @param {*[]|[*,*][]} [fields]
      * @return {Object[]}
      */
     Samples.fromTable = function fromTable(_ref3, fields) {
       var head = _ref3.head,
           rows = _ref3.rows;
-      if (!Array.isArray(head)) throw new Er('The input \'head\' is not valid.');
-      if (!Array.isArray(rows)) throw new Er('The input \'rows\' is not valid.');
+      if (!isAr(head)) throw new Er('The input \'head\' is not valid.');
+      if (!isAr(rows)) throw new Er('The input \'rows\' is not valid.');
       var row = rows[0];
-      if (!Array.isArray(row)) return null;
-      var fis = Array.isArray(fields) ? fields.map(function (fd) {
-        return [fd, head.indexOf(fd)];
-      }) : head.map(function (fd, i) {
-        return [fd, i];
-      });
-      return rows.map(function (row) {
-        return picker(row, fis);
-      });
+      if (!isAr(row)) return [];
+
+      if (!isAr(fields)) {
+        return rows.map(function (row) {
+          return Ob.ini(head, row);
+        });
+      } else {
+        var field_ind = fields.map(function (x) {
+          return isAr(x) ? [x[1], head.indexOf(x[0])] : [x, head.indexOf(x)];
+        });
+        return rows.map(function (row) {
+          return Ob.fromEntries(field_ind, function (i) {
+            return row[i];
+          });
+        });
+      }
     }
     /**
      *
      * @param {Object[]} samples
-     * @param {string[]} [fields]
-     * @param {{head:string,rows:string}} [label]
+     * @param {string[]|[*,*][]} [fields]
+     * @param {string} [h]
+     * @param {string} [r]
      * @returns {null|{head:*[],rows:*[][]}}
      */
     ;
 
     Samples.toTable = function toTable(samples, _temp) {
       var _ref4 = _temp === void 0 ? {} : _temp,
-          _ref4$fields = _ref4.fields,
-          fields = _ref4$fields === void 0 ? null : _ref4$fields,
-          _ref4$label = _ref4.label,
-          label = _ref4$label === void 0 ? {
-        head: 'head',
-        rows: 'rows'
-      } : _ref4$label;
+          fields = _ref4.fields,
+          _ref4$label = _ref4.label;
 
-      if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+      _ref4$label = _ref4$label === void 0 ? {} : _ref4$label;
+      var _ref4$label$head = _ref4$label.head,
+          h = _ref4$label$head === void 0 ? 'head' : _ref4$label$head,
+          _ref4$label$rows = _ref4$label.rows,
+          r = _ref4$label$rows === void 0 ? 'rows' : _ref4$label$rows;
+      if (!isAr(samples)) throw new Er('The input \'rows\' is not an Array');
       var sample = samples[0];
-      if (!(sample instanceof Object)) return null;
+      if (typeof sample !== 'object') return Ob.of([h, []], [r, [[]]]);
 
-      var head = label.head,
-          rows = label.rows,
-          _ref5 = !!fields ? [fields, function (row) {
-        return banner.map(function (x) {
-          return row[x];
-        });
-      }] : [Object.keys(sample), Object.values],
-          banner = _ref5[0],
-          picker = _ref5[1],
-          rowSet = samples.map(picker);
+      if (!fields) {
+        return Ob.of([h, Object.keys(sample)], [r, samples.map(Object.values)]);
+      } else {
+        var length = fields.length,
+            _ref5 = [Array(length), Array(length)],
+            _b = _ref5[0],
+            b = _ref5[1];
 
-      return Ob.of([head, banner], [rows, rowSet]);
-    };
+        for (var i = 0, x; i < length; i++) {
+          x = fields[i];
+
+          var _ref6 = isAr(x) ? [x[0], x[1]] : [x, x];
+
+          _b[i] = _ref6[0];
+          b[i] = _ref6[1];
+        }
+
+        return Ob.of([h, b], [r, samples.map(function (sample) {
+          return Ob.selectValues(sample, _b, 0, length);
+        })]);
+      }
+    }
+    /**
+     *
+     * @param {Object[]} samples
+     * @param {*[]|[*,*][]} fields
+     * @returns {Object[]}
+     */
+    ;
 
     Samples.select = function select(samples, fields) {
-      if (!Array.isArray(samples)) throw new Er('The input \'rows\' is not an Array');
+      if (!isAr(samples)) throw new Er('The input \'rows\' is not an Array');
       if (!fields || !fields.length) return samples;
-      var length = fields.length;
+      var length = fields.length,
+          keyToNKeys = fields.map(function (x) {
+        return isAr(x) ? [x[0], x[1]] : [x, x];
+      });
       return samples.map(function (sample) {
-        return Ob.select(sample, fields, 0, length);
+        return Ob.selectReplKeys(sample, keyToNKeys, 0, length);
       });
     }
     /**
@@ -1284,14 +1322,14 @@
      */
     ;
 
-    Samples.fromCrosTab = function fromCrosTab(_ref6, _temp2) {
-      var matrix = _ref6.matrix,
-          side = _ref6.side,
-          banner = _ref6.banner;
+    Samples.fromCrosTab = function fromCrosTab(_ref7, _temp2) {
+      var matrix = _ref7.matrix,
+          side = _ref7.side,
+          banner = _ref7.banner;
 
-      var _ref7 = _temp2 === void 0 ? {} : _temp2,
-          _ref7$sideLabel = _ref7.sideLabel,
-          sideLabel = _ref7$sideLabel === void 0 ? '_' : _ref7$sideLabel;
+      var _ref8 = _temp2 === void 0 ? {} : _temp2,
+          _ref8$sideLabel = _ref8.sideLabel,
+          sideLabel = _ref8$sideLabel === void 0 ? '_' : _ref8$sideLabel;
 
       var sides = side.map(function (x) {
         return Ob.of([sideLabel, x]);
@@ -1308,21 +1346,27 @@
       return sides;
     };
 
-    Samples.toCrosTab = function toCrosTab(samples, _ref8, _temp3) {
-      var side = _ref8.side,
-          banner = _ref8.banner,
-          field = _ref8.field;
+    Samples.toCrosTab = function toCrosTab(samples, _ref9, _temp3) {
+      var side = _ref9.side,
+          banner = _ref9.banner,
+          field = _ref9.field;
 
-      var _ref9 = _temp3 === void 0 ? {} : _temp3,
-          _ref9$mode = _ref9.mode,
-          mode = _ref9$mode === void 0 ? PivotModes.array : _ref9$mode,
-          include = _ref9.include;
+      var _ref10 = _temp3 === void 0 ? {} : _temp3,
+          _ref10$mode = _ref10.mode,
+          mode = _ref10$mode === void 0 ? PivotModes.array : _ref10$mode,
+          include = _ref10.include;
 
       return new Pivot(samples).pivot([side, banner, field], {
         mode: mode,
         include: include
       });
     };
+
+    Samples.replaceKeys = function replaceKeys(samples, dict) {};
+
+    Samples.unshiftCol = function unshiftCol(samples, ob) {};
+
+    Samples.pushCol = function pushCol(samples, ob) {};
 
     return Samples;
   }();

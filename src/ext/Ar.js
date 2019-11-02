@@ -51,6 +51,17 @@ class Ar {
     return arr.map((_, i) => i)
   }
 
+  static select (arr, indexes, hi) {
+    const vc = Array(hi)
+    for (let i = 0; i < hi; i++) vc[i] = arr[indexes[i]]
+    return vc
+  }
+
+  static splices (arr, indexes, hi) {
+    for (let i = 0; i < hi; i++) arr.splice(indexes[i], 1)
+    return arr
+  }
+
   /**
    * Returns an array built from the elements of a given set of arrays.
    * Each element of the returned array is determined by elements from every one of the array-set with the same index.
