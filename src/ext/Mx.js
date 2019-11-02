@@ -141,7 +141,7 @@ class Mx {
     return Mx.transpose(mx).map(fnOnColumn)
   }
 
-  static spliceCols = (mx, ys) => {
+  static spliceCols (mx, ys) {
     const hi = ys.length
     switch (hi) {
       case 0:

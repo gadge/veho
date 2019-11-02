@@ -378,6 +378,24 @@
       return arr.map(function (_, i) {
         return i;
       });
+    };
+
+    Ar.select = function select(arr, indexes, hi) {
+      var vc = Array(hi);
+
+      for (var i = 0; i < hi; i++) {
+        vc[i] = arr[indexes[i]];
+      }
+
+      return vc;
+    };
+
+    Ar.splices = function splices(arr, indexes, hi) {
+      for (var i = 0; i < hi; i++) {
+        arr.splice(indexes[i], 1);
+      }
+
+      return arr;
     }
     /**
      * Returns an array built from the elements of a given set of arrays.
@@ -534,168 +552,20 @@
     return Ar;
   }(); // Array.prototype.zip = function (another, zipper) {
 
-  /**
-   * Static class containing methods to create 2d-array.
-   */
-  var num$1 = typen.Num.numeric,
-      numLoose$1 = typen.NumLoose.numeric;
-
-  var Mx =
-  /*#__PURE__*/
-  function () {
-    function Mx() {}
-
-    /**
-     *
-     * @param {number} height
-     * @param {number} width
-     * @param {function} ject
-     * @returns {number[][]}
-     */
-    Mx.ini = function ini(height, width, ject) {
-      return Array(height).fill(null).map(function (_, x) {
-        return Array(width).fill(null).map(function (_, y) {
-          return ject(x, y);
-        });
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
       });
-    };
-
-    Mx.size = function size(mx) {
-      var _mx$;
-
-      var l = mx === null || mx === void 0 ? void 0 : mx.length;
-      return [l, l ? (_mx$ = mx[0]) === null || _mx$ === void 0 ? void 0 : _mx$.length : undefined];
-    };
-
-    Mx.isMat = function isMat(mx) {
-      return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
-    };
-
-    Mx.is = function is(mx) {
-      return !!mx && mx.length ? !!mx[0] : false;
-    };
-
-    Mx.clone = function clone(mx) {
-      return mx.map(dpArr);
+    } else {
+      obj[key] = value;
     }
-    /**
-     *
-     * @param {*[][]} mx
-     * @param {boolean=false} [loose]
-     * @returns {*}
-     */
-    ;
 
-    Mx.numeric = function numeric(mx, _ref) {
-      var _ref$loose = _ref.loose,
-          loose = _ref$loose === void 0 ? false : _ref$loose;
-      var fn = loose ? numLoose$1 : num$1;
-      return mx.map(function (r) {
-        return r.map(fn);
-      });
-    }
-    /**
-     *
-     * @param {*[][]} mx
-     * @return {number[]}
-     */
-    ;
-
-    Mx.columnIndexes = function columnIndexes(mx) {
-      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
-        return i;
-      }) : [] : [];
-    }
-    /**
-     *
-     * @param {*[][]} mx
-     * @return {number[]}
-     */
-    ;
-
-    Mx.coins = function coins(mx) {
-      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
-        return i;
-      }) : [] : [];
-    }
-    /**
-     *
-     * @param {*[][]} mx
-     * @param {number[]} indexes
-     * @returns {*}
-     */
-    ;
-
-    Mx.select = function select(mx) {
-      for (var _len = arguments.length, indexes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        indexes[_key - 1] = arguments[_key];
-      }
-
-      return mx.map(function (r) {
-        return indexes.map(function (i) {
-          return r[i];
-        });
-      });
-    }
-    /**
-     * Transpose a 2d-array.
-     * @param {*[][]} mx
-     * @returns {*[][]}
-     */
-    ;
-
-    Mx.transpose = function transpose(mx) {
-      return Mx.coins(mx).map(function (c) {
-        return mx.map(function (r) {
-          return r[c];
-        });
-      });
-    };
-
-    Mx.column = function column(mx, y) {
-      return mx.map(function (r) {
-        return r[y];
-      });
-    }
-    /**
-     * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
-     * @param {*[][]} mx
-     * @param {function} fn
-     * @returns {*[]}
-     */
-    ;
-
-    Mx.map = function map(mx, fn) {
-      return mx.map(function (r, i) {
-        return r.map(function (el, j) {
-          return fn(el, i, j);
-        });
-      });
-    }
-    /**
-     * Iterate through the columns of a 2d-array.
-     * @param {*[][]} mx
-     * @param {function(*[]):[]} fnOnColumn
-     * @returns {*[]}
-     */
-    ;
-
-    Mx.mapCol = function mapCol(mx, fnOnColumn) {
-      return Mx.transpose(mx).map(fnOnColumn);
-    };
-
-    return Mx;
-  }();
-  //   let mtx = [];
-  //   for (let j = 0; j < this[0].length; j++) {
-  //     mtx[j] = [];
-  //     for (let i = 0; i < this.length; i++) {
-  //       mtx[j][i] = this[i][j]
-  //     }
-  //   }
-  //   array[0].map((col, i) => array.map(row => row[i]));
-  //   return mtx
-  // };
+    return obj;
+  }
 
   function _inheritsLoose(subClass, superClass) {
     subClass.prototype = Object.create(superClass.prototype);
@@ -786,6 +656,207 @@
 
     return _wrapNativeSuper(Class);
   }
+
+  var num$1 = typen.Num.numeric,
+      numLoose$1 = typen.NumLoose.numeric;
+
+  var Mx =
+  /*#__PURE__*/
+  function () {
+    function Mx() {}
+
+    /**
+     *
+     * @param {number} height
+     * @param {number} width
+     * @param {function} ject
+     * @returns {number[][]}
+     */
+    Mx.ini = function ini(height, width, ject) {
+      return Array(height).fill(null).map(function (_, x) {
+        return Array(width).fill(null).map(function (_, y) {
+          return ject(x, y);
+        });
+      });
+    };
+
+    Mx.size = function size(mx) {
+      var _mx$;
+
+      var l = mx === null || mx === void 0 ? void 0 : mx.length;
+      return [l, l ? (_mx$ = mx[0]) === null || _mx$ === void 0 ? void 0 : _mx$.length : undefined];
+    };
+
+    Mx.isMat = function isMat(mx) {
+      return Array.isArray(mx) && mx.length ? Array.isArray(mx[0]) : false;
+    };
+
+    Mx.is = function is(mx) {
+      return !!mx && mx.length ? !!mx[0] : false;
+    };
+
+    Mx.copy = function copy(mx) {
+      return mx.map(function (row) {
+        return row.slice();
+      });
+    };
+
+    Mx.clone = function clone(mx) {
+      return mx.map(dpArr);
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @param {boolean=false} [loose]
+     * @returns {*}
+     */
+    ;
+
+    Mx.numeric = function numeric(mx, _ref) {
+      var _ref$loose = _ref.loose,
+          loose = _ref$loose === void 0 ? false : _ref$loose;
+      var fn = loose ? numLoose$1 : num$1;
+      return mx.map(function (r) {
+        return r.map(fn);
+      });
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @return {number[]}
+     */
+    ;
+
+    Mx.columnIndexes = function columnIndexes(mx) {
+      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
+        return i;
+      }) : [] : [];
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @return {number[]}
+     */
+    ;
+
+    Mx.coins = function coins(mx) {
+      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
+        return i;
+      }) : [] : [];
+    }
+    /**
+     *
+     * @param {*[][]} mx
+     * @param {number[]} indexes
+     * @returns {*}
+     */
+    ;
+
+    Mx.select = function select(mx) {
+      for (var _len = arguments.length, indexes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        indexes[_key - 1] = arguments[_key];
+      }
+
+      var hi = indexes.length;
+
+      switch (hi) {
+        case 0:
+          return mx;
+
+        case 1:
+          var i = indexes[0];
+          return Mx.column(mx, i);
+
+        default:
+          var select = Ar.select;
+          return mx.map(function (row) {
+            return select(row, indexes, hi);
+          });
+      }
+    }
+    /**
+     * Transpose a 2d-array.
+     * @param {*[][]} mx
+     * @returns {*[][]}
+     */
+    ;
+
+    Mx.transpose = function transpose(mx) {
+      return Mx.coins(mx).map(function (c) {
+        return mx.map(function (r) {
+          return r[c];
+        });
+      });
+    };
+
+    Mx.column = function column(mx, y) {
+      return mx.map(function (r) {
+        return r[y];
+      });
+    }
+    /**
+     * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
+     * @param {*[][]} mx
+     * @param {function} fn
+     * @returns {*[]}
+     */
+    ;
+
+    Mx.map = function map(mx, fn) {
+      return mx.map(function (r, i) {
+        return r.map(function (el, j) {
+          return fn(el, i, j);
+        });
+      });
+    }
+    /**
+     * Iterate through the columns of a 2d-array.
+     * @param {*[][]} mx
+     * @param {function(*[]):[]} fnOnColumn
+     * @returns {*[]}
+     */
+    ;
+
+    Mx.mapCol = function mapCol(mx, fnOnColumn) {
+      return Mx.transpose(mx).map(fnOnColumn);
+    };
+
+    return Mx;
+  }();
+
+  _defineProperty(Mx, "spliceCols", function (mx, ys) {
+    var hi = ys.length;
+
+    switch (hi) {
+      case 0:
+        return mx;
+
+      case 1:
+        var y = ys[0];
+        return mx.map(function (row) {
+          return row.splice(y, 1);
+        });
+
+      default:
+        ys.sort(function (a, b) {
+          return b - a;
+        });
+        var splices = Ar.splices;
+        return mx.map(function (row) {
+          return splices(row, ys, hi);
+        });
+    }
+  });
+  //   let mtx = [];
+  //   for (let j = 0; j < this[0].length; j++) {
+  //     mtx[j] = [];
+  //     for (let i = 0; i < this.length; i++) {
+  //       mtx[j][i] = this[i][j]
+  //     }
+  //   }
+  //   array[0].map((col, i) => array.map(row => row[i]));
+  //   return mtx
+  // };
 
   // Create an object type Er
   var Er =
@@ -1193,7 +1264,9 @@
   var Samples =
   /*#__PURE__*/
   function () {
-    function Samples() {}
+    function Samples() {
+      _defineProperty(this, "z", void 0);
+    }
 
     /**
      *
@@ -1311,7 +1384,8 @@
 
     Samples.toMatrix = function toMatrix(samples) {
       return samples.map(Object.values);
-    }
+    };
+
     /**
      *
      * @param {*[][]} matrix
@@ -1320,8 +1394,6 @@
      * @param {string} [sideLabel]
      * @returns {Object[]}
      */
-    ;
-
     Samples.fromCrosTab = function fromCrosTab(_ref7, _temp2) {
       var matrix = _ref7.matrix,
           side = _ref7.side,

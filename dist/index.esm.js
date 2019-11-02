@@ -304,6 +304,20 @@ class Ar {
   static indexes(arr) {
     return arr.map((_, i) => i);
   }
+
+  static select(arr, indexes, hi) {
+    const vc = Array(hi);
+
+    for (let i = 0; i < hi; i++) vc[i] = arr[indexes[i]];
+
+    return vc;
+  }
+
+  static splices(arr, indexes, hi) {
+    for (let i = 0; i < hi; i++) arr.splice(indexes[i], 1);
+
+    return arr;
+  }
   /**
    * Returns an array built from the elements of a given set of arrays.
    * Each element of the returned array is determined by elements from every one of the array-set with the same index.
@@ -428,9 +442,21 @@ class Ar {
 
 } // Array.prototype.zip = function (another, zipper) {
 
-/**
- * Static class containing methods to create 2d-array.
- */
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 const {
   numeric: num$1
 } = Num,
@@ -463,6 +489,10 @@ class Mx {
 
   static is(mx) {
     return !!mx && mx.length ? !!mx[0] : false;
+  }
+
+  static copy(mx) {
+    return mx.map(row => row.slice());
   }
 
   static clone(mx) {
@@ -511,7 +541,22 @@ class Mx {
 
 
   static select(mx, ...indexes) {
-    return mx.map(r => indexes.map(i => r[i]));
+    const hi = indexes.length;
+
+    switch (hi) {
+      case 0:
+        return mx;
+
+      case 1:
+        const [i] = indexes;
+        return Mx.column(mx, i);
+
+      default:
+        const {
+          select
+        } = Ar;
+        return mx.map(row => select(row, indexes, hi));
+    }
   }
   /**
    * Transpose a 2d-array.
@@ -551,6 +596,26 @@ class Mx {
   }
 
 }
+
+_defineProperty(Mx, "spliceCols", (mx, ys) => {
+  const hi = ys.length;
+
+  switch (hi) {
+    case 0:
+      return mx;
+
+    case 1:
+      const [y] = ys;
+      return mx.map(row => row.splice(y, 1));
+
+    default:
+      ys.sort((a, b) => b - a);
+      const {
+        splices
+      } = Ar;
+      return mx.map(row => splices(row, ys, hi));
+  }
+});
 //   let mtx = [];
 //   for (let j = 0; j < this[0].length; j++) {
 //     mtx[j] = [];
@@ -837,6 +902,10 @@ const {
 
 
 class Samples {
+  constructor() {
+    _defineProperty(this, "z", void 0);
+  }
+
   /**
    *
    * @param {*[]} head
@@ -936,6 +1005,7 @@ class Samples {
   static toMatrix(samples) {
     return samples.map(Object.values);
   }
+
   /**
    *
    * @param {*[][]} matrix
@@ -944,8 +1014,6 @@ class Samples {
    * @param {string} [sideLabel]
    * @returns {Object[]}
    */
-
-
   static fromCrosTab({
     matrix,
     side,
