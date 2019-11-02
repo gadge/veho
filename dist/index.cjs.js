@@ -446,21 +446,9 @@ class Ar {
 
 } // Array.prototype.zip = function (another, zipper) {
 
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
+/**
+ * Static class containing methods to create 2d-array.
+ */
 const {
   numeric: num$1
 } = typen.Num,
@@ -599,27 +587,27 @@ class Mx {
     return Mx.transpose(mx).map(fnOnColumn);
   }
 
-}
+  static spliceCols(mx, ys) {
+    const hi = ys.length;
 
-_defineProperty(Mx, "spliceCols", (mx, ys) => {
-  const hi = ys.length;
+    switch (hi) {
+      case 0:
+        return mx;
 
-  switch (hi) {
-    case 0:
-      return mx;
+      case 1:
+        const [y] = ys;
+        return mx.map(row => row.splice(y, 1));
 
-    case 1:
-      const [y] = ys;
-      return mx.map(row => row.splice(y, 1));
-
-    default:
-      ys.sort((a, b) => b - a);
-      const {
-        splices
-      } = Ar;
-      return mx.map(row => splices(row, ys, hi));
+      default:
+        ys.sort((a, b) => b - a);
+        const {
+          splices
+        } = Ar;
+        return mx.map(row => splices(row, ys, hi));
+    }
   }
-});
+
+}
 //   let mtx = [];
 //   for (let j = 0; j < this[0].length; j++) {
 //     mtx[j] = [];
@@ -884,6 +872,21 @@ class Ob {
     return ob;
   }
 
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
 }
 
 const {
