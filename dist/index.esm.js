@@ -6,182 +6,6 @@ const PivotModes = {
   count: 2
 };
 
-/**
- * Expand the side, 's' and the matrix, 'mx'.
- * @param {*} x
- * @param {*[]} s
- * @param {*[][]} mx
- * @param {function():(Array|number)} cr
- * @returns {number}
- * @private
- */
-
-const vertAmp = (x, {
-  s,
-  mx,
-  cr
-}) => {
-  mx.length ? mx.push(mx[0].map(cr)) : mx.push([]);
-  return s.push(x);
-};
-/**
- * Expand the banner, 'b' and the matrix, 'mx'.
- * @param {*} y
- * @param {*[]} b
- * @param {*[][]} mx
- * @param {function():(Array|number)} cr
- * @returns {number}
- * @private
- */
-
-
-const horiAmp = (y, {
-  b,
-  mx,
-  cr
-}) => {
-  for (let i = mx.length - 1; i >= 0; i--) mx[i].push(cr());
-
-  return b.push(y);
-};
-
-const _sel = (row, [x, y, v]) => [row[x], row[y], row[v]];
-
-const _amp = function (x, y) {
-  this.roiAmp(x);
-  this.coiAmp(y);
-};
-
-class Pivot {
-  constructor(rows, mode = PivotModes.array) {
-    this.rows = rows;
-    this.cr = !mode ? () => [] : () => 0;
-    this.s = [];
-    this.b = [];
-    this.mx = [];
-  }
-
-  roi(x) {
-    return this.s.indexOf(x);
-  }
-
-  coi(y) {
-    return this.b.indexOf(y);
-  }
-
-  roiAmp(x) {
-    let i = this.s.indexOf(x);
-    if (i < 0) i += vertAmp(x, this);
-    return i;
-  }
-
-  coiAmp(y) {
-    let j = this.b.indexOf(y);
-    if (j < 0) j += horiAmp(y, this);
-    return j;
-  }
-
-  pileAmp([x, y, v]) {
-    return this.mx[this.roiAmp(x)][this.coiAmp(y)].push(v);
-  }
-
-  addAmp([x, y, v]) {
-    return this.mx[this.roiAmp(x)][this.coiAmp(y)] += v;
-  }
-
-  pileRep([x, y, v]) {
-    this.mx[this.roi(x)][this.coi(y)].push(v);
-  }
-
-  addRep([x, y, v]) {
-    this.mx[this.roi(x)][this.coi(y)] += v;
-  }
-
-  pivot(fields, {
-    mode = PivotModes.array,
-    ini = true,
-    include
-  } = {}) {
-    if (ini) {
-      this.reset(mode);
-    } else {
-      this.clearMatrix(mode);
-    }
-
-    const {
-      rows,
-      s,
-      b,
-      mx
-    } = this,
-          accum = this.accumLauncher(mode, ini, include);
-
-    for (let i = 0, {
-      length
-    } = rows; i < length; i++) accum(rows[i], fields);
-
-    return {
-      side: s,
-      banner: b,
-      matrix: mx
-    };
-  }
-
-  accumLauncher(mode = 0, ini = true, include) {
-    let f;
-    const accum = this[(!mode ? 'pile' : 'add') + (ini ? 'Amp' : 'Rep')].bind(this);
-
-    if (typeof include === 'function') {
-      const amp = _amp.bind(this);
-
-      f = mode === PivotModes.count ? ([x, y, v]) => {
-        include(v) ? accum([x, y, 1]) : amp(x, y);
-      } : ([x, y, v]) => {
-        include(v) ? accum([x, y, v]) : amp(x, y);
-      };
-    } else {
-      f = mode === PivotModes.count ? ([x, y]) => {
-        accum([x, y, 1]);
-      } : accum;
-    }
-
-    return (row, fields) => f(_sel(row, fields));
-  }
-
-  reset(mode) {
-    this.cr = !mode ? () => [] : () => 0;
-    this.s = [];
-    this.b = [];
-    this.mx = [];
-  }
-
-  clearMatrix(mode) {
-    this.cr = !mode ? () => [] : () => 0;
-    const {
-      s,
-      b,
-      cr
-    } = this;
-    let {
-      length: sl
-    } = s,
-        {
-      length: bl
-    } = b,
-        j;
-    const mx = Array(sl--);
-
-    for (let i = sl; i >= 0; i--) {
-      mx[i] = Array(bl);
-
-      for (j = bl - 1; j >= 0; j--) mx[i][j] = cr();
-    }
-
-    this.mx = mx;
-  }
-
-}
-
 const oc = Object.prototype.toString;
 /**
  *
@@ -609,6 +433,163 @@ class Mx {
         } = Ar;
         return mx.map(row => splices(row, ys, hi));
     }
+  }
+
+}
+
+const {
+  select
+} = Ar;
+let s, b, mx, nf;
+class Pivot {
+  constructor(rows, mode = PivotModes.array) {
+    /**
+     * @field {*[][]} rows
+     * @field {*[]} s
+     * @field {*[]} b
+     * @field {*[][]} mx
+     * @field {function():(Array|number)} nf
+     */
+    this.rows = rows;
+    this.reboot(mode);
+  }
+
+  reboot(mode) {
+    this.nf = !mode ? () => [] : () => 0;
+    this.s = [];
+    this.b = [];
+    this.mx = [];
+  }
+
+  clearMatrix(mode) {
+    var _this$s, _this$b;
+
+    this.nf = !mode ? () => [] : () => 0;
+    this.mx = Mx.ini((_this$s = this.s) === null || _this$s === void 0 ? void 0 : _this$s.length, (_this$b = this.b) === null || _this$b === void 0 ? void 0 : _this$b.length, this.nf);
+  }
+
+  x(x) {
+    return this.s.indexOf(x);
+  }
+
+  y(y) {
+    return this.b.indexOf(y);
+  }
+  /**
+   * Expand the side, 's' and the matrix, 'mx'.
+   * @param {*} x
+   * @returns {number}
+   * @private
+   */
+
+
+  rAmp(x) {
+    ({
+      s,
+      mx,
+      nf
+    } = this);
+    mx.length ? mx.push(mx[0].map(nf)) : mx.push([]);
+    return s.push(x);
+  }
+  /**
+   * Expand the banner, 'b' and the matrix, 'mx'.
+   * @param {*} y
+   * @returns {number}
+   * @private
+   */
+
+
+  cAmp(y) {
+    ({
+      b,
+      mx,
+      nf
+    } = this);
+
+    for (let i = mx.length - 1; i >= 0; i--) mx[i].push(nf());
+
+    return b.push(y);
+  }
+
+  xAmp(x) {
+    let i = this.s.indexOf(x);
+    if (i < 0) i += this.rAmp(x);
+    return i;
+  }
+
+  yAmp(y) {
+    let j = this.b.indexOf(y);
+    if (j < 0) j += this.cAmp(y);
+    return j;
+  }
+
+  amp(x, y) {
+    this.xAmp(x);
+    this.yAmp(y);
+  }
+
+  pile(x, y, v) {
+    this.mx[this.x(x)][this.y(y)].push(v);
+  }
+
+  pileAmp(x, y, v) {
+    return this.mx[this.xAmp(x)][this.yAmp(y)].push(v);
+  }
+
+  add(x, y, v) {
+    this.mx[this.x(x)][this.y(y)] += v;
+  }
+
+  addAmp(x, y, v) {
+    return this.mx[this.xAmp(x)][this.yAmp(y)] += v;
+  }
+
+  pivot([x, y, v], {
+    mode = PivotModes.array,
+    boot = true,
+    include
+  } = {}) {
+    if (boot) {
+      this.reboot(mode);
+    } else {
+      this.clearMatrix(mode);
+    }
+
+    const {
+      rows,
+      s,
+      b,
+      mx
+    } = this,
+          accum = this.accumLauncher(mode, boot, include);
+
+    for (let i = 0, {
+      length
+    } = rows; i < length; i++) accum(rows[i], [x, y, v]);
+
+    return {
+      side: s,
+      banner: b,
+      matrix: mx
+    };
+  }
+
+  accumLauncher(mode = PivotModes.array, boot = true, include) {
+    let fn;
+    const accum = this[(!mode ? 'pile' : 'add') + (boot ? 'Amp' : '')].bind(this);
+
+    if (typeof include === 'function') {
+      fn = mode === PivotModes.count ? ([x, y, v]) => {
+        include(v) ? accum(x, y, 1) : this.amp(x, y);
+      } : ([x, y, v]) => {
+        include(v) ? accum(x, y, v) : this.amp(x, y);
+      };
+    } else {
+      fn = mode === PivotModes.count ? ([x, y]) => accum(x, y, 1) : ([x, y, v]) => accum(x, y, v);
+    }
+
+    return (row, [x, y, v]) => fn(select(row, [x, y, v], 3));
   }
 
 }

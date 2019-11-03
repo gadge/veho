@@ -105,6 +105,10 @@ export class Pivot {
     return { side: s, banner: b, matrix: mx }
   }
 
+  pivotMulti ([x, y, vs], { mode = PivotModes.array, boot = true, include } = {}) {
+
+  }
+
   accumLauncher (mode = PivotModes.array, boot = true, include) {
     let fn
     const accum = this[(!mode ? 'pile' : 'add') + (boot ? 'Amp' : '')].bind(this)

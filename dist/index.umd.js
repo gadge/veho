@@ -10,236 +10,6 @@
     count: 2
   };
 
-  /**
-   * Expand the side, 's' and the matrix, 'mx'.
-   * @param {*} x
-   * @param {*[]} s
-   * @param {*[][]} mx
-   * @param {function():(Array|number)} cr
-   * @returns {number}
-   * @private
-   */
-
-  var vertAmp = function vertAmp(x, _ref) {
-    var s = _ref.s,
-        mx = _ref.mx,
-        cr = _ref.cr;
-    mx.length ? mx.push(mx[0].map(cr)) : mx.push([]);
-    return s.push(x);
-  };
-  /**
-   * Expand the banner, 'b' and the matrix, 'mx'.
-   * @param {*} y
-   * @param {*[]} b
-   * @param {*[][]} mx
-   * @param {function():(Array|number)} cr
-   * @returns {number}
-   * @private
-   */
-
-
-  var horiAmp = function horiAmp(y, _ref2) {
-    var b = _ref2.b,
-        mx = _ref2.mx,
-        cr = _ref2.cr;
-
-    for (var i = mx.length - 1; i >= 0; i--) {
-      mx[i].push(cr());
-    }
-
-    return b.push(y);
-  };
-
-  var _sel = function _sel(row, _ref3) {
-    var x = _ref3[0],
-        y = _ref3[1],
-        v = _ref3[2];
-    return [row[x], row[y], row[v]];
-  };
-
-  var _amp = function _amp(x, y) {
-    this.roiAmp(x);
-    this.coiAmp(y);
-  };
-
-  var Pivot =
-  /*#__PURE__*/
-  function () {
-    function Pivot(rows, mode) {
-      if (mode === void 0) {
-        mode = PivotModes.array;
-      }
-
-      this.rows = rows;
-      this.cr = !mode ? function () {
-        return [];
-      } : function () {
-        return 0;
-      };
-      this.s = [];
-      this.b = [];
-      this.mx = [];
-    }
-
-    var _proto = Pivot.prototype;
-
-    _proto.roi = function roi(x) {
-      return this.s.indexOf(x);
-    };
-
-    _proto.coi = function coi(y) {
-      return this.b.indexOf(y);
-    };
-
-    _proto.roiAmp = function roiAmp(x) {
-      var i = this.s.indexOf(x);
-      if (i < 0) i += vertAmp(x, this);
-      return i;
-    };
-
-    _proto.coiAmp = function coiAmp(y) {
-      var j = this.b.indexOf(y);
-      if (j < 0) j += horiAmp(y, this);
-      return j;
-    };
-
-    _proto.pileAmp = function pileAmp(_ref4) {
-      var x = _ref4[0],
-          y = _ref4[1],
-          v = _ref4[2];
-      return this.mx[this.roiAmp(x)][this.coiAmp(y)].push(v);
-    };
-
-    _proto.addAmp = function addAmp(_ref5) {
-      var x = _ref5[0],
-          y = _ref5[1],
-          v = _ref5[2];
-      return this.mx[this.roiAmp(x)][this.coiAmp(y)] += v;
-    };
-
-    _proto.pileRep = function pileRep(_ref6) {
-      var x = _ref6[0],
-          y = _ref6[1],
-          v = _ref6[2];
-      this.mx[this.roi(x)][this.coi(y)].push(v);
-    };
-
-    _proto.addRep = function addRep(_ref7) {
-      var x = _ref7[0],
-          y = _ref7[1],
-          v = _ref7[2];
-      this.mx[this.roi(x)][this.coi(y)] += v;
-    };
-
-    _proto.pivot = function pivot(fields, _temp) {
-      var _ref8 = _temp === void 0 ? {} : _temp,
-          _ref8$mode = _ref8.mode,
-          mode = _ref8$mode === void 0 ? PivotModes.array : _ref8$mode,
-          _ref8$ini = _ref8.ini,
-          ini = _ref8$ini === void 0 ? true : _ref8$ini,
-          include = _ref8.include;
-
-      if (ini) {
-        this.reset(mode);
-      } else {
-        this.clearMatrix(mode);
-      }
-
-      var rows = this.rows,
-          s = this.s,
-          b = this.b,
-          mx = this.mx,
-          accum = this.accumLauncher(mode, ini, include);
-
-      for (var i = 0, length = rows.length; i < length; i++) {
-        accum(rows[i], fields);
-      }
-
-      return {
-        side: s,
-        banner: b,
-        matrix: mx
-      };
-    };
-
-    _proto.accumLauncher = function accumLauncher(mode, ini, include) {
-      if (mode === void 0) {
-        mode = 0;
-      }
-
-      if (ini === void 0) {
-        ini = true;
-      }
-
-      var f;
-      var accum = this[(!mode ? 'pile' : 'add') + (ini ? 'Amp' : 'Rep')].bind(this);
-
-      if (typeof include === 'function') {
-        var amp = _amp.bind(this);
-
-        f = mode === PivotModes.count ? function (_ref9) {
-          var x = _ref9[0],
-              y = _ref9[1],
-              v = _ref9[2];
-          include(v) ? accum([x, y, 1]) : amp(x, y);
-        } : function (_ref10) {
-          var x = _ref10[0],
-              y = _ref10[1],
-              v = _ref10[2];
-          include(v) ? accum([x, y, v]) : amp(x, y);
-        };
-      } else {
-        f = mode === PivotModes.count ? function (_ref11) {
-          var x = _ref11[0],
-              y = _ref11[1];
-          accum([x, y, 1]);
-        } : accum;
-      }
-
-      return function (row, fields) {
-        return f(_sel(row, fields));
-      };
-    };
-
-    _proto.reset = function reset(mode) {
-      this.cr = !mode ? function () {
-        return [];
-      } : function () {
-        return 0;
-      };
-      this.s = [];
-      this.b = [];
-      this.mx = [];
-    };
-
-    _proto.clearMatrix = function clearMatrix(mode) {
-      this.cr = !mode ? function () {
-        return [];
-      } : function () {
-        return 0;
-      };
-      var s = this.s,
-          b = this.b,
-          cr = this.cr;
-      var sl = s.length,
-          bl = b.length,
-          j;
-      var mx = Array(sl--);
-
-      for (var i = sl; i >= 0; i--) {
-        mx[i] = Array(bl);
-
-        for (j = bl - 1; j >= 0; j--) {
-          mx[i][j] = cr();
-        }
-      }
-
-      this.mx = mx;
-    };
-
-    return Pivot;
-  }();
-
   var oc = Object.prototype.toString;
   /**
    *
@@ -730,6 +500,211 @@
     };
 
     return Mx;
+  }();
+
+  var select = Ar.select;
+  var s, b, mx, nf;
+  var Pivot =
+  /*#__PURE__*/
+  function () {
+    function Pivot(rows, mode) {
+      if (mode === void 0) {
+        mode = PivotModes.array;
+      }
+
+      /**
+       * @field {*[][]} rows
+       * @field {*[]} s
+       * @field {*[]} b
+       * @field {*[][]} mx
+       * @field {function():(Array|number)} nf
+       */
+      this.rows = rows;
+      this.reboot(mode);
+    }
+
+    var _proto = Pivot.prototype;
+
+    _proto.reboot = function reboot(mode) {
+      this.nf = !mode ? function () {
+        return [];
+      } : function () {
+        return 0;
+      };
+      this.s = [];
+      this.b = [];
+      this.mx = [];
+    };
+
+    _proto.clearMatrix = function clearMatrix(mode) {
+      var _this$s, _this$b;
+
+      this.nf = !mode ? function () {
+        return [];
+      } : function () {
+        return 0;
+      };
+      this.mx = Mx.ini((_this$s = this.s) === null || _this$s === void 0 ? void 0 : _this$s.length, (_this$b = this.b) === null || _this$b === void 0 ? void 0 : _this$b.length, this.nf);
+    };
+
+    _proto.x = function x(_x) {
+      return this.s.indexOf(_x);
+    };
+
+    _proto.y = function y(_y) {
+      return this.b.indexOf(_y);
+    }
+    /**
+     * Expand the side, 's' and the matrix, 'mx'.
+     * @param {*} x
+     * @returns {number}
+     * @private
+     */
+    ;
+
+    _proto.rAmp = function rAmp(x) {
+      s = this.s;
+      mx = this.mx;
+      nf = this.nf;
+      mx.length ? mx.push(mx[0].map(nf)) : mx.push([]);
+      return s.push(x);
+    }
+    /**
+     * Expand the banner, 'b' and the matrix, 'mx'.
+     * @param {*} y
+     * @returns {number}
+     * @private
+     */
+    ;
+
+    _proto.cAmp = function cAmp(y) {
+      b = this.b;
+      mx = this.mx;
+      nf = this.nf;
+
+      for (var i = mx.length - 1; i >= 0; i--) {
+        mx[i].push(nf());
+      }
+
+      return b.push(y);
+    };
+
+    _proto.xAmp = function xAmp(x) {
+      var i = this.s.indexOf(x);
+      if (i < 0) i += this.rAmp(x);
+      return i;
+    };
+
+    _proto.yAmp = function yAmp(y) {
+      var j = this.b.indexOf(y);
+      if (j < 0) j += this.cAmp(y);
+      return j;
+    };
+
+    _proto.amp = function amp(x, y) {
+      this.xAmp(x);
+      this.yAmp(y);
+    };
+
+    _proto.pile = function pile(x, y, v) {
+      this.mx[this.x(x)][this.y(y)].push(v);
+    };
+
+    _proto.pileAmp = function pileAmp(x, y, v) {
+      return this.mx[this.xAmp(x)][this.yAmp(y)].push(v);
+    };
+
+    _proto.add = function add(x, y, v) {
+      this.mx[this.x(x)][this.y(y)] += v;
+    };
+
+    _proto.addAmp = function addAmp(x, y, v) {
+      return this.mx[this.xAmp(x)][this.yAmp(y)] += v;
+    };
+
+    _proto.pivot = function pivot(_ref, _temp) {
+      var x = _ref[0],
+          y = _ref[1],
+          v = _ref[2];
+
+      var _ref2 = _temp === void 0 ? {} : _temp,
+          _ref2$mode = _ref2.mode,
+          mode = _ref2$mode === void 0 ? PivotModes.array : _ref2$mode,
+          _ref2$boot = _ref2.boot,
+          boot = _ref2$boot === void 0 ? true : _ref2$boot,
+          include = _ref2.include;
+
+      if (boot) {
+        this.reboot(mode);
+      } else {
+        this.clearMatrix(mode);
+      }
+
+      var rows = this.rows,
+          s = this.s,
+          b = this.b,
+          mx = this.mx,
+          accum = this.accumLauncher(mode, boot, include);
+
+      for (var i = 0, length = rows.length; i < length; i++) {
+        accum(rows[i], [x, y, v]);
+      }
+
+      return {
+        side: s,
+        banner: b,
+        matrix: mx
+      };
+    };
+
+    _proto.accumLauncher = function accumLauncher(mode, boot, include) {
+      var _this = this;
+
+      if (mode === void 0) {
+        mode = PivotModes.array;
+      }
+
+      if (boot === void 0) {
+        boot = true;
+      }
+
+      var fn;
+      var accum = this[(!mode ? 'pile' : 'add') + (boot ? 'Amp' : '')].bind(this);
+
+      if (typeof include === 'function') {
+        fn = mode === PivotModes.count ? function (_ref3) {
+          var x = _ref3[0],
+              y = _ref3[1],
+              v = _ref3[2];
+          include(v) ? accum(x, y, 1) : _this.amp(x, y);
+        } : function (_ref4) {
+          var x = _ref4[0],
+              y = _ref4[1],
+              v = _ref4[2];
+          include(v) ? accum(x, y, v) : _this.amp(x, y);
+        };
+      } else {
+        fn = mode === PivotModes.count ? function (_ref5) {
+          var x = _ref5[0],
+              y = _ref5[1];
+          return accum(x, y, 1);
+        } : function (_ref6) {
+          var x = _ref6[0],
+              y = _ref6[1],
+              v = _ref6[2];
+          return accum(x, y, v);
+        };
+      }
+
+      return function (row, _ref7) {
+        var x = _ref7[0],
+            y = _ref7[1],
+            v = _ref7[2];
+        return fn(select(row, [x, y, v], 3));
+      };
+    };
+
+    return Pivot;
   }();
 
   function _defineProperty(obj, key, value) {

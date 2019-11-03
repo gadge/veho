@@ -2,7 +2,7 @@ import { dpArr } from '../misc/clone'
 import { Num, NumLoose } from 'typen'
 import { Ar } from './Ar'
 
-const { numeric: num } = Num, { numeric: numLoose } = NumLoose
+const { numeric: num } = Num, { numeric: numLoose } = NumLoose, { map: mapAr } = Ar
 
 /**
  * Static class containing methods to create 2d-array.
@@ -150,5 +150,17 @@ export class Mx {
         const { splices } = Ar
         return mx.map(row => splices(row, ys, hi))
     }
+  }
+
+  /**
+   *
+   * @param {*[][][]} matrices - a list of 2d-array
+   * @param {function(*[]):*} [zipper]
+   */
+  static zip (matrices, zipper) {
+    const hi = matrices?.length, [ht, wd] = Mx.size(matrices[0])
+    return typeof zipper !== 'function'
+      ? Mx.ini(ht, wd, (i, j) => mapAr(matrices, mx => mx[i][j], hi))
+      : Mx.ini(ht, wd, (i, j) => zipper(mapAr(matrices, mx => mx[i][j], hi)))
   }
 }

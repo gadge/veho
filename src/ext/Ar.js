@@ -51,6 +51,13 @@ class Ar {
     return arr.map((_, i) => i)
   }
 
+  static map (arr, fn, hi) {
+    hi = hi || arr.length
+    const vc = Array(hi)
+    for (--hi; hi >= 0b0; hi--) vc[hi] = fn(arr[hi], hi)
+    return vc
+  }
+
   static select (arr, indexes, hi) {
     hi = hi || indexes.length
     const vc = Array(hi)
