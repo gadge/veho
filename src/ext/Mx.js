@@ -1,16 +1,13 @@
-/**
- * Static class containing methods to create 2d-array.
- */
-
 import { dpArr } from '../misc/clone'
 import { Num, NumLoose } from 'typen'
 import { Ar } from './Ar'
 
-const
-  { numeric: num } = Num,
-  { numeric: numLoose } = NumLoose
+const { numeric: num } = Num, { numeric: numLoose } = NumLoose
 
-class Mx {
+/**
+ * Static class containing methods to create 2d-array.
+ */
+export class Mx {
   /**
    *
    * @param {number} height
@@ -38,7 +35,7 @@ class Mx {
   }
 
   static is (mx) {
-    return !!mx && mx.length
+    return mx && mx.length
       ? !!mx[0]
       : false
   }
@@ -68,11 +65,11 @@ class Mx {
    * @return {number[]}
    */
   static columnIndexes (mx) {
-    return !!mx && mx.length
-      ? !!mx[0]
-        ? mx[0].map((_, i) => i)
-        : []
-      : []
+    return !mx || !mx.length
+      ? []
+      : !mx[0]
+        ? []
+        : mx[0].map((_, i) => i)
   }
 
   /**
@@ -81,11 +78,11 @@ class Mx {
    * @return {number[]}
    */
   static coins (mx) {
-    return !!mx && mx.length
-      ? !!mx[0]
-        ? mx[0].map((_, i) => i)
-        : []
-      : []
+    return !mx || !mx.length
+      ? []
+      : !mx[0]
+        ? []
+        : mx[0].map((_, i) => i)
   }
 
   /**
@@ -150,25 +147,8 @@ class Mx {
         const [y] = ys
         return mx.map(row => row.splice(y, 1))
       default:
-        ys.sort((a, b) => b - a)
         const { splices } = Ar
         return mx.map(row => splices(row, ys, hi))
     }
   }
 }
-
-export {
-  Mx
-}
-
-// Array.prototype.transpose = function () {
-//   let mtx = [];
-//   for (let j = 0; j < this[0].length; j++) {
-//     mtx[j] = [];
-//     for (let i = 0; i < this.length; i++) {
-//       mtx[j][i] = this[i][j]
-//     }
-//   }
-//   array[0].map((col, i) => array.map(row => row[i]));
-//   return mtx
-// };

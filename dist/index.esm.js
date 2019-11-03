@@ -306,6 +306,7 @@ class Ar {
   }
 
   static select(arr, indexes, hi) {
+    hi = hi || indexes.length;
     const vc = Array(hi);
 
     for (let i = 0; i < hi; i++) vc[i] = arr[indexes[i]];
@@ -314,6 +315,8 @@ class Ar {
   }
 
   static splices(arr, indexes, hi) {
+    hi = hi || indexes.length;
+
     for (let i = 0; i < hi; i++) arr.splice(indexes[i], 1);
 
     return arr;
@@ -413,13 +416,19 @@ class Ar {
 
 
   static decartes(ar1, ar2, product) {
-    let arr = [];
+    const l1 = ar1.length,
+          l2 = ar2.length;
+    let arr = Array(l1 * l2);
 
-    for (let x of ar1) {
-      arr.push(...ar2.map(y => product(x, y)));
+    for (let i = 0, j, k = 0; i < l1; i++) {
+      for (j = 0; j < l2; j++) {
+        arr[k++] = product(ar1[i], ar2[j]);
+      }
     }
 
-    return arr;
+    return arr; // for (let x of ar1) {
+    //   arr.push(...ar2.map(y => product(x, y)))
+    // }
   }
 
   static randSample(arr) {

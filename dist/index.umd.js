@@ -381,6 +381,7 @@
     };
 
     Ar.select = function select(arr, indexes, hi) {
+      hi = hi || indexes.length;
       var vc = Array(hi);
 
       for (var i = 0; i < hi; i++) {
@@ -391,6 +392,8 @@
     };
 
     Ar.splices = function splices(arr, indexes, hi) {
+      hi = hi || indexes.length;
+
       for (var i = 0; i < hi; i++) {
         arr.splice(indexes[i], 1);
       }
@@ -502,33 +505,19 @@
     ;
 
     Ar.decartes = function decartes(ar1, ar2, product) {
-      var arr = [];
+      var l1 = ar1.length,
+          l2 = ar2.length;
+      var arr = Array(l1 * l2);
 
-      var _loop = function _loop() {
-        if (_isArray) {
-          if (_i2 >= _iterator.length) return "break";
-          _ref3 = _iterator[_i2++];
-        } else {
-          _i2 = _iterator.next();
-          if (_i2.done) return "break";
-          _ref3 = _i2.value;
+      for (var i = 0, j, k = 0; i < l1; i++) {
+        for (j = 0; j < l2; j++) {
+          arr[k++] = product(ar1[i], ar2[j]);
         }
-
-        var x = _ref3;
-        arr.push.apply(arr, ar2.map(function (y) {
-          return product(x, y);
-        }));
-      };
-
-      for (var _iterator = ar1, _isArray = Array.isArray(_iterator), _i2 = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
-        var _ref3;
-
-        var _ret = _loop();
-
-        if (_ret === "break") break;
       }
 
-      return arr;
+      return arr; // for (let x of ar1) {
+      //   arr.push(...ar2.map(y => product(x, y)))
+      // }
     };
 
     Ar.randSample = function randSample(arr) {
