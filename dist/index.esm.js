@@ -129,6 +129,15 @@ class Ar {
     return arr.map((_, i) => i);
   }
 
+  static map(arr, fn, hi) {
+    hi = hi || arr.length;
+    const vc = Array(hi);
+
+    for (--hi; hi >= 0b0; hi--) vc[hi] = fn(arr[hi], hi);
+
+    return vc;
+  }
+
   static select(arr, indexes, hi) {
     hi = hi || indexes.length;
     const vc = Array(hi);
@@ -280,7 +289,10 @@ const {
 } = Num,
       {
   numeric: numLoose$1
-} = NumLoose;
+} = NumLoose,
+      {
+  map: mapAr
+} = Ar;
 /**
  * Static class containing methods to create 2d-array.
  */
@@ -434,6 +446,18 @@ class Mx {
         return mx.map(row => splices(row, ys, hi));
     }
   }
+  /**
+   *
+   * @param {*[][][]} matrices - a list of 2d-array
+   * @param {function(*[]):*} [zipper]
+   */
+
+
+  static zip(matrices, zipper) {
+    const hi = matrices === null || matrices === void 0 ? void 0 : matrices.length,
+          [ht, wd] = Mx.size(matrices[0]);
+    return typeof zipper !== 'function' ? Mx.ini(ht, wd, (i, j) => mapAr(matrices, mx => mx[i][j], hi)) : Mx.ini(ht, wd, (i, j) => zipper(mapAr(matrices, mx => mx[i][j], hi)));
+  }
 
 }
 
@@ -574,6 +598,12 @@ class Pivot {
       matrix: mx
     };
   }
+
+  pivotMulti([x, y, vs], {
+    mode = PivotModes.array,
+    boot = true,
+    include
+  } = {}) {}
 
   accumLauncher(mode = PivotModes.array, boot = true, include) {
     let fn;

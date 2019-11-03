@@ -150,6 +150,17 @@
       });
     };
 
+    Ar.map = function map(arr, fn, hi) {
+      hi = hi || arr.length;
+      var vc = Array(hi);
+
+      for (--hi; hi >= 0; hi--) {
+        vc[hi] = fn(arr[hi], hi);
+      }
+
+      return vc;
+    };
+
     Ar.select = function select(arr, indexes, hi) {
       hi = hi || indexes.length;
       var vc = Array(hi);
@@ -312,7 +323,8 @@
   }(); // Array.prototype.zip = function (another, zipper) {
 
   var num$1 = typen.Num.numeric,
-      numLoose$1 = typen.NumLoose.numeric;
+      numLoose$1 = typen.NumLoose.numeric,
+      mapAr = Ar.map;
   /**
    * Static class containing methods to create 2d-array.
    */
@@ -497,6 +509,29 @@
             return splices(row, ys, hi);
           });
       }
+    }
+    /**
+     *
+     * @param {*[][][]} matrices - a list of 2d-array
+     * @param {function(*[]):*} [zipper]
+     */
+    ;
+
+    Mx.zip = function zip(matrices, zipper) {
+      var hi = matrices === null || matrices === void 0 ? void 0 : matrices.length,
+          _Mx$size = Mx.size(matrices[0]),
+          ht = _Mx$size[0],
+          wd = _Mx$size[1];
+
+      return typeof zipper !== 'function' ? Mx.ini(ht, wd, function (i, j) {
+        return mapAr(matrices, function (mx) {
+          return mx[i][j];
+        }, hi);
+      }) : Mx.ini(ht, wd, function (i, j) {
+        return zipper(mapAr(matrices, function (mx) {
+          return mx[i][j];
+        }, hi));
+      });
     };
 
     return Mx;
@@ -657,6 +692,17 @@
       };
     };
 
+    _proto.pivotMulti = function pivotMulti(_ref3, _temp2) {
+      var x = _ref3[0],
+          y = _ref3[1],
+          vs = _ref3[2];
+
+      var _ref4 = _temp2 === void 0 ? {} : _temp2,
+          _ref4$mode = _ref4.mode,
+          _ref4$boot = _ref4.boot,
+          include = _ref4.include;
+    };
+
     _proto.accumLauncher = function accumLauncher(mode, boot, include) {
       var _this = this;
 
@@ -672,34 +718,34 @@
       var accum = this[(!mode ? 'pile' : 'add') + (boot ? 'Amp' : '')].bind(this);
 
       if (typeof include === 'function') {
-        fn = mode === PivotModes.count ? function (_ref3) {
-          var x = _ref3[0],
-              y = _ref3[1],
-              v = _ref3[2];
-          include(v) ? accum(x, y, 1) : _this.amp(x, y);
-        } : function (_ref4) {
-          var x = _ref4[0],
-              y = _ref4[1],
-              v = _ref4[2];
-          include(v) ? accum(x, y, v) : _this.amp(x, y);
-        };
-      } else {
         fn = mode === PivotModes.count ? function (_ref5) {
           var x = _ref5[0],
-              y = _ref5[1];
-          return accum(x, y, 1);
+              y = _ref5[1],
+              v = _ref5[2];
+          include(v) ? accum(x, y, 1) : _this.amp(x, y);
         } : function (_ref6) {
           var x = _ref6[0],
               y = _ref6[1],
               v = _ref6[2];
+          include(v) ? accum(x, y, v) : _this.amp(x, y);
+        };
+      } else {
+        fn = mode === PivotModes.count ? function (_ref7) {
+          var x = _ref7[0],
+              y = _ref7[1];
+          return accum(x, y, 1);
+        } : function (_ref8) {
+          var x = _ref8[0],
+              y = _ref8[1],
+              v = _ref8[2];
           return accum(x, y, v);
         };
       }
 
-      return function (row, _ref7) {
-        var x = _ref7[0],
-            y = _ref7[1],
-            v = _ref7[2];
+      return function (row, _ref9) {
+        var x = _ref9[0],
+            y = _ref9[1],
+            v = _ref9[2];
         return fn(select(row, [x, y, v], 3));
       };
     };
