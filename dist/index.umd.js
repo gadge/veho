@@ -541,11 +541,11 @@
     return Ar;
   }(); // Array.prototype.zip = function (another, zipper) {
 
+  var num$1 = typen.Num.numeric,
+      numLoose$1 = typen.NumLoose.numeric;
   /**
    * Static class containing methods to create 2d-array.
    */
-  var num$1 = typen.Num.numeric,
-      numLoose$1 = typen.NumLoose.numeric;
 
   var Mx =
   /*#__PURE__*/
@@ -579,7 +579,7 @@
     };
 
     Mx.is = function is(mx) {
-      return !!mx && mx.length ? !!mx[0] : false;
+      return mx && mx.length ? !!mx[0] : false;
     };
 
     Mx.copy = function copy(mx) {
@@ -615,9 +615,9 @@
     ;
 
     Mx.columnIndexes = function columnIndexes(mx) {
-      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
+      return !mx || !mx.length ? [] : !mx[0] ? [] : mx[0].map(function (_, i) {
         return i;
-      }) : [] : [];
+      });
     }
     /**
      *
@@ -627,9 +627,9 @@
     ;
 
     Mx.coins = function coins(mx) {
-      return !!mx && mx.length ? !!mx[0] ? mx[0].map(function (_, i) {
+      return !mx || !mx.length ? [] : !mx[0] ? [] : mx[0].map(function (_, i) {
         return i;
-      }) : [] : [];
+      });
     }
     /**
      *
@@ -722,9 +722,6 @@
           });
 
         default:
-          ys.sort(function (a, b) {
-            return b - a;
-          });
           var splices = Ar.splices;
           return mx.map(function (row) {
             return splices(row, ys, hi);
@@ -734,16 +731,6 @@
 
     return Mx;
   }();
-  //   let mtx = [];
-  //   for (let j = 0; j < this[0].length; j++) {
-  //     mtx[j] = [];
-  //     for (let i = 0; i < this.length; i++) {
-  //       mtx[j][i] = this[i][j]
-  //     }
-  //   }
-  //   array[0].map((col, i) => array.map(row => row[i]));
-  //   return mtx
-  // };
 
   function _defineProperty(obj, key, value) {
     if (key in obj) {

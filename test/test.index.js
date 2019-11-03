@@ -19,10 +19,10 @@
 // SimpleJsoTest.createObjectTest()
 // SimpleJsoTest.JTabTest()
 
-import { JsoSamplesTest } from './tasks/jso.samples.test'
+// import { JsoSamplesTest } from './tasks/jso.samples.test'
 
 // JsoSamplesTest.samplesToTable()
-JsoSamplesTest.tableToSample()
+// JsoSamplesTest.tableToSample()
 // JsoSamplesTest.crosTabToSamples()
 
 // import { SimpleVectorTest } from './tasks/simple.vector.test'
@@ -39,3 +39,6 @@ JsoSamplesTest.tableToSample()
 //
 // CloneTest.cloneArray()
 
+import { PivotTest } from './tasks/Pivot.test'
+
+PivotTest.test()

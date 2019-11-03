@@ -451,15 +451,15 @@ class Ar {
 
 } // Array.prototype.zip = function (another, zipper) {
 
-/**
- * Static class containing methods to create 2d-array.
- */
 const {
   numeric: num$1
 } = Num,
       {
   numeric: numLoose$1
 } = NumLoose;
+/**
+ * Static class containing methods to create 2d-array.
+ */
 
 class Mx {
   /**
@@ -485,7 +485,7 @@ class Mx {
   }
 
   static is(mx) {
-    return !!mx && mx.length ? !!mx[0] : false;
+    return mx && mx.length ? !!mx[0] : false;
   }
 
   static copy(mx) {
@@ -517,7 +517,7 @@ class Mx {
 
 
   static columnIndexes(mx) {
-    return !!mx && mx.length ? !!mx[0] ? mx[0].map((_, i) => i) : [] : [];
+    return !mx || !mx.length ? [] : !mx[0] ? [] : mx[0].map((_, i) => i);
   }
   /**
    *
@@ -527,7 +527,7 @@ class Mx {
 
 
   static coins(mx) {
-    return !!mx && mx.length ? !!mx[0] ? mx[0].map((_, i) => i) : [] : [];
+    return !mx || !mx.length ? [] : !mx[0] ? [] : mx[0].map((_, i) => i);
   }
   /**
    *
@@ -604,7 +604,6 @@ class Mx {
         return mx.map(row => row.splice(y, 1));
 
       default:
-        ys.sort((a, b) => b - a);
         const {
           splices
         } = Ar;
@@ -613,16 +612,6 @@ class Mx {
   }
 
 }
-//   let mtx = [];
-//   for (let j = 0; j < this[0].length; j++) {
-//     mtx[j] = [];
-//     for (let i = 0; i < this.length; i++) {
-//       mtx[j][i] = this[i][j]
-//     }
-//   }
-//   array[0].map((col, i) => array.map(row => row[i]));
-//   return mtx
-// };
 
 // Create an object type Er
 class Er extends Error {

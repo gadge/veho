@@ -37,7 +37,7 @@ export class PivotTest {
   static test () {
     const paramsList = {
       gdp: [gdpList, ['countryiso3code', 'date', 'value'], { mode: PivotModes.count }],
-      nyt: [nyTimes, ['section', 'subsection'], { mode: PivotModes.count }],
+      // nyt: [nyTimes, ['section', 'subsection'], { mode: PivotModes.count }],
       duties: [duties, ['day', 'name', 'served'], { mode: PivotModes.sum, include: x => !isNaN(x) }]
     }
     const { lapse, result } = Chrono.strategies({
@@ -63,9 +63,9 @@ export class PivotTest {
   }
 }
 
-describe('Pivot Test', function () {
-  this.timeout(1000 * 60)
-  it('Pivot Test: test ', () => {
-    PivotTest.test()
-  })
-})
+// describe('Pivot Test', function () {
+//   this.timeout(1000 * 60)
+//   it('Pivot Test: test ', () => {
+//     PivotTest.test()
+//   })
+// })

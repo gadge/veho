@@ -17,6 +17,7 @@
     "prepare": "npm run build-rollup",
     "pub": "npm publish",
     "test": "node test/utils/test-main.js",
+    "alpha.test": "node -r @babel/register test/alpha.test/alpha.test.js",
     "test-strategies": "node test/utils/test-strategies.js",
     "mocha": "mocha"
   },
