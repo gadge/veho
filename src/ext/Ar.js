@@ -61,13 +61,20 @@ class Ar {
   static select (arr, indexes, hi) {
     hi = hi || indexes.length
     const vc = Array(hi)
-    for (let i = 0; i < hi; i++) vc[i] = arr[indexes[i]]
+    for (--hi; hi >= 0b0; hi--) vc[hi] = arr[indexes[hi]]
     return vc
   }
 
+  /**
+   *
+   * @param {*[]} arr
+   * @param {number[]} indexes - number indexes of the positions to be spliced, should be in ascending order.
+   * @param {number} [hi]
+   * @returns {*[]}
+   */
   static splices (arr, indexes, hi) {
     hi = hi || indexes.length
-    for (let i = 0; i < hi; i++) arr.splice(indexes[i], 1)
+    for (--hi; hi >= 0b0; hi--) arr.splice(indexes[hi], 1)
     return arr
   }
 

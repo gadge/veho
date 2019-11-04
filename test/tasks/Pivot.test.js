@@ -2,13 +2,19 @@ import { toraja } from 'funfact'
 import { Samples } from '../../src/ext/Samples'
 import { Pivot } from '../../src/utils/Pivot'
 import { Chrono } from 'elprimero'
-import { ArrX, CrosTabX } from 'xbrief'
+import { CrosTabX } from 'xbrief'
 import { PivotModes } from '../../src/utils/PivotModes'
-import { Ar } from '../../src/ext/Ar'
-import { Zu } from 'borel'
+import { Mx } from '../../src/ext/Mx'
+import { Num } from 'typen'
 
 const { gross } = toraja.MacroWorld
-const gdpList = Samples.fromTable({ head: gross.banner, rows: gross.matrix })
+const gdpList = Samples.fromTable({
+  head: gross.banner,
+  rows: Mx.map(gross.matrix, x => {
+    if (typeof x === 'string') x = x.replace(/,/g, '')
+    return Num.isNumeric(x) ? Num.numeric(x) : x
+  })
+})
 const nyTimes = Samples.fromTable(toraja.NYTimes)
 const duties = Samples.fromTable({
   head: ['day', 'name', 'served', 'sold', 'adt'],
@@ -31,9 +37,39 @@ const duties = Samples.fromTable({
   ]
 })
 
-// nyTimes |> console.log
+/*
+ nyTimes |> console.log
+*/
 
 export class PivotTest {
+  static testMulti () {
+    const paramsList = {
+      gdp: [gdpList, ['countryiso3code', 'date'], [['value', 'sum'], ['value', 'count']]],
+      // nyt: [nyTimes, ['section', 'subsection'], { mode: PivotModes.count }],
+      duties: [duties, ['day', 'name'], [['served', 'sum'], ['sold', 'sum']], { include: x => !isNaN(x) }]
+    }
+    const { lapse, result } = Chrono.strategies({
+      repeat: 1E+4,
+      paramsList,
+      funcList: {
+        stable: (rows, xy, cells, config) => new Pivot(rows).pivotMulti(xy, cells, config)
+      }
+    })
+    'lapse' |> console.log
+    lapse.brief() |> console.log
+    '' |> console.log
+    'result' |> console.log
+    result.brief() |> console.log
+
+    'stable' |> console.log
+    for (let key of Object.keys(paramsList)) {
+      key |> console.log
+      result.queryCell(key, 'stable') |> CrosTabX.brief |> console.log
+      '' |> console.log
+    }
+
+  }
+
   static test () {
     const paramsList = {
       gdp: [gdpList, ['countryiso3code', 'date', 'value'], { mode: PivotModes.count }],

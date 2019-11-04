@@ -42,3 +42,4 @@
 import { PivotTest } from './tasks/Pivot.test'
 
 PivotTest.test()
+// PivotTest.testMulti()
