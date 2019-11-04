@@ -160,14 +160,21 @@ export class Pivot {
    */
   pivotMulti ([x, y], cells, { boot = true, include } = {}) {
     if (boot) { this.reboot() } else {this.clearMatrix(mode)}
-    const hi = cells.length, vs = Array(hi), modes = Array(hi), nfs = Array(hi)
-    for (let i = 0, stat; i < hi; i++) {
+    const hi = cells.length, vs = Array(hi), modes = Array(hi), arStatQueue = []
+    for (let i = 0, stat, mode; i < hi; i++) {
       ([vs[i], stat] = cells[i])
-      modes[i] = pivotMode(stat)
+      mode = pivotMode(stat)
+      if (mode === PivotModes.array) arStatQueue.push([i, stat])
+      modes[i] = mode
     }
-    const { rows } = this
-    const fn = this.isomorphLauncher(modes, boot)
-    for (let i = 0, { length } = rows; i < length; i++) fn(rows[i], [x, y], vs)
+    const { rows } = this, accumVec = this.isomorphLauncher(modes, boot), hiSQ = arStatQueue.length
+    for (let i = 0, l = rows.length; i < l; i++) accumVec(rows[i], [x, y], vs)
+    if (hiSQ) {
+      this.mx = Mx.map(this.mx, vec => {
+        mapAr(arStatQueue, ([i, stat]) => { vec[i] = stat(vec[i])}, hiSQ)
+        return vec
+      })
+    }
     return { side: this.s, banner: this.b, matrix: this.mx }
   }
 }

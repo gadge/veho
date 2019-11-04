@@ -22,7 +22,7 @@
     "mocha": "mocha"
   },
   "dependencies": {
-    "typen": "^0.0.2"
+    "typen": "^0.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
@@ -45,10 +45,10 @@
     "stocks.js": "^0.0.17",
     "webpack": "^4.40.2",
     "webpack-cli": "^3.3.9",
-    "crostab": "^0.1.36",
-    "elprimero": "^0.1.0",
-    "xbrief": "^0.2.1",
-    "borel": "^0.1.7",
+    "crostab": "^0.1.50",
+    "elprimero": "^0.1.2",
+    "xbrief": "^0.2.5",
+    "borel": "^0.1.11",
     "funfact": "^0.0.3"
   },
   "repository": {

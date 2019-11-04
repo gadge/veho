@@ -6,6 +6,7 @@ import { CrosTabX } from 'xbrief'
 import { PivotModes } from '../../src/utils/PivotModes'
 import { Mx } from '../../src/ext/Mx'
 import { Num } from 'typen'
+import { Stat } from 'borel'
 
 const { gross } = toraja.MacroWorld
 const gdpList = Samples.fromTable({
@@ -44,7 +45,7 @@ const duties = Samples.fromTable({
 export class PivotTest {
   static testMulti () {
     const paramsList = {
-      gdp: [gdpList, ['countryiso3code', 'date'], [['value', 'sum'], ['value', 'count']]],
+      gdp: [gdpList, ['countryiso3code', 'date'], [['value', Stat.sum], ['value', Stat.cnt]]],
       // nyt: [nyTimes, ['section', 'subsection'], { mode: PivotModes.count }],
       duties: [duties, ['day', 'name'], [['served', 'sum'], ['sold', 'sum']], { include: x => !isNaN(x) }]
     }

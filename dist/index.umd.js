@@ -165,18 +165,26 @@
       hi = hi || indexes.length;
       var vc = Array(hi);
 
-      for (var i = 0; i < hi; i++) {
-        vc[i] = arr[indexes[i]];
+      for (--hi; hi >= 0; hi--) {
+        vc[hi] = arr[indexes[hi]];
       }
 
       return vc;
-    };
+    }
+    /**
+     *
+     * @param {*[]} arr
+     * @param {number[]} indexes - number indexes of the positions to be spliced, should be in ascending order.
+     * @param {number} [hi]
+     * @returns {*[]}
+     */
+    ;
 
     Ar.splices = function splices(arr, indexes, hi) {
       hi = hi || indexes.length;
 
-      for (var i = 0; i < hi; i++) {
-        arr.splice(indexes[i], 1);
+      for (--hi; hi >= 0; hi--) {
+        arr.splice(indexes[hi], 1);
       }
 
       return arr;
@@ -537,8 +545,37 @@
     return Mx;
   }();
 
-  var select = Ar.select;
-  var s, b, mx, nf;
+  var PivotUtils =
+  /*#__PURE__*/
+  function () {
+    function PivotUtils() {}
+
+    PivotUtils.nullifierLauncher = function nullifierLauncher(mode) {
+      return !mode ? function () {
+        return [];
+      } : function () {
+        return 0;
+      };
+    };
+
+    PivotUtils.pivotMode = function pivotMode(stat) {
+      switch (typeof stat) {
+        case 'string':
+          return PivotModes[stat] || PivotModes.count;
+
+        case 'function':
+          return PivotModes.array;
+      }
+    };
+
+    return PivotUtils;
+  }();
+
+  var select = Ar.select,
+      mapAr$1 = Ar.map;
+  var s, b, mx;
+  var nullifierLauncher = PivotUtils.nullifierLauncher,
+      pivotMode = PivotUtils.pivotMode;
   var Pivot =
   /*#__PURE__*/
   function () {
@@ -560,12 +597,7 @@
 
     var _proto = Pivot.prototype;
 
-    _proto.reboot = function reboot(mode) {
-      this.nf = !mode ? function () {
-        return [];
-      } : function () {
-        return 0;
-      };
+    _proto.reboot = function reboot() {
       this.s = [];
       this.b = [];
       this.mx = [];
@@ -574,12 +606,7 @@
     _proto.clearMatrix = function clearMatrix(mode) {
       var _this$s, _this$b;
 
-      this.nf = !mode ? function () {
-        return [];
-      } : function () {
-        return 0;
-      };
-      this.mx = Mx.ini((_this$s = this.s) === null || _this$s === void 0 ? void 0 : _this$s.length, (_this$b = this.b) === null || _this$b === void 0 ? void 0 : _this$b.length, this.nf);
+      this.mx = Mx.ini((_this$s = this.s) === null || _this$s === void 0 ? void 0 : _this$s.length, (_this$b = this.b) === null || _this$b === void 0 ? void 0 : _this$b.length, nullifierLauncher(mode));
     };
 
     _proto.x = function x(_x) {
@@ -592,30 +619,30 @@
     /**
      * Expand the side, 's' and the matrix, 'mx'.
      * @param {*} x
+     * @param {function():[]|function():number} nf
      * @returns {number}
      * @private
      */
     ;
 
-    _proto.rAmp = function rAmp(x) {
+    _proto.rAmp = function rAmp(x, nf) {
       s = this.s;
       mx = this.mx;
-      nf = this.nf;
       mx.length ? mx.push(mx[0].map(nf)) : mx.push([]);
       return s.push(x);
     }
     /**
      * Expand the banner, 'b' and the matrix, 'mx'.
      * @param {*} y
+     * @param {function():[]|function():number} nf
      * @returns {number}
      * @private
      */
     ;
 
-    _proto.cAmp = function cAmp(y) {
+    _proto.cAmp = function cAmp(y, nf) {
       b = this.b;
       mx = this.mx;
-      nf = this.nf;
 
       for (var i = mx.length - 1; i >= 0; i--) {
         mx[i].push(nf());
@@ -624,53 +651,144 @@
       return b.push(y);
     };
 
-    _proto.xAmp = function xAmp(x) {
+    _proto.xAmp = function xAmp(x, nf) {
       var i = this.s.indexOf(x);
-      if (i < 0) i += this.rAmp(x);
+      if (i < 0) i += this.rAmp(x, nf);
       return i;
     };
 
-    _proto.yAmp = function yAmp(y) {
+    _proto.yAmp = function yAmp(y, nf) {
       var j = this.b.indexOf(y);
-      if (j < 0) j += this.cAmp(y);
+      if (j < 0) j += this.cAmp(y, nf);
       return j;
     };
 
-    _proto.amp = function amp(x, y) {
-      this.xAmp(x);
-      this.yAmp(y);
-    };
-
-    _proto.pile = function pile(x, y, v) {
-      this.mx[this.x(x)][this.y(y)].push(v);
-    };
-
-    _proto.pileAmp = function pileAmp(x, y, v) {
-      return this.mx[this.xAmp(x)][this.yAmp(y)].push(v);
+    _proto.amp = function amp(x, y, nf) {
+      this.xAmp(x, nf);
+      this.yAmp(y, nf);
     };
 
     _proto.add = function add(x, y, v) {
       this.mx[this.x(x)][this.y(y)] += v;
     };
 
-    _proto.addAmp = function addAmp(x, y, v) {
-      return this.mx[this.xAmp(x)][this.yAmp(y)] += v;
+    _proto.pile = function pile(x, y, v) {
+      this.mx[this.x(x)][this.y(y)].push(v);
     };
 
-    _proto.pivot = function pivot(_ref, _temp) {
-      var x = _ref[0],
-          y = _ref[1],
-          v = _ref[2];
+    _proto.addAmp = function addAmp(x, y, v, nf) {
+      this.mx[this.xAmp(x, nf)][this.yAmp(y, nf)] += v;
+    };
 
-      var _ref2 = _temp === void 0 ? {} : _temp,
-          _ref2$mode = _ref2.mode,
-          mode = _ref2$mode === void 0 ? PivotModes.array : _ref2$mode,
-          _ref2$boot = _ref2.boot,
-          boot = _ref2$boot === void 0 ? true : _ref2$boot,
-          include = _ref2.include;
+    _proto.pileAmp = function pileAmp(x, y, v, nf) {
+      this.mx[this.xAmp(x, nf)][this.yAmp(y, nf)].push(v);
+    };
+
+    _proto.isomorph = function isomorph(_ref, vs, modes, hi) {
+      var x = _ref[0],
+          y = _ref[1];
+      var vec = this.mx[this.x(x)][this.y(y)];
+
+      for (--hi; hi >= 0; hi--) {
+        !modes[hi] ? vec[hi].push(vs[hi]) : vec[hi] += modes[hi] - 1 ? 1 : vs[hi];
+      }
+    };
+
+    _proto.isomorphAmp = function isomorphAmp(_ref2, vs, modes, hi, nf) {
+      var x = _ref2[0],
+          y = _ref2[1];
+      var vec = this.mx[this.xAmp(x, nf)][this.yAmp(y, nf)];
+
+      for (--hi; hi >= 0; hi--) {
+        !modes[hi] ? vec[hi].push(vs[hi]) : vec[hi] += modes[hi] - 1 ? 1 : vs[hi];
+      }
+    };
+
+    _proto.accumLauncher = function accumLauncher(mode, boot, include) {
+      var _this = this;
+
+      if (mode === void 0) {
+        mode = PivotModes.array;
+      }
+
+      if (boot === void 0) {
+        boot = true;
+      }
+
+      var fn;
+      var accum = this[(!mode ? 'pile' : 'add') + (boot ? 'Amp' : '')].bind(this);
+      var nf = boot ? nullifierLauncher(mode) : undefined;
+
+      if (typeof include === 'function') {
+        fn = mode === PivotModes.count ? function (_ref3) {
+          var x = _ref3[0],
+              y = _ref3[1],
+              v = _ref3[2];
+          include(v) ? accum(x, y, 1, nf) : _this.amp(x, y, nf);
+        } : function (_ref4) {
+          var x = _ref4[0],
+              y = _ref4[1],
+              v = _ref4[2];
+          include(v) ? accum(x, y, v, nf) : _this.amp(x, y, nf);
+        };
+      } else {
+        fn = mode === PivotModes.count ? function (_ref5) {
+          var x = _ref5[0],
+              y = _ref5[1];
+          return accum(x, y, 1, nf);
+        } : function (_ref6) {
+          var x = _ref6[0],
+              y = _ref6[1],
+              v = _ref6[2];
+          return accum(x, y, v, nf);
+        };
+      }
+
+      return function (row, indexes) {
+        return fn(select(row, indexes, 3));
+      };
+    };
+
+    _proto.isomorphLauncher = function isomorphLauncher(modes, boot) {
+      if (boot === void 0) {
+        boot = true;
+      }
+
+      var nf;
+      var hi = modes.length;
 
       if (boot) {
-        this.reboot(mode);
+        var nfs = mapAr$1(modes, nullifierLauncher, hi);
+
+        nf = function nf() {
+          return mapAr$1(nfs, function (fn) {
+            return fn();
+          }, hi);
+        };
+      }
+
+      var accums = this['isomorph' + (boot ? 'Amp' : '')].bind(this);
+      return function (row, _ref7, vs) {
+        var x = _ref7[0],
+            y = _ref7[1];
+        return accums(select(row, [x, y], 2), select(row, vs, hi), modes, hi, nf);
+      };
+    };
+
+    _proto.pivot = function pivot(_ref8, _temp) {
+      var x = _ref8[0],
+          y = _ref8[1],
+          v = _ref8[2];
+
+      var _ref9 = _temp === void 0 ? {} : _temp,
+          _ref9$mode = _ref9.mode,
+          mode = _ref9$mode === void 0 ? PivotModes.array : _ref9$mode,
+          _ref9$boot = _ref9.boot,
+          boot = _ref9$boot === void 0 ? true : _ref9$boot,
+          include = _ref9.include;
+
+      if (boot) {
+        this.reboot();
       } else {
         this.clearMatrix(mode);
       }
@@ -690,63 +808,70 @@
         banner: b,
         matrix: mx
       };
-    };
+    }
+    /**
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {[string,string|function][]} cells - Array of [fieldIndex, stat]
+     * @param {boolean} [boot]
+     * @param {function} [include]
+     * @returns {{side: *, banner: *, matrix: *}}
+     */
+    ;
 
-    _proto.pivotMulti = function pivotMulti(_ref3, _temp2) {
-      var x = _ref3[0],
-          y = _ref3[1],
-          vs = _ref3[2];
+    _proto.pivotMulti = function pivotMulti(_ref10, cells, _temp2) {
+      var x = _ref10[0],
+          y = _ref10[1];
 
-      var _ref4 = _temp2 === void 0 ? {} : _temp2,
-          _ref4$mode = _ref4.mode,
-          _ref4$boot = _ref4.boot,
-          include = _ref4.include;
-    };
+      var _ref11 = _temp2 === void 0 ? {} : _temp2,
+          _ref11$boot = _ref11.boot,
+          boot = _ref11$boot === void 0 ? true : _ref11$boot,
+          include = _ref11.include;
 
-    _proto.accumLauncher = function accumLauncher(mode, boot, include) {
-      var _this = this;
-
-      if (mode === void 0) {
-        mode = PivotModes.array;
-      }
-
-      if (boot === void 0) {
-        boot = true;
-      }
-
-      var fn;
-      var accum = this[(!mode ? 'pile' : 'add') + (boot ? 'Amp' : '')].bind(this);
-
-      if (typeof include === 'function') {
-        fn = mode === PivotModes.count ? function (_ref5) {
-          var x = _ref5[0],
-              y = _ref5[1],
-              v = _ref5[2];
-          include(v) ? accum(x, y, 1) : _this.amp(x, y);
-        } : function (_ref6) {
-          var x = _ref6[0],
-              y = _ref6[1],
-              v = _ref6[2];
-          include(v) ? accum(x, y, v) : _this.amp(x, y);
-        };
+      if (boot) {
+        this.reboot();
       } else {
-        fn = mode === PivotModes.count ? function (_ref7) {
-          var x = _ref7[0],
-              y = _ref7[1];
-          return accum(x, y, 1);
-        } : function (_ref8) {
-          var x = _ref8[0],
-              y = _ref8[1],
-              v = _ref8[2];
-          return accum(x, y, v);
-        };
+        this.clearMatrix(mode);
       }
 
-      return function (row, _ref9) {
-        var x = _ref9[0],
-            y = _ref9[1],
-            v = _ref9[2];
-        return fn(select(row, [x, y, v], 3));
+      var hi = cells.length,
+          vs = Array(hi),
+          modes = Array(hi),
+          arStatQueue = [];
+
+      for (var i = 0, stat, _mode; i < hi; i++) {
+        var _cells$i = cells[i];
+        vs[i] = _cells$i[0];
+        stat = _cells$i[1];
+        _mode = pivotMode(stat);
+        if (_mode === PivotModes.array) arStatQueue.push([i, stat]);
+        modes[i] = _mode;
+      }
+
+      var rows = this.rows,
+          accumVec = this.isomorphLauncher(modes, boot),
+          hiSQ = arStatQueue.length;
+
+      for (var _i = 0, l = rows.length; _i < l; _i++) {
+        accumVec(rows[_i], [x, y], vs);
+      }
+
+      if (hiSQ) {
+        this.mx = Mx.map(this.mx, function (vec) {
+          mapAr$1(arStatQueue, function (_ref12) {
+            var i = _ref12[0],
+                stat = _ref12[1];
+            vec[i] = stat(vec[i]);
+          }, hiSQ);
+          return vec;
+        });
+      }
+
+      return {
+        side: this.s,
+        banner: this.b,
+        matrix: this.mx
       };
     };
 
