@@ -133,19 +133,19 @@ class Ar {
     return arr.map((_, i) => i);
   }
 
-  static mutateMap(arr, fn, hi) {
-    hi = hi || arr.length;
+  static mutateMap(arr, fn, l) {
+    l = l || arr.length;
 
-    for (--hi; hi >= 0b0; hi--) arr[hi] = fn(arr[hi], hi);
+    for (--l; l >= 0b0; l--) arr[l] = fn(arr[l], l);
 
     return arr;
   }
 
-  static map(arr, fn, hi) {
-    hi = hi || arr.length;
-    const vc = Array(hi);
+  static map(arr, fn, l) {
+    l = l || arr.length;
+    const vc = Array(l);
 
-    for (--hi; hi >= 0b0; hi--) vc[hi] = fn(arr[hi], hi);
+    for (--l; l >= 0b0; l--) vc[l] = fn(arr[l], l);
 
     return vc;
   }
@@ -300,6 +300,15 @@ class Ar {
 
   static take(arr, len) {
     return arr.slice(0, len);
+  }
+
+  static zip(arL, arR, zipper, l) {
+    l = l || arL.length;
+    const vc = Array(l);
+
+    for (--l; l >= 0; l--) vc[i] = zipper(arL[i], arR[i], i);
+
+    return vc;
   }
 
 } // Array.prototype.zip = function (another, zipper) {
