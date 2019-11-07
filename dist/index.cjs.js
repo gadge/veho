@@ -449,7 +449,10 @@ class Mx {
 
       case 1:
         const [y] = ys;
-        return mx.map(row => row.splice(y, 1));
+        return mx.map(row => {
+          row.splice(y, 1);
+          return row;
+        });
 
       default:
         const {

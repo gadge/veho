@@ -135,7 +135,7 @@ export class Mx {
    * @returns {*[]}
    */
   static mapCol (mx, fnOnColumn) {
-    return Mx.transpose(mx).map(fnOnColumn)
+    return Mx.transpose(mx).map(fnOnColumn) |> Mx.transpose
   }
 
   static spliceCols (mx, ys) {

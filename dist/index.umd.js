@@ -508,7 +508,8 @@
         case 1:
           var y = ys[0];
           return mx.map(function (row) {
-            return row.splice(y, 1);
+            row.splice(y, 1);
+            return row;
           });
 
         default:
