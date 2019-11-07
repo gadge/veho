@@ -51,6 +51,12 @@ class Ar {
     return arr.map((_, i) => i)
   }
 
+  static mutateMap (arr, fn, hi) {
+    hi = hi || arr.length
+    for (--hi; hi >= 0b0; hi--) arr[hi] = fn(arr[hi], hi)
+    return arr
+  }
+
   static map (arr, fn, hi) {
     hi = hi || arr.length
     const vc = Array(hi)

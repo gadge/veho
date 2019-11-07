@@ -433,7 +433,9 @@ class Mx {
 
 
   static mapCol(mx, fnOnColumn) {
-    return Mx.transpose(mx).map(fnOnColumn);
+    var _Mx$transpose$map;
+
+    return _Mx$transpose$map = Mx.transpose(mx).map(fnOnColumn), Mx.transpose(_Mx$transpose$map);
   }
 
   static spliceCols(mx, ys) {

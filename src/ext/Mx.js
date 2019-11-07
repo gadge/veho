@@ -118,6 +118,14 @@ export class Mx {
     return mx.map(r => r[y])
   }
 
+  static mutateCol (mx, y, fn) {
+    for (let i = 0, r, l = mx.length; i < l; i++) {
+      r = mx[i]
+      r[y] = fn(r[y])
+    }
+    return mx
+  }
+
   /**
    * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
    * @param {*[][]} mx
