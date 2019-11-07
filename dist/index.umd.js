@@ -106,12 +106,12 @@
         var arr = [];
 
         if (typeof ject === 'function') {
-          for (var _i = 0; _i < size; _i++) {
-            arr[_i] = ject(_i);
+          for (var i = 0; i < size; i++) {
+            arr[i] = ject(i);
           }
         } else {
-          for (var _i2 = 0; _i2 < size; _i2++) {
-            arr[_i2] = ject;
+          for (var _i = 0; _i < size; _i++) {
+            arr[_i] = ject;
           }
         }
 
@@ -223,14 +223,14 @@
             cnt = _ref2[1];
         var result = Array(len);
 
-        for (var _i3 = 0; _i3 < len; _i3++) {
+        for (var i = 0; i < len; i++) {
           var params = Array(cnt);
 
           for (var j = 0; j < cnt; j++) {
-            params[j] = arraySet[j][_i3];
+            params[j] = arraySet[j][i];
           }
 
-          result[_i3] = zipper(params);
+          result[i] = zipper(params);
         }
 
         return result;
@@ -259,8 +259,8 @@
           var arr = new Array(size);
           arr[0] = initial;
 
-          for (var _i4 = 1; _i4 < size; _i4++) {
-            arr[_i4] = progress(arr[_i4 - 1]);
+          for (var i = 1; i < size; i++) {
+            arr[i] = progress(arr[i - 1]);
           }
 
           return arr;
@@ -308,9 +308,9 @@
           l2 = ar2.length;
       var arr = Array(l1 * l2);
 
-      for (var _i5 = 0, j, k = 0; _i5 < l1; _i5++) {
+      for (var i = 0, j, k = 0; i < l1; i++) {
         for (j = 0; j < l2; j++) {
-          arr[k++] = product(ar1[_i5], ar2[j]);
+          arr[k++] = product(ar1[i], ar2[j]);
         }
       }
 
@@ -342,7 +342,7 @@
       var vc = Array(l);
 
       for (--l; l >= 0; l--) {
-        vc[i] = zipper(arL[i], arR[i], i);
+        vc[l] = zipper(arL[l], arR[l], l);
       }
 
       return vc;

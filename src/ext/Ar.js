@@ -51,17 +51,17 @@ class Ar {
     return arr.map((_, i) => i)
   }
 
-  static mutateMap (arr, fn, l) {
-    l = l || arr.length
-    for (--l; l >= 0b0; l--) arr[l] = fn(arr[l], l)
-    return arr
-  }
-
   static map (arr, fn, l) {
     l = l || arr.length
     const vc = Array(l)
     for (--l; l >= 0b0; l--) vc[l] = fn(arr[l], l)
     return vc
+  }
+
+  static mutateMap (arr, fn, l) {
+    l = l || arr.length
+    for (--l; l >= 0b0; l--) arr[l] = fn(arr[l], l)
+    return arr
   }
 
   static select (arr, indexes, hi) {

@@ -302,7 +302,7 @@ class Ar {
     l = l || arL.length;
     const vc = Array(l);
 
-    for (--l; l >= 0; l--) vc[i] = zipper(arL[i], arR[i], i);
+    for (--l; l >= 0; l--) vc[l] = zipper(arL[l], arR[l], l);
 
     return vc;
   }

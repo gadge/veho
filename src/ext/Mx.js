@@ -118,6 +118,15 @@ export class Mx {
     return mx.map(r => r[y])
   }
 
+  static mapCol (mx, y, fn) {
+    const l = mx.length, _mx = Array(l)
+    for (let i = 0, r, l = mx.length; i < l; i++) {
+      r = mx[i].slice()
+      _mx[i] = fn(r[y])
+    }
+    return _mx
+  }
+
   static mutateCol (mx, y, fn) {
     for (let i = 0, r, l = mx.length; i < l; i++) {
       r = mx[i]
@@ -142,7 +151,7 @@ export class Mx {
    * @param {function(*[]):[]} fnOnColumn
    * @returns {*[]}
    */
-  static mapCol (mx, fnOnColumn) {
+  static mapColumns (mx, fnOnColumn) {
     return Mx.transpose(mx).map(fnOnColumn) |> Mx.transpose
   }
 
