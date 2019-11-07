@@ -129,6 +129,14 @@ class Ar {
     return arr.map((_, i) => i);
   }
 
+  static mutateMap(arr, fn, hi) {
+    hi = hi || arr.length;
+
+    for (--hi; hi >= 0b0; hi--) arr[hi] = fn(arr[hi], hi);
+
+    return arr;
+  }
+
   static map(arr, fn, hi) {
     hi = hi || arr.length;
     const vc = Array(hi);
@@ -412,6 +420,15 @@ class Mx {
 
   static column(mx, y) {
     return mx.map(r => r[y]);
+  }
+
+  static mutateCol(mx, y, fn) {
+    for (let i = 0, r, l = mx.length; i < l; i++) {
+      r = mx[i];
+      r[y] = fn(r[y]);
+    }
+
+    return mx;
   }
   /**
    * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.

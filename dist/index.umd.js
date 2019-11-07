@@ -150,6 +150,16 @@
       });
     };
 
+    Ar.mutateMap = function mutateMap(arr, fn, hi) {
+      hi = hi || arr.length;
+
+      for (--hi; hi >= 0; hi--) {
+        arr[hi] = fn(arr[hi], hi);
+      }
+
+      return arr;
+    };
+
     Ar.map = function map(arr, fn, hi) {
       hi = hi || arr.length;
       var vc = Array(hi);
@@ -470,6 +480,15 @@
       return mx.map(function (r) {
         return r[y];
       });
+    };
+
+    Mx.mutateCol = function mutateCol(mx, y, fn) {
+      for (var i = 0, r, l = mx.length; i < l; i++) {
+        r = mx[i];
+        r[y] = fn(r[y]);
+      }
+
+      return mx;
     }
     /**
      * Iterate through elements on each (x of rows,y of columns) coordinate of a 2d-array.
